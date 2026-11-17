@@ -1,0 +1,4237 @@
+{
+  "provenance": "Original default-options resolver 17760, Animation constructor 153d4, Animation::time172a0 including native period15570/intro15904/outro15b9c/per-layer delay15dc0, vc emitters and Keyframes::eval11fc instructions. Model::glyph explicitly stubbed with native 1-based group index; variable groups originate from Glyph initialization196a988c4 sorted-threshold +1.",
+  "records": [
+    {
+      "count": 1,
+      "looping": false,
+      "group": 1,
+      "flags": 2415920710,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000001907348633
+        },
+        {
+          "time": 0.5,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000001907348633
+        },
+        {
+          "time": 0.8,
+          "localTime": 0.13333332538604736,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.5464000105857849
+        },
+        {
+          "time": 1.0,
+          "localTime": 0.333333283662796,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        }
+      ]
+    },
+    {
+      "count": 1,
+      "looping": true,
+      "group": 1,
+      "flags": 2415922758,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000001907348633
+        },
+        {
+          "time": 0.5,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000001907348633
+        },
+        {
+          "time": 0.8,
+          "localTime": 0.13333332538604736,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.5464000105857849
+        },
+        {
+          "time": 1.0,
+          "localTime": 0.3333333134651184,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.0666666030883789,
+          "cycle": 2.0,
+          "phase": 1,
+          "nativeValue": 0.3727998733520508
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.1333332061767578,
+          "cycle": 3.0,
+          "phase": 1,
+          "nativeValue": 0.5463996529579163
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.1666666716337204,
+          "cycle": 5.0,
+          "phase": 1,
+          "nativeValue": 0.6499999761581421
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.1666666716337204,
+          "cycle": 8.0,
+          "phase": 1,
+          "nativeValue": 0.6499999761581421
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.33333301544189453,
+          "cycle": 12.0,
+          "phase": 1,
+          "nativeValue": 1.0
+        }
+      ]
+    },
+    {
+      "count": 2,
+      "looping": false,
+      "group": 1,
+      "flags": 2415920710,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000001907348633
+        },
+        {
+          "time": 0.5,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000001907348633
+        },
+        {
+          "time": 0.8,
+          "localTime": 0.13333332538604736,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.5464000105857849
+        },
+        {
+          "time": 1.0,
+          "localTime": 0.333333283662796,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.06666654348373413,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 0.3727997720241547
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        }
+      ]
+    },
+    {
+      "count": 2,
+      "looping": false,
+      "group": 2,
+      "flags": 2415920710,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000001907348633
+        },
+        {
+          "time": 0.5,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000001907348633
+        },
+        {
+          "time": 0.8,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000001907348633
+        },
+        {
+          "time": 1.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000001907348633
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.3999999165534973,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.927200198173523
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.1333332061767578,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 0.5463996231555939
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        }
+      ]
+    },
+    {
+      "count": 2,
+      "looping": true,
+      "group": 1,
+      "flags": 2415922758,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000001907348633
+        },
+        {
+          "time": 0.5,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000001907348633
+        },
+        {
+          "time": 0.8,
+          "localTime": 0.13333332538604736,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.5464000105857849
+        },
+        {
+          "time": 1.0,
+          "localTime": 0.3333333134651184,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.0666666030883789,
+          "cycle": 1.0,
+          "phase": 1,
+          "nativeValue": 0.3727998733520508
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.4666665494441986,
+          "cycle": 1.0,
+          "phase": 1,
+          "nativeValue": 0.7536003589630127
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.5,
+          "cycle": 2.0,
+          "phase": 1,
+          "nativeValue": 0.6500000357627869
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.1666666716337204,
+          "cycle": 4.0,
+          "phase": 1,
+          "nativeValue": 0.6499999761581421
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.33333301544189453,
+          "cycle": 6.0,
+          "phase": 1,
+          "nativeValue": 1.0
+        }
+      ]
+    },
+    {
+      "count": 2,
+      "looping": true,
+      "group": 2,
+      "flags": 2415922758,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000001907348633
+        },
+        {
+          "time": 0.5,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000001907348633
+        },
+        {
+          "time": 0.8,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000001907348633
+        },
+        {
+          "time": 1.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000001907348633
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.3999999463558197,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.9272001385688782
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.1333332061767578,
+          "cycle": 1.0,
+          "phase": 1,
+          "nativeValue": 0.5463996529579163
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.1666666716337204,
+          "cycle": 2.0,
+          "phase": 1,
+          "nativeValue": 0.6499999761581421
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.5,
+          "cycle": 3.0,
+          "phase": 1,
+          "nativeValue": 0.6500000357627869
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.6666663885116577,
+          "cycle": 5.0,
+          "phase": 1,
+          "nativeValue": 0.30000001192092896
+        }
+      ]
+    },
+    {
+      "count": 3,
+      "looping": false,
+      "group": 1,
+      "flags": 2415920710,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000001907348633
+        },
+        {
+          "time": 0.5,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000001907348633
+        },
+        {
+          "time": 0.8,
+          "localTime": 0.13333332538604736,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.5464000105857849
+        },
+        {
+          "time": 1.0,
+          "localTime": 0.333333283662796,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.7333332300186157,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000001192092896
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.1333332061767578,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 0.5463996231555939
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        }
+      ]
+    },
+    {
+      "count": 3,
+      "looping": false,
+      "group": 2,
+      "flags": 2415920710,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000001907348633
+        },
+        {
+          "time": 0.5,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000001907348633
+        },
+        {
+          "time": 0.8,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000001907348633
+        },
+        {
+          "time": 1.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000001907348633
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.3999999165534973,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.927200198173523
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.7999998927116394,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000001192092896
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        }
+      ]
+    },
+    {
+      "count": 3,
+      "looping": false,
+      "group": 3,
+      "flags": 2415920710,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000001907348633
+        },
+        {
+          "time": 0.5,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000001907348633
+        },
+        {
+          "time": 0.8,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000001907348633
+        },
+        {
+          "time": 1.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000001907348633
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.0666666030883789,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3727998733520508
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.466666579246521,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.7536002993583679
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.16666674613952637,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 0.6500002503395081
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        }
+      ]
+    },
+    {
+      "count": 3,
+      "looping": true,
+      "group": 1,
+      "flags": 2415922758,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000001907348633
+        },
+        {
+          "time": 0.5,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000001907348633
+        },
+        {
+          "time": 0.8,
+          "localTime": 0.13333332538604736,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.5464000105857849
+        },
+        {
+          "time": 1.0,
+          "localTime": 0.333333283662796,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.7333332300186157,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000001192092896
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.1333332061767578,
+          "cycle": 1.0,
+          "phase": 1,
+          "nativeValue": 0.5463996529579163
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.8333333730697632,
+          "cycle": 1.0,
+          "phase": 1,
+          "nativeValue": 0.30000001192092896
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.8333334922790527,
+          "cycle": 2.0,
+          "phase": 1,
+          "nativeValue": 0.30000001192092896
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.33333301544189453,
+          "cycle": 4.0,
+          "phase": 1,
+          "nativeValue": 1.0
+        }
+      ]
+    },
+    {
+      "count": 3,
+      "looping": true,
+      "group": 2,
+      "flags": 2415922758,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000001907348633
+        },
+        {
+          "time": 0.5,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000001907348633
+        },
+        {
+          "time": 0.8,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000001907348633
+        },
+        {
+          "time": 1.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000001907348633
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.3999999165534973,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.927200198173523
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.7999998927116394,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000001192092896
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.5,
+          "cycle": 1.0,
+          "phase": 1,
+          "nativeValue": 0.6500000357627869
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.5,
+          "cycle": 2.0,
+          "phase": 1,
+          "nativeValue": 0.6500000357627869
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.9999997615814209,
+          "cycle": 3.0,
+          "phase": 1,
+          "nativeValue": 0.30000001192092896
+        }
+      ]
+    },
+    {
+      "count": 3,
+      "looping": true,
+      "group": 3,
+      "flags": 2415922758,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000001907348633
+        },
+        {
+          "time": 0.5,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000001907348633
+        },
+        {
+          "time": 0.8,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000001907348633
+        },
+        {
+          "time": 1.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000001907348633
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.0666666030883789,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3727998733520508
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.466666579246521,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.7536002993583679
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.16666674613952637,
+          "cycle": 1.0,
+          "phase": 1,
+          "nativeValue": 0.650000274181366
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.16666674613952637,
+          "cycle": 2.0,
+          "phase": 1,
+          "nativeValue": 0.650000274181366
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.6666665077209473,
+          "cycle": 3.0,
+          "phase": 1,
+          "nativeValue": 0.30000001192092896
+        }
+      ]
+    },
+    {
+      "count": 4,
+      "looping": false,
+      "group": 1,
+      "flags": 2415920710,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000075697898865
+        },
+        {
+          "time": 0.5,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000075697898865
+        },
+        {
+          "time": 0.8,
+          "localTime": 0.29999998211860657,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.9272000789642334
+        },
+        {
+          "time": 1.0,
+          "localTime": 0.4999999403953552,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.6500002145767212
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.23333317041397095,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 0.8487995684146881
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        }
+      ]
+    },
+    {
+      "count": 4,
+      "looping": false,
+      "group": 2,
+      "flags": 2415920710,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000075697898865
+        },
+        {
+          "time": 0.5,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000075697898865
+        },
+        {
+          "time": 0.8,
+          "localTime": 0.13333329558372498,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.9271997809410095
+        },
+        {
+          "time": 1.0,
+          "localTime": 0.33333325386047363,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.8906251192092896
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.06666648387908936,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 0.3727996468544007
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        }
+      ]
+    },
+    {
+      "count": 4,
+      "looping": false,
+      "group": 3,
+      "flags": 2415920710,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000075697898865
+        },
+        {
+          "time": 0.5,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000075697898865
+        },
+        {
+          "time": 0.8,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000075697898865
+        },
+        {
+          "time": 1.0,
+          "localTime": 0.16666656732559204,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.5666665434837341,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.5464003682136536
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.29999977350234985,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 0.9803997099399566
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        }
+      ]
+    },
+    {
+      "count": 4,
+      "looping": false,
+      "group": 4,
+      "flags": 2415920710,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000075697898865
+        },
+        {
+          "time": 0.5,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000075697898865
+        },
+        {
+          "time": 0.8,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000075697898865
+        },
+        {
+          "time": 1.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000075697898865
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.39999985694885254,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.8027753233909607
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.13333308696746826,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 0.5463992476463317
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        }
+      ]
+    },
+    {
+      "count": 4,
+      "looping": true,
+      "group": 1,
+      "flags": 2415922758,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000075697898865
+        },
+        {
+          "time": 0.5,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000075697898865
+        },
+        {
+          "time": 0.8,
+          "localTime": 0.29999998211860657,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.9272000789642334
+        },
+        {
+          "time": 1.0,
+          "localTime": 0.4999999403953552,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.6500002145767212
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.23333314061164856,
+          "cycle": 1.0,
+          "phase": 1,
+          "nativeValue": 0.9804001450538635
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.633333146572113,
+          "cycle": 1.0,
+          "phase": 1,
+          "nativeValue": 0.45120036602020264
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.6666664481163025,
+          "cycle": 2.0,
+          "phase": 1,
+          "nativeValue": 0.40937539935112
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.33333274722099304,
+          "cycle": 4.0,
+          "phase": 1,
+          "nativeValue": 0.8906257748603821
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.49999943375587463,
+          "cycle": 6.0,
+          "phase": 1,
+          "nativeValue": 0.6500009894371033
+        }
+      ]
+    },
+    {
+      "count": 4,
+      "looping": true,
+      "group": 2,
+      "flags": 2415922758,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000075697898865
+        },
+        {
+          "time": 0.5,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000075697898865
+        },
+        {
+          "time": 0.8,
+          "localTime": 0.13333329558372498,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.9271997809410095
+        },
+        {
+          "time": 1.0,
+          "localTime": 0.33333322405815125,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.8906251788139343
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.06666645407676697,
+          "cycle": 1.0,
+          "phase": 1,
+          "nativeValue": 0.5463986992835999
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.46666643023490906,
+          "cycle": 1.0,
+          "phase": 1,
+          "nativeValue": 0.7023254632949829
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.4999997317790985,
+          "cycle": 2.0,
+          "phase": 1,
+          "nativeValue": 0.6500005722045898
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.16666637361049652,
+          "cycle": 4.0,
+          "phase": 1,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.3333324193954468,
+          "cycle": 6.0,
+          "phase": 1,
+          "nativeValue": 0.8906261324882507
+        }
+      ]
+    },
+    {
+      "count": 4,
+      "looping": true,
+      "group": 3,
+      "flags": 2415922758,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000075697898865
+        },
+        {
+          "time": 0.5,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000075697898865
+        },
+        {
+          "time": 0.8,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000075697898865
+        },
+        {
+          "time": 1.0,
+          "localTime": 0.16666655242443085,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.5666664838790894,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.5464003682136536
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.29999974370002747,
+          "cycle": 1.0,
+          "phase": 1,
+          "nativeValue": 0.9272003173828125
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.33333322405815125,
+          "cycle": 2.0,
+          "phase": 1,
+          "nativeValue": 0.8906251788139343
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.6666664481163025,
+          "cycle": 3.0,
+          "phase": 1,
+          "nativeValue": 0.40937539935112
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.16666573286056519,
+          "cycle": 6.0,
+          "phase": 1,
+          "nativeValue": 1.0
+        }
+      ]
+    },
+    {
+      "count": 4,
+      "looping": true,
+      "group": 4,
+      "flags": 2415922758,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000075697898865
+        },
+        {
+          "time": 0.5,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000075697898865
+        },
+        {
+          "time": 0.8,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000075697898865
+        },
+        {
+          "time": 1.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000075697898865
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.39999982714653015,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.8027753233909607
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.13333305716514587,
+          "cycle": 1.0,
+          "phase": 1,
+          "nativeValue": 0.9271988272666931
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.16666637361049652,
+          "cycle": 2.0,
+          "phase": 1,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.4999997317790985,
+          "cycle": 3.0,
+          "phase": 1,
+          "nativeValue": 0.6500005722045898
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.66666579246521,
+          "cycle": 5.0,
+          "phase": 1,
+          "nativeValue": 0.4093761444091797
+        }
+      ]
+    },
+    {
+      "count": 5,
+      "looping": false,
+      "group": 1,
+      "flags": 2415920710,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000010550022125
+        },
+        {
+          "time": 0.5,
+          "localTime": 0.02482268214225769,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3568093180656433
+        },
+        {
+          "time": 0.8,
+          "localTime": 0.32482269406318665,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.8547741174697876
+        },
+        {
+          "time": 1.0,
+          "localTime": 0.5248226523399353,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.5327363014221191
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.21560275554656982,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 0.7997189640998841
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        }
+      ]
+    },
+    {
+      "count": 5,
+      "looping": false,
+      "group": 2,
+      "flags": 2415920710,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000010550022125
+        },
+        {
+          "time": 0.5,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000010550022125
+        },
+        {
+          "time": 0.8,
+          "localTime": 0.18297871947288513,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.9912784099578857
+        },
+        {
+          "time": 1.0,
+          "localTime": 0.3829786777496338,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.7672638893127441
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.07375878095626831,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 0.38765462636947634
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        }
+      ]
+    },
+    {
+      "count": 5,
+      "looping": false,
+      "group": 3,
+      "flags": 2415920710,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000010550022125
+        },
+        {
+          "time": 0.5,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000010550022125
+        },
+        {
+          "time": 0.8,
+          "localTime": 0.04113471508026123,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.4424651861190796
+        },
+        {
+          "time": 1.0,
+          "localTime": 0.2411346733570099,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.9524864554405212
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.6411346197128296,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.37280017137527466
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.3319147229194641,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 0.9999620735645294
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        }
+      ]
+    },
+    {
+      "count": 5,
+      "looping": false,
+      "group": 4,
+      "flags": 2415920710,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000010550022125
+        },
+        {
+          "time": 0.5,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000010550022125
+        },
+        {
+          "time": 0.8,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000010550022125
+        },
+        {
+          "time": 1.0,
+          "localTime": 0.09929072856903076,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.8487996459007263
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.49929070472717285,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.5741751194000244
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.19007080793380737,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 0.7232384502887725
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        }
+      ]
+    },
+    {
+      "count": 5,
+      "looping": false,
+      "group": 5,
+      "flags": 2415920710,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000010550022125
+        },
+        {
+          "time": 0.5,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000010550022125
+        },
+        {
+          "time": 0.8,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000010550022125
+        },
+        {
+          "time": 1.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000010550022125
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.35744673013687134,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.8071051836013794
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.04822683334350586,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 0.3397181987762452
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        }
+      ]
+    },
+    {
+      "count": 5,
+      "looping": true,
+      "group": 1,
+      "flags": 2415922758,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000010550022125
+        },
+        {
+          "time": 0.5,
+          "localTime": 0.02482268214225769,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3568093180656433
+        },
+        {
+          "time": 0.8,
+          "localTime": 0.32482269406318665,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.8547741174697876
+        },
+        {
+          "time": 1.0,
+          "localTime": 0.5248226523399353,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.5327363014221191
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.21560277044773102,
+          "cycle": 1.0,
+          "phase": 1,
+          "nativeValue": 0.9729803800582886
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.6156027913093567,
+          "cycle": 1.0,
+          "phase": 1,
+          "nativeValue": 0.4023037850856781
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.6063830256462097,
+          "cycle": 2.0,
+          "phase": 1,
+          "nativeValue": 0.4138830900192261
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.18794317543506622,
+          "cycle": 4.0,
+          "phase": 1,
+          "nativeValue": 0.9891069531440735
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.26950329542160034,
+          "cycle": 6.0,
+          "phase": 1,
+          "nativeValue": 0.9241198301315308
+        }
+      ]
+    },
+    {
+      "count": 5,
+      "looping": true,
+      "group": 2,
+      "flags": 2415922758,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000010550022125
+        },
+        {
+          "time": 0.5,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000010550022125
+        },
+        {
+          "time": 0.8,
+          "localTime": 0.18297871947288513,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.9912784099578857
+        },
+        {
+          "time": 1.0,
+          "localTime": 0.3829786479473114,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.7672639489173889
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.07375876605510712,
+          "cycle": 1.0,
+          "phase": 1,
+          "nativeValue": 0.6709880828857422
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.4737587869167328,
+          "cycle": 1.0,
+          "phase": 1,
+          "nativeValue": 0.6166361570358276
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.4645389914512634,
+          "cycle": 2.0,
+          "phase": 1,
+          "nativeValue": 0.6321092844009399
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.046099331229925156,
+          "cycle": 4.0,
+          "phase": 1,
+          "nativeValue": 0.4737533926963806
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.12765911221504211,
+          "cycle": 6.0,
+          "phase": 1,
+          "nativeValue": 0.9803987741470337
+        }
+      ]
+    },
+    {
+      "count": 5,
+      "looping": true,
+      "group": 3,
+      "flags": 2415922758,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000010550022125
+        },
+        {
+          "time": 0.5,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000010550022125
+        },
+        {
+          "time": 0.8,
+          "localTime": 0.04113471508026123,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.4424651861190796
+        },
+        {
+          "time": 1.0,
+          "localTime": 0.2411346733570099,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.9524864554405212
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.6411346197128296,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.37280017137527466
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.3319146931171417,
+          "cycle": 1.0,
+          "phase": 1,
+          "nativeValue": 0.8447740077972412
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.3226949870586395,
+          "cycle": 2.0,
+          "phase": 1,
+          "nativeValue": 0.8577311635017395
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.6134752035140991,
+          "cycle": 3.0,
+          "phase": 1,
+          "nativeValue": 0.40493473410606384
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.6950351595878601,
+          "cycle": 5.0,
+          "phase": 1,
+          "nativeValue": 0.3250636160373688
+        }
+      ]
+    },
+    {
+      "count": 5,
+      "looping": true,
+      "group": 4,
+      "flags": 2415922758,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000010550022125
+        },
+        {
+          "time": 0.5,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000010550022125
+        },
+        {
+          "time": 0.8,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000010550022125
+        },
+        {
+          "time": 1.0,
+          "localTime": 0.09929072856903076,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.8487996459007263
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.49929070472717285,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.5741751194000244
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.19007085263729095,
+          "cycle": 1.0,
+          "phase": 1,
+          "nativeValue": 0.9881067276000977
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.18085114657878876,
+          "cycle": 2.0,
+          "phase": 1,
+          "nativeValue": 0.9921386241912842
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.4716311991214752,
+          "cycle": 3.0,
+          "phase": 1,
+          "nativeValue": 0.6202026009559631
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.5531913042068481,
+          "cycle": 5.0,
+          "phase": 1,
+          "nativeValue": 0.48859211802482605
+        }
+      ]
+    },
+    {
+      "count": 5,
+      "looping": true,
+      "group": 5,
+      "flags": 2415922758,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000010550022125
+        },
+        {
+          "time": 0.5,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000010550022125
+        },
+        {
+          "time": 0.8,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000010550022125
+        },
+        {
+          "time": 1.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3000010550022125
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.35744673013687134,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.8071051836013794
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.04822683706879616,
+          "cycle": 1.0,
+          "phase": 1,
+          "nativeValue": 0.4877336621284485
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.039007142186164856,
+          "cycle": 2.0,
+          "phase": 1,
+          "nativeValue": 0.429697185754776
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.3297871947288513,
+          "cycle": 3.0,
+          "phase": 1,
+          "nativeValue": 0.8477967381477356
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.4113471210002899,
+          "cycle": 5.0,
+          "phase": 1,
+          "nativeValue": 0.721147894859314
+        }
+      ]
+    },
+    {
+      "count": 8,
+      "looping": false,
+      "group": 1,
+      "flags": 2415920710,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000218749046326
+        },
+        {
+          "time": 0.5,
+          "localTime": 0.06862743198871613,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.8487998843193054
+        },
+        {
+          "time": 0.8,
+          "localTime": 0.3686274290084839,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.6574996113777161
+        },
+        {
+          "time": 1.0,
+          "localTime": 0.5686274170875549,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.33877554535865784
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.1843135952949524,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 0.7053801059722901
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        }
+      ]
+    },
+    {
+      "count": 8,
+      "looping": false,
+      "group": 2,
+      "flags": 2415920710,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000218749046326
+        },
+        {
+          "time": 0.5,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000218749046326
+        },
+        {
+          "time": 0.8,
+          "localTime": 0.270588219165802,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.8360326886177063
+        },
+        {
+          "time": 1.0,
+          "localTime": 0.47058817744255066,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.4704720675945282
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.08627438545227051,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 0.4164040327072144
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        }
+      ]
+    },
+    {
+      "count": 8,
+      "looping": false,
+      "group": 3,
+      "flags": 2415920710,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000218749046326
+        },
+        {
+          "time": 0.5,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000218749046326
+        },
+        {
+          "time": 0.8,
+          "localTime": 0.17254897952079773,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.964820921421051
+        },
+        {
+          "time": 1.0,
+          "localTime": 0.3725489377975464,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.6500001549720764
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.7725489139556885,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000001192092896
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        }
+      ]
+    },
+    {
+      "count": 8,
+      "looping": false,
+      "group": 4,
+      "flags": 2415920710,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000218749046326
+        },
+        {
+          "time": 0.5,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000218749046326
+        },
+        {
+          "time": 0.8,
+          "localTime": 0.07450976967811584,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.8983933329582214
+        },
+        {
+          "time": 1.0,
+          "localTime": 0.2745097279548645,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.8295282125473022
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.6745097041130066,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000001192092896
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.2901958227157593,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 0.9678643345832825
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        }
+      ]
+    },
+    {
+      "count": 8,
+      "looping": false,
+      "group": 5,
+      "flags": 2415920710,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000218749046326
+        },
+        {
+          "time": 0.5,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000218749046326
+        },
+        {
+          "time": 0.8,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000218749046326
+        },
+        {
+          "time": 1.0,
+          "localTime": 0.17647051811218262,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.9612245559692383
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.5764704942703247,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3317388892173767
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.19215667247772217,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 0.7296674609184266
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        }
+      ]
+    },
+    {
+      "count": 8,
+      "looping": false,
+      "group": 6,
+      "flags": 2415920710,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000218749046326
+        },
+        {
+          "time": 0.5,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000218749046326
+        },
+        {
+          "time": 0.8,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000218749046326
+        },
+        {
+          "time": 1.0,
+          "localTime": 0.07843124866485596,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.927199125289917
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.47843122482299805,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.45754262804985046
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.09411740303039551,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 0.4359039783477784
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        }
+      ]
+    },
+    {
+      "count": 8,
+      "looping": false,
+      "group": 7,
+      "flags": 2415920710,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000218749046326
+        },
+        {
+          "time": 0.5,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000218749046326
+        },
+        {
+          "time": 0.8,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000218749046326
+        },
+        {
+          "time": 1.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000218749046326
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.38039201498031616,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.6350043416023254
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.7803919911384583,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000001192092896
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        }
+      ]
+    },
+    {
+      "count": 8,
+      "looping": false,
+      "group": 8,
+      "flags": 2415920710,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000218749046326
+        },
+        {
+          "time": 0.5,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000218749046326
+        },
+        {
+          "time": 0.8,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000218749046326
+        },
+        {
+          "time": 1.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000218749046326
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.2823528051376343,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.8162925839424133
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.6823527812957764,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000001192092896
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.3333333432674408,
+          "cycle": 0.0,
+          "phase": 2,
+          "nativeValue": 1.0
+        }
+      ]
+    },
+    {
+      "count": 8,
+      "looping": true,
+      "group": 1,
+      "flags": 2415922758,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 0.00010000000474974513,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000218749046326
+        },
+        {
+          "time": 0.5,
+          "localTime": 0.06862743943929672,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.8487998843193054
+        },
+        {
+          "time": 0.8,
+          "localTime": 0.3686274588108063,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.6574994921684265
+        },
+        {
+          "time": 1.0,
+          "localTime": 0.5686274766921997,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.33877551555633545
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.18431365489959717,
+          "cycle": 1.0,
+          "phase": 1,
+          "nativeValue": 0.953575611114502
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.5843135714530945,
+          "cycle": 1.0,
+          "phase": 1,
+          "nativeValue": 0.3253389596939087
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.5000000596046448,
+          "cycle": 2.0,
+          "phase": 1,
+          "nativeValue": 0.42376428842544556
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.7156864404678345,
+          "cycle": 3.0,
+          "phase": 1,
+          "nativeValue": 0.30000001192092896
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.6470587253570557,
+          "cycle": 5.0,
+          "phase": 1,
+          "nativeValue": 0.30000001192092896
+        }
+      ]
+    },
+    {
+      "count": 8,
+      "looping": true,
+      "group": 2,
+      "flags": 2415922758,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 0.00010000000474974513,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000218749046326
+        },
+        {
+          "time": 0.5,
+          "localTime": 0.00010000000474974513,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000218749046326
+        },
+        {
+          "time": 0.8,
+          "localTime": 0.2705882489681244,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.8360326290130615
+        },
+        {
+          "time": 1.0,
+          "localTime": 0.47058820724487305,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.4704720377922058
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.08627443760633469,
+          "cycle": 1.0,
+          "phase": 1,
+          "nativeValue": 0.9721788763999939
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.48627445101737976,
+          "cycle": 1.0,
+          "phase": 1,
+          "nativeValue": 0.44494345784187317
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.4019608497619629,
+          "cycle": 2.0,
+          "phase": 1,
+          "nativeValue": 0.5939651131629944
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.6176470518112183,
+          "cycle": 3.0,
+          "phase": 1,
+          "nativeValue": 0.3058115541934967
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.5490195155143738,
+          "cycle": 5.0,
+          "phase": 1,
+          "nativeValue": 0.35899248719215393
+        }
+      ]
+    },
+    {
+      "count": 8,
+      "looping": true,
+      "group": 3,
+      "flags": 2415922758,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 0.00010000000474974513,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000218749046326
+        },
+        {
+          "time": 0.5,
+          "localTime": 0.00010000000474974513,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000218749046326
+        },
+        {
+          "time": 0.8,
+          "localTime": 0.17254899442195892,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.964820921421051
+        },
+        {
+          "time": 1.0,
+          "localTime": 0.3725489675998688,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.6500001549720764
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.7725489735603333,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000001192092896
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.3882351517677307,
+          "cycle": 1.0,
+          "phase": 1,
+          "nativeValue": 0.6200329661369324
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.303921639919281,
+          "cycle": 2.0,
+          "phase": 1,
+          "nativeValue": 0.7785155177116394
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.5196078419685364,
+          "cycle": 3.0,
+          "phase": 1,
+          "nativeValue": 0.3956553637981415
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.4509802758693695,
+          "cycle": 5.0,
+          "phase": 1,
+          "nativeValue": 0.5040818452835083
+        }
+      ]
+    },
+    {
+      "count": 8,
+      "looping": true,
+      "group": 4,
+      "flags": 2415922758,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 0.00010000000474974513,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000218749046326
+        },
+        {
+          "time": 0.5,
+          "localTime": 0.00010000000474974513,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000218749046326
+        },
+        {
+          "time": 0.8,
+          "localTime": 0.07450977712869644,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.8983933925628662
+        },
+        {
+          "time": 1.0,
+          "localTime": 0.2745097577571869,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.8295281529426575
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.6745097637176514,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000001192092896
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.29019591212272644,
+          "cycle": 1.0,
+          "phase": 1,
+          "nativeValue": 0.8027753233909607
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.20588241517543793,
+          "cycle": 2.0,
+          "phase": 1,
+          "nativeValue": 0.9295837879180908
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.42156878113746643,
+          "cycle": 3.0,
+          "phase": 1,
+          "nativeValue": 0.5572462677955627
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.3529406785964966,
+          "cycle": 5.0,
+          "phase": 1,
+          "nativeValue": 0.6874371767044067
+        }
+      ]
+    },
+    {
+      "count": 8,
+      "looping": true,
+      "group": 5,
+      "flags": 2415922758,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 0.00010000000474974513,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000218749046326
+        },
+        {
+          "time": 0.5,
+          "localTime": 0.00010000000474974513,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000218749046326
+        },
+        {
+          "time": 0.8,
+          "localTime": 0.00010000000474974513,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000218749046326
+        },
+        {
+          "time": 1.0,
+          "localTime": 0.1764705330133438,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.9612245559692383
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.5764705538749695,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.3317388594150543
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.19215679168701172,
+          "cycle": 1.0,
+          "phase": 1,
+          "nativeValue": 0.9453388452529907
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.10784318298101425,
+          "cycle": 2.0,
+          "phase": 1,
+          "nativeValue": 0.9993383288383484
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.32352954149246216,
+          "cycle": 3.0,
+          "phase": 1,
+          "nativeValue": 0.742753267288208
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.2549014687538147,
+          "cycle": 5.0,
+          "phase": 1,
+          "nativeValue": 0.8612253069877625
+        }
+      ]
+    },
+    {
+      "count": 8,
+      "looping": true,
+      "group": 6,
+      "flags": 2415922758,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 0.00010000000474974513,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000218749046326
+        },
+        {
+          "time": 0.5,
+          "localTime": 0.00010000000474974513,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000218749046326
+        },
+        {
+          "time": 0.8,
+          "localTime": 0.00010000000474974513,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000218749046326
+        },
+        {
+          "time": 1.0,
+          "localTime": 0.07843125611543655,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.9271992444992065
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.47843125462532043,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.4575425982475281
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.09411747008562088,
+          "cycle": 1.0,
+          "phase": 1,
+          "nativeValue": 0.99672931432724
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.009803960099816322,
+          "cycle": 2.0,
+          "phase": 1,
+          "nativeValue": 0.3196001648902893
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.22549013793468475,
+          "cycle": 3.0,
+          "phase": 1,
+          "nativeValue": 0.9043447971343994
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.15686261653900146,
+          "cycle": 5.0,
+          "phase": 1,
+          "nativeValue": 0.9776148796081543
+        }
+      ]
+    },
+    {
+      "count": 8,
+      "looping": true,
+      "group": 7,
+      "flags": 2415922758,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 0.00010000000474974513,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000218749046326
+        },
+        {
+          "time": 0.5,
+          "localTime": 0.00010000000474974513,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000218749046326
+        },
+        {
+          "time": 0.8,
+          "localTime": 0.00010000000474974513,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000218749046326
+        },
+        {
+          "time": 1.0,
+          "localTime": 0.00010000000474974513,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000218749046326
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.38039204478263855,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.6350042819976807
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.780392050743103,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000001192092896
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.6960785388946533,
+          "cycle": 1.0,
+          "phase": 1,
+          "nativeValue": 0.30000001192092896
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.12745091319084167,
+          "cycle": 3.0,
+          "phase": 1,
+          "nativeValue": 0.9941884875297546
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.05882338434457779,
+          "cycle": 5.0,
+          "phase": 1,
+          "nativeValue": 0.7535985112190247
+        }
+      ]
+    },
+    {
+      "count": 8,
+      "looping": true,
+      "group": 8,
+      "flags": 2415922758,
+      "samples": [
+        {
+          "time": 0.0,
+          "localTime": 9.999999747378752e-05,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.99999981103783
+        },
+        {
+          "time": 0.1,
+          "localTime": 0.10000000149011612,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.8487999856472015
+        },
+        {
+          "time": 0.25,
+          "localTime": 0.25,
+          "cycle": 0.0,
+          "phase": 0,
+          "nativeValue": 0.40937500000000004
+        },
+        {
+          "time": 0.34,
+          "localTime": 0.00010000000474974513,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000218749046326
+        },
+        {
+          "time": 0.5,
+          "localTime": 0.00010000000474974513,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000218749046326
+        },
+        {
+          "time": 0.8,
+          "localTime": 0.00010000000474974513,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000218749046326
+        },
+        {
+          "time": 1.0,
+          "localTime": 0.00010000000474974513,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000218749046326
+        },
+        {
+          "time": 1.4,
+          "localTime": 0.2823528051376343,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.8162925839424133
+        },
+        {
+          "time": 1.8,
+          "localTime": 0.6823528409004211,
+          "cycle": 0.0,
+          "phase": 1,
+          "nativeValue": 0.30000001192092896
+        },
+        {
+          "time": 2.5,
+          "localTime": 0.5980392098426819,
+          "cycle": 1.0,
+          "phase": 1,
+          "nativeValue": 0.3157446086406708
+        },
+        {
+          "time": 3.5,
+          "localTime": 0.029411692172288895,
+          "cycle": 3.0,
+          "phase": 1,
+          "nativeValue": 0.45119935274124146
+        },
+        {
+          "time": 5.0,
+          "localTime": 0.7450979351997375,
+          "cycle": 4.0,
+          "phase": 1,
+          "nativeValue": 0.30000001192092896
+        }
+      ]
+    }
+  ]
+}

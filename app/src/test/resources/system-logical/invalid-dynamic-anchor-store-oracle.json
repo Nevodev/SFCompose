@@ -1,0 +1,34 @@
+[
+  {
+    "anchorIndex": 0,
+    "numEntries": 1,
+    "branch": "valid",
+    "setupEmptyExecuted": false,
+    "finalStoreCount": 1,
+    "finalAttachmentPointer": 1895833600
+  },
+  {
+    "anchorIndex": 1,
+    "numEntries": 1,
+    "branch": "invalid",
+    "setupEmptyExecuted": true,
+    "finalStoreCount": 0,
+    "finalAttachmentPointer": 0
+  },
+  {
+    "anchorIndex": 2,
+    "numEntries": 1,
+    "branch": "invalid",
+    "setupEmptyExecuted": true,
+    "finalStoreCount": 0,
+    "finalAttachmentPointer": 0
+  },
+  {
+    "anchorIndex": 0,
+    "numEntries": 0,
+    "branch": "invalid",
+    "setupEmptyExecuted": true,
+    "finalStoreCount": 0,
+    "finalAttachmentPointer": 0
+  }
+]

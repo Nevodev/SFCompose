@@ -1,0 +1,62 @@
+{
+  "sourceKind": "macOS-system-CoreGlyphs",
+  "sourceCarSha256": "933b39bddcd99874b2727cc339be0c2e7d188855352836236d7fc41daca48a76",
+  "images": [
+    {
+      "name": "_gradient.highlegibility",
+      "appearance": 0,
+      "asset": "symbols/fill-images/highlegibility-0.png",
+      "renditionKey": [
+        0,
+        0,
+        85,
+        181,
+        0,
+        48964,
+        0,
+        0,
+        0,
+        0,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "sha256": "075966bc1091459c53c9c3b456bfbc4c811c55fecb3bb2f91acd5cca717b6233",
+      "pixelSize": [
+        256,
+        256
+      ]
+    },
+    {
+      "name": "_gradient.highlegibility",
+      "appearance": 1,
+      "asset": "symbols/fill-images/highlegibility-1.png",
+      "renditionKey": [
+        1,
+        0,
+        85,
+        181,
+        0,
+        48964,
+        0,
+        0,
+        0,
+        0,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "sha256": "075966bc1091459c53c9c3b456bfbc4c811c55fecb3bb2f91acd5cca717b6233",
+      "pixelSize": [
+        256,
+        256
+      ]
+    }
+  ]
+}

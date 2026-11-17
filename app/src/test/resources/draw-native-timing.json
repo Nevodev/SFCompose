@@ -1,0 +1,917 @@
+{
+  "provenance": "Actual Shared ARM64 cube_length, cubic solver, and ByLayer delay loop. Swift dictionary lookup, retain/release, and optional-duration max are modeled stubs.",
+  "symbols": [
+    {
+      "name": "wifi",
+      "on": true,
+      "reverse": false,
+      "rawOrder": 1,
+      "descending": true,
+      "timeline": [
+        {
+          "sourceIndex": 0,
+          "components": [
+            2
+          ],
+          "group": 2,
+          "lengthAt1000": null,
+          "duration": null,
+          "start": 0.0,
+          "finish": 0.25,
+          "samples": []
+        },
+        {
+          "sourceIndex": 1,
+          "components": [
+            1
+          ],
+          "group": 1,
+          "lengthAt1000": 651.7235259151116,
+          "duration": 1.0,
+          "start": 0.045,
+          "finish": 1.045,
+          "samples": [
+            {
+              "time": 0.045,
+              "progress": 0.0
+            },
+            {
+              "time": 0.295,
+              "progress": 0.4119434630453297
+            },
+            {
+              "time": 0.545,
+              "progress": 0.7931093920199208
+            },
+            {
+              "time": 0.795,
+              "progress": 0.9570676230065088
+            },
+            {
+              "time": 1.045,
+              "progress": 1.0
+            }
+          ]
+        },
+        {
+          "sourceIndex": 2,
+          "components": [
+            0
+          ],
+          "group": 0,
+          "lengthAt1000": 994.1111573556427,
+          "duration": 1.0,
+          "start": 0.22499999999999998,
+          "finish": 1.225,
+          "samples": [
+            {
+              "time": 0.22499999999999998,
+              "progress": 0.0
+            },
+            {
+              "time": 0.475,
+              "progress": 0.4119434630453297
+            },
+            {
+              "time": 0.725,
+              "progress": 0.7931093920199208
+            },
+            {
+              "time": 0.975,
+              "progress": 0.9570676230065088
+            },
+            {
+              "time": 1.225,
+              "progress": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "wifi",
+      "on": true,
+      "reverse": true,
+      "rawOrder": 1,
+      "descending": true,
+      "timeline": [
+        {
+          "sourceIndex": 0,
+          "components": [
+            2
+          ],
+          "group": 2,
+          "lengthAt1000": null,
+          "duration": null,
+          "start": 0.0,
+          "finish": 0.25,
+          "samples": []
+        },
+        {
+          "sourceIndex": 1,
+          "components": [
+            1
+          ],
+          "group": 1,
+          "lengthAt1000": 651.7235259151116,
+          "duration": 1.0,
+          "start": 0.045,
+          "finish": 1.045,
+          "samples": [
+            {
+              "time": 0.045,
+              "progress": 0.0
+            },
+            {
+              "time": 0.295,
+              "progress": 0.4119434630453297
+            },
+            {
+              "time": 0.545,
+              "progress": 0.7931093920199208
+            },
+            {
+              "time": 0.795,
+              "progress": 0.9570676230065088
+            },
+            {
+              "time": 1.045,
+              "progress": 1.0
+            }
+          ]
+        },
+        {
+          "sourceIndex": 2,
+          "components": [
+            0
+          ],
+          "group": 0,
+          "lengthAt1000": 994.1111573556427,
+          "duration": 1.0,
+          "start": 0.22499999999999998,
+          "finish": 1.225,
+          "samples": [
+            {
+              "time": 0.22499999999999998,
+              "progress": 0.0
+            },
+            {
+              "time": 0.475,
+              "progress": 0.4119434630453297
+            },
+            {
+              "time": 0.725,
+              "progress": 0.7931093920199208
+            },
+            {
+              "time": 0.975,
+              "progress": 0.9570676230065088
+            },
+            {
+              "time": 1.225,
+              "progress": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "wifi",
+      "on": false,
+      "reverse": false,
+      "rawOrder": 1,
+      "descending": true,
+      "timeline": [
+        {
+          "sourceIndex": 0,
+          "components": [
+            2
+          ],
+          "group": 2,
+          "lengthAt1000": null,
+          "duration": null,
+          "start": 0.0,
+          "finish": 0.167,
+          "samples": []
+        },
+        {
+          "sourceIndex": 1,
+          "components": [
+            1
+          ],
+          "group": 1,
+          "lengthAt1000": 651.7235259151116,
+          "duration": 1.0,
+          "start": 0.06346,
+          "finish": 1.06346,
+          "samples": [
+            {
+              "time": 0.06346,
+              "progress": 0.0
+            },
+            {
+              "time": 0.31346,
+              "progress": 0.11365266078767007
+            },
+            {
+              "time": 0.56346,
+              "progress": 0.39555224103648734
+            },
+            {
+              "time": 0.81346,
+              "progress": 0.7539197838458879
+            },
+            {
+              "time": 1.06346,
+              "progress": 1.0
+            }
+          ]
+        },
+        {
+          "sourceIndex": 2,
+          "components": [
+            0
+          ],
+          "group": 0,
+          "lengthAt1000": 994.1111573556427,
+          "duration": 1.0,
+          "start": 0.44346,
+          "finish": 1.44346,
+          "samples": [
+            {
+              "time": 0.44346,
+              "progress": 0.0
+            },
+            {
+              "time": 0.69346,
+              "progress": 0.11365266078767007
+            },
+            {
+              "time": 0.94346,
+              "progress": 0.39555224103648734
+            },
+            {
+              "time": 1.19346,
+              "progress": 0.7539197838458879
+            },
+            {
+              "time": 1.44346,
+              "progress": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "wifi",
+      "on": false,
+      "reverse": true,
+      "rawOrder": 1,
+      "descending": false,
+      "timeline": [
+        {
+          "sourceIndex": 0,
+          "components": [
+            2
+          ],
+          "group": 2,
+          "lengthAt1000": null,
+          "duration": null,
+          "start": 0.76,
+          "finish": 0.927,
+          "samples": []
+        },
+        {
+          "sourceIndex": 1,
+          "components": [
+            1
+          ],
+          "group": 1,
+          "lengthAt1000": 651.7235259151116,
+          "duration": 1.0,
+          "start": 0.38,
+          "finish": 1.38,
+          "samples": [
+            {
+              "time": 0.38,
+              "progress": 0.0
+            },
+            {
+              "time": 0.63,
+              "progress": 0.11365266078767007
+            },
+            {
+              "time": 0.88,
+              "progress": 0.39555224103648734
+            },
+            {
+              "time": 1.13,
+              "progress": 0.7539197838458879
+            },
+            {
+              "time": 1.38,
+              "progress": 1.0
+            }
+          ]
+        },
+        {
+          "sourceIndex": 2,
+          "components": [
+            0
+          ],
+          "group": 0,
+          "lengthAt1000": 994.1111573556427,
+          "duration": 1.0,
+          "start": 0.0,
+          "finish": 1.0,
+          "samples": [
+            {
+              "time": 0.0,
+              "progress": 0.0
+            },
+            {
+              "time": 0.25,
+              "progress": 0.11365266078767007
+            },
+            {
+              "time": 0.5,
+              "progress": 0.39555224103648734
+            },
+            {
+              "time": 0.75,
+              "progress": 0.7539197838458879
+            },
+            {
+              "time": 1.0,
+              "progress": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "cellularbars",
+      "on": true,
+      "reverse": false,
+      "rawOrder": 0,
+      "descending": false,
+      "timeline": [
+        {
+          "sourceIndex": 0,
+          "components": [
+            3
+          ],
+          "group": 3,
+          "lengthAt1000": 781.2161447284451,
+          "duration": 1.0166666666666666,
+          "start": 0.5069999999999999,
+          "finish": 1.5236666666666665,
+          "samples": [
+            {
+              "time": 0.5069999999999999,
+              "progress": 0.0
+            },
+            {
+              "time": 0.7611666666666665,
+              "progress": 0.4119434630453297
+            },
+            {
+              "time": 1.0153333333333332,
+              "progress": 0.7931093920199208
+            },
+            {
+              "time": 1.2694999999999999,
+              "progress": 0.9570676230065088
+            },
+            {
+              "time": 1.5236666666666665,
+              "progress": 1.0
+            }
+          ]
+        },
+        {
+          "sourceIndex": 1,
+          "components": [
+            2
+          ],
+          "group": 2,
+          "lengthAt1000": 629.1444291332654,
+          "duration": 1.0,
+          "start": 0.32699999999999996,
+          "finish": 1.327,
+          "samples": [
+            {
+              "time": 0.32699999999999996,
+              "progress": 0.0
+            },
+            {
+              "time": 0.577,
+              "progress": 0.4119434630453297
+            },
+            {
+              "time": 0.827,
+              "progress": 0.7931093920199208
+            },
+            {
+              "time": 1.077,
+              "progress": 0.9570676230065088
+            },
+            {
+              "time": 1.327,
+              "progress": 1.0
+            }
+          ]
+        },
+        {
+          "sourceIndex": 2,
+          "components": [
+            1
+          ],
+          "group": 1,
+          "lengthAt1000": 489.8777665814626,
+          "duration": 0.95,
+          "start": 0.156,
+          "finish": 1.1059999999999999,
+          "samples": [
+            {
+              "time": 0.156,
+              "progress": 0.0
+            },
+            {
+              "time": 0.39349999999999996,
+              "progress": 0.4119434630453297
+            },
+            {
+              "time": 0.631,
+              "progress": 0.7931093920199208
+            },
+            {
+              "time": 0.8684999999999999,
+              "progress": 0.9570676230065088
+            },
+            {
+              "time": 1.1059999999999999,
+              "progress": 1.0
+            }
+          ]
+        },
+        {
+          "sourceIndex": 3,
+          "components": [
+            0
+          ],
+          "group": 0,
+          "lengthAt1000": 368.7335116670097,
+          "duration": 0.8666666666666667,
+          "start": 0.0,
+          "finish": 0.8666666666666667,
+          "samples": [
+            {
+              "time": 0.0,
+              "progress": 0.0
+            },
+            {
+              "time": 0.21666666666666667,
+              "progress": 0.4119434630453297
+            },
+            {
+              "time": 0.43333333333333335,
+              "progress": 0.7931093920199208
+            },
+            {
+              "time": 0.65,
+              "progress": 0.9570676230065088
+            },
+            {
+              "time": 0.8666666666666667,
+              "progress": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "cellularbars",
+      "on": true,
+      "reverse": true,
+      "rawOrder": 0,
+      "descending": false,
+      "timeline": [
+        {
+          "sourceIndex": 0,
+          "components": [
+            3
+          ],
+          "group": 3,
+          "lengthAt1000": 781.2161447284451,
+          "duration": 1.0166666666666666,
+          "start": 0.5069999999999999,
+          "finish": 1.5236666666666665,
+          "samples": [
+            {
+              "time": 0.5069999999999999,
+              "progress": 0.0
+            },
+            {
+              "time": 0.7611666666666665,
+              "progress": 0.4119434630453297
+            },
+            {
+              "time": 1.0153333333333332,
+              "progress": 0.7931093920199208
+            },
+            {
+              "time": 1.2694999999999999,
+              "progress": 0.9570676230065088
+            },
+            {
+              "time": 1.5236666666666665,
+              "progress": 1.0
+            }
+          ]
+        },
+        {
+          "sourceIndex": 1,
+          "components": [
+            2
+          ],
+          "group": 2,
+          "lengthAt1000": 629.1444291332654,
+          "duration": 1.0,
+          "start": 0.32699999999999996,
+          "finish": 1.327,
+          "samples": [
+            {
+              "time": 0.32699999999999996,
+              "progress": 0.0
+            },
+            {
+              "time": 0.577,
+              "progress": 0.4119434630453297
+            },
+            {
+              "time": 0.827,
+              "progress": 0.7931093920199208
+            },
+            {
+              "time": 1.077,
+              "progress": 0.9570676230065088
+            },
+            {
+              "time": 1.327,
+              "progress": 1.0
+            }
+          ]
+        },
+        {
+          "sourceIndex": 2,
+          "components": [
+            1
+          ],
+          "group": 1,
+          "lengthAt1000": 489.8777665814626,
+          "duration": 0.95,
+          "start": 0.156,
+          "finish": 1.1059999999999999,
+          "samples": [
+            {
+              "time": 0.156,
+              "progress": 0.0
+            },
+            {
+              "time": 0.39349999999999996,
+              "progress": 0.4119434630453297
+            },
+            {
+              "time": 0.631,
+              "progress": 0.7931093920199208
+            },
+            {
+              "time": 0.8684999999999999,
+              "progress": 0.9570676230065088
+            },
+            {
+              "time": 1.1059999999999999,
+              "progress": 1.0
+            }
+          ]
+        },
+        {
+          "sourceIndex": 3,
+          "components": [
+            0
+          ],
+          "group": 0,
+          "lengthAt1000": 368.7335116670097,
+          "duration": 0.8666666666666667,
+          "start": 0.0,
+          "finish": 0.8666666666666667,
+          "samples": [
+            {
+              "time": 0.0,
+              "progress": 0.0
+            },
+            {
+              "time": 0.21666666666666667,
+              "progress": 0.4119434630453297
+            },
+            {
+              "time": 0.43333333333333335,
+              "progress": 0.7931093920199208
+            },
+            {
+              "time": 0.65,
+              "progress": 0.9570676230065088
+            },
+            {
+              "time": 0.8666666666666667,
+              "progress": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "cellularbars",
+      "on": false,
+      "reverse": false,
+      "rawOrder": 0,
+      "descending": false,
+      "timeline": [
+        {
+          "sourceIndex": 0,
+          "components": [
+            3
+          ],
+          "group": 3,
+          "lengthAt1000": 781.2161447284451,
+          "duration": 1.0166666666666666,
+          "start": 1.0703333333333334,
+          "finish": 2.0869999999999997,
+          "samples": [
+            {
+              "time": 1.0703333333333334,
+              "progress": 0.0
+            },
+            {
+              "time": 1.3245,
+              "progress": 0.11365266078767007
+            },
+            {
+              "time": 1.5786666666666667,
+              "progress": 0.39555224103648734
+            },
+            {
+              "time": 1.8328333333333333,
+              "progress": 0.7539197838458879
+            },
+            {
+              "time": 2.0869999999999997,
+              "progress": 1.0
+            }
+          ]
+        },
+        {
+          "sourceIndex": 1,
+          "components": [
+            2
+          ],
+          "group": 2,
+          "lengthAt1000": 629.1444291332654,
+          "duration": 1.0,
+          "start": 0.6903333333333334,
+          "finish": 1.6903333333333332,
+          "samples": [
+            {
+              "time": 0.6903333333333334,
+              "progress": 0.0
+            },
+            {
+              "time": 0.9403333333333334,
+              "progress": 0.11365266078767007
+            },
+            {
+              "time": 1.1903333333333332,
+              "progress": 0.39555224103648734
+            },
+            {
+              "time": 1.4403333333333332,
+              "progress": 0.7539197838458879
+            },
+            {
+              "time": 1.6903333333333332,
+              "progress": 1.0
+            }
+          ]
+        },
+        {
+          "sourceIndex": 2,
+          "components": [
+            1
+          ],
+          "group": 1,
+          "lengthAt1000": 489.8777665814626,
+          "duration": 0.95,
+          "start": 0.32933333333333337,
+          "finish": 1.2793333333333332,
+          "samples": [
+            {
+              "time": 0.32933333333333337,
+              "progress": 0.0
+            },
+            {
+              "time": 0.5668333333333333,
+              "progress": 0.11365266078767007
+            },
+            {
+              "time": 0.8043333333333333,
+              "progress": 0.39555224103648734
+            },
+            {
+              "time": 1.0418333333333334,
+              "progress": 0.7539197838458879
+            },
+            {
+              "time": 1.2793333333333332,
+              "progress": 1.0
+            }
+          ]
+        },
+        {
+          "sourceIndex": 3,
+          "components": [
+            0
+          ],
+          "group": 0,
+          "lengthAt1000": 368.7335116670097,
+          "duration": 0.8666666666666667,
+          "start": 0.0,
+          "finish": 0.8666666666666667,
+          "samples": [
+            {
+              "time": 0.0,
+              "progress": 0.0
+            },
+            {
+              "time": 0.21666666666666667,
+              "progress": 0.11365266078767007
+            },
+            {
+              "time": 0.43333333333333335,
+              "progress": 0.39555224103648734
+            },
+            {
+              "time": 0.65,
+              "progress": 0.7539197838458879
+            },
+            {
+              "time": 0.8666666666666667,
+              "progress": 1.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "cellularbars",
+      "on": false,
+      "reverse": true,
+      "rawOrder": 0,
+      "descending": true,
+      "timeline": [
+        {
+          "sourceIndex": 0,
+          "components": [
+            3
+          ],
+          "group": 3,
+          "lengthAt1000": 781.2161447284451,
+          "duration": 1.0166666666666666,
+          "start": 0.0,
+          "finish": 1.0166666666666666,
+          "samples": [
+            {
+              "time": 0.0,
+              "progress": 0.0
+            },
+            {
+              "time": 0.25416666666666665,
+              "progress": 0.11365266078767007
+            },
+            {
+              "time": 0.5083333333333333,
+              "progress": 0.39555224103648734
+            },
+            {
+              "time": 0.7625,
+              "progress": 0.7539197838458879
+            },
+            {
+              "time": 1.0166666666666666,
+              "progress": 1.0
+            }
+          ]
+        },
+        {
+          "sourceIndex": 1,
+          "components": [
+            2
+          ],
+          "group": 2,
+          "lengthAt1000": 629.1444291332654,
+          "duration": 1.0,
+          "start": 0.3863333333333333,
+          "finish": 1.3863333333333334,
+          "samples": [
+            {
+              "time": 0.3863333333333333,
+              "progress": 0.0
+            },
+            {
+              "time": 0.6363333333333333,
+              "progress": 0.11365266078767007
+            },
+            {
+              "time": 0.8863333333333333,
+              "progress": 0.39555224103648734
+            },
+            {
+              "time": 1.1363333333333334,
+              "progress": 0.7539197838458879
+            },
+            {
+              "time": 1.3863333333333334,
+              "progress": 1.0
+            }
+          ]
+        },
+        {
+          "sourceIndex": 2,
+          "components": [
+            1
+          ],
+          "group": 1,
+          "lengthAt1000": 489.8777665814626,
+          "duration": 0.95,
+          "start": 0.7663333333333333,
+          "finish": 1.7163333333333333,
+          "samples": [
+            {
+              "time": 0.7663333333333333,
+              "progress": 0.0
+            },
+            {
+              "time": 1.0038333333333334,
+              "progress": 0.11365266078767007
+            },
+            {
+              "time": 1.2413333333333334,
+              "progress": 0.39555224103648734
+            },
+            {
+              "time": 1.4788333333333332,
+              "progress": 0.7539197838458879
+            },
+            {
+              "time": 1.7163333333333333,
+              "progress": 1.0
+            }
+          ]
+        },
+        {
+          "sourceIndex": 3,
+          "components": [
+            0
+          ],
+          "group": 0,
+          "lengthAt1000": 368.7335116670097,
+          "duration": 0.8666666666666667,
+          "start": 1.1273333333333333,
+          "finish": 1.994,
+          "samples": [
+            {
+              "time": 1.1273333333333333,
+              "progress": 0.0
+            },
+            {
+              "time": 1.3439999999999999,
+              "progress": 0.11365266078767007
+            },
+            {
+              "time": 1.5606666666666666,
+              "progress": 0.39555224103648734
+            },
+            {
+              "time": 1.7773333333333334,
+              "progress": 0.7539197838458879
+            },
+            {
+              "time": 1.994,
+              "progress": 1.0
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

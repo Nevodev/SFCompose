@@ -1,0 +1,17 @@
+{
+  "provenance": "macOS 27.2.1 RenderBox replace_draw_keyframes 0x196b1994c and Keyframes.eval executed. Model glyph reads, draw-presence queries and Draw admission are explicit stubs. Captured output is an emitter track, not a system window recording.",
+  "duration": 0.08299999684095383,
+  "preset": 1,
+  "incomingDrawDelay": 0.0,
+  "outgoingDrawCalls": 0,
+  "samples": [
+    [0.0, 1.0],
+    [0.01, 0.9599500894546509],
+    [0.02, 0.8537917137145996],
+    [0.0415, 0.5],
+    [0.06, 0.18780946731567383],
+    [0.082, 0.00043201446533203125],
+    [0.083, 0.0],
+    [0.1, 0.0]
+  ]
+}

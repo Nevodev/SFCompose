@@ -1,0 +1,821 @@
+{
+  "provenance": "Original CoreUI alignmentRectUnrounded block 18f236e18 executed with artifact-derived referenceCanvasSize/insets/requestedRatio getters. Original RenderBox Glyph initialization 196a989f0..98a04 and 196a98a70..98aa0 numeric instructions then original fill_rect196ad26dc executed. Getter calls and CGAffineTransformMakeScale are modeled, full Glyph constructor and animation placement are not executed. hostMappedFontRect is a host inverse coordinate conversion of native fill_rect, not an original binary result.",
+  "records": [
+    {
+      "name": "airplay.audio",
+      "scale": "small",
+      "weight": "regular",
+      "pointSize": 13.0,
+      "density": 1.0,
+      "nativeCanvasSize": [
+        10.257807,
+        10.086421
+      ],
+      "nativeInsets": {
+        "top": 0.888671875,
+        "left": 0.8886713981628418,
+        "bottom": 0.888671875,
+        "right": 0.8876213431358337
+      },
+      "systemTransform": [
+        0.00634765,
+        0.0,
+        0.0,
+        0.00634765,
+        -0.888671,
+        9.71191
+      ],
+      "originalAlignmentRect": [
+        0.8886713981628418,
+        0.888671875,
+        10.257807,
+        10.086421
+      ],
+      "originalGlyphRoundedOrigin": [
+        1.0,
+        1.0
+      ],
+      "originalGlyphSize": [
+        11.0,
+        11.0
+      ],
+      "originalFillRect": [
+        0.0,
+        0.0,
+        11.0,
+        11.0
+      ],
+      "hostMappedFontRect": [
+        140.0,
+        -202.9239167250873,
+        1872.9247831874789,
+        1530.0008664623915
+      ]
+    },
+    {
+      "name": "airplay.audio",
+      "scale": "small",
+      "weight": "regular",
+      "pointSize": 13.0,
+      "density": 3.0,
+      "nativeCanvasSize": [
+        10.257807,
+        10.086421
+      ],
+      "nativeInsets": {
+        "top": 0.888671875,
+        "left": 0.8886713981628418,
+        "bottom": 0.888671875,
+        "right": 0.8876213431358337
+      },
+      "systemTransform": [
+        0.00634765,
+        0.0,
+        0.0,
+        0.00634765,
+        -0.888671,
+        9.71191
+      ],
+      "originalAlignmentRect": [
+        0.8886713981628418,
+        0.888671875,
+        10.257807,
+        10.086421
+      ],
+      "originalGlyphRoundedOrigin": [
+        1.0,
+        1.0
+      ],
+      "originalGlyphSize": [
+        10.333333969116211,
+        10.333333969116211
+      ],
+      "originalFillRect": [
+        0.0,
+        0.0,
+        10.333333969116211,
+        10.333333969116211
+      ],
+      "hostMappedFontRect": [
+        140.0,
+        -97.89827244983755,
+        1767.899138912229,
+        1530.0008664623915
+      ]
+    },
+    {
+      "name": "airplay.audio",
+      "scale": "small",
+      "weight": "regular",
+      "pointSize": 32.0,
+      "density": 1.0,
+      "nativeCanvasSize": [
+        10.257807,
+        10.086421
+      ],
+      "nativeInsets": {
+        "top": 0.888671875,
+        "left": 0.8886713981628418,
+        "bottom": 0.888671875,
+        "right": 0.8876213431358337
+      },
+      "systemTransform": [
+        0.00634765,
+        0.0,
+        0.0,
+        0.00634765,
+        -0.888671,
+        9.71191
+      ],
+      "originalAlignmentRect": [
+        2.1874988262469954,
+        2.1875,
+        25.249986461538462,
+        24.82811323076923
+      ],
+      "originalGlyphRoundedOrigin": [
+        2.0,
+        2.0
+      ],
+      "originalGlyphSize": [
+        26.0,
+        25.0
+      ],
+      "originalFillRect": [
+        0.0,
+        0.0,
+        26.0,
+        25.0
+      ],
+      "hostMappedFontRect": [
+        140.0,
+        -70.00070892377501,
+        1804.0016384016133,
+        1530.0008664623915
+      ]
+    },
+    {
+      "name": "airplay.audio",
+      "scale": "small",
+      "weight": "regular",
+      "pointSize": 32.0,
+      "density": 3.0,
+      "nativeCanvasSize": [
+        10.257807,
+        10.086421
+      ],
+      "nativeInsets": {
+        "top": 0.888671875,
+        "left": 0.8886713981628418,
+        "bottom": 0.888671875,
+        "right": 0.8876213431358337
+      },
+      "systemTransform": [
+        0.00634765,
+        0.0,
+        0.0,
+        0.00634765,
+        -0.888671,
+        9.71191
+      ],
+      "originalAlignmentRect": [
+        2.1874988262469954,
+        2.1875,
+        25.249986461538462,
+        24.82811323076923
+      ],
+      "originalGlyphRoundedOrigin": [
+        2.3333334922790527,
+        2.3333334922790527
+      ],
+      "originalGlyphSize": [
+        25.33333396911621,
+        25.0
+      ],
+      "originalFillRect": [
+        0.0,
+        0.0,
+        25.33333396911621,
+        25.0
+      ],
+      "hostMappedFontRect": [
+        140.0,
+        -70.00070892377501,
+        1761.3349704147931,
+        1530.0008664623915
+      ]
+    },
+    {
+      "name": "airplay.audio",
+      "scale": "medium",
+      "weight": "regular",
+      "pointSize": 13.0,
+      "density": 1.0,
+      "nativeCanvasSize": [
+        12.993094174731272,
+        12.783254747955478
+      ],
+      "nativeInsets": {
+        "top": 1.1339453125,
+        "left": 1.1339447040557862,
+        "bottom": 1.1339453125,
+        "right": 1.1328412402365693
+      },
+      "systemTransform": [
+        0.00634765,
+        0.0,
+        0.0,
+        0.00634765,
+        -0.888671,
+        9.71191
+      ],
+      "originalAlignmentRect": [
+        1.1339447040557862,
+        1.1339453125,
+        12.993094174731272,
+        12.783254747955478
+      ],
+      "originalGlyphRoundedOrigin": [
+        1.0,
+        1.0
+      ],
+      "originalGlyphSize": [
+        13.0,
+        13.0
+      ],
+      "originalFillRect": [
+        0.0,
+        0.0,
+        13.0,
+        13.0
+      ],
+      "hostMappedFontRect": [
+        140.0,
+        -518.0011500319016,
+        2188.0020164942935,
+        1530.0008664623915
+      ]
+    },
+    {
+      "name": "airplay.audio",
+      "scale": "medium",
+      "weight": "regular",
+      "pointSize": 13.0,
+      "density": 3.0,
+      "nativeCanvasSize": [
+        12.993094174731272,
+        12.783254747955478
+      ],
+      "nativeInsets": {
+        "top": 1.1339453125,
+        "left": 1.1339447040557862,
+        "bottom": 1.1339453125,
+        "right": 1.1328412402365693
+      },
+      "systemTransform": [
+        0.00634765,
+        0.0,
+        0.0,
+        0.00634765,
+        -0.888671,
+        9.71191
+      ],
+      "originalAlignmentRect": [
+        1.1339447040557862,
+        1.1339453125,
+        12.993094174731272,
+        12.783254747955478
+      ],
+      "originalGlyphRoundedOrigin": [
+        1.0,
+        1.0
+      ],
+      "originalGlyphSize": [
+        13.0,
+        13.0
+      ],
+      "originalFillRect": [
+        0.0,
+        0.0,
+        13.0,
+        13.0
+      ],
+      "hostMappedFontRect": [
+        140.0,
+        -518.0011500319016,
+        2188.0020164942935,
+        1530.0008664623915
+      ]
+    },
+    {
+      "name": "airplay.audio",
+      "scale": "medium",
+      "weight": "regular",
+      "pointSize": 32.0,
+      "density": 1.0,
+      "nativeCanvasSize": [
+        12.993094174731272,
+        12.783254747955478
+      ],
+      "nativeInsets": {
+        "top": 1.1339453125,
+        "left": 1.1339447040557862,
+        "bottom": 1.1339453125,
+        "right": 1.1328412402365693
+      },
+      "systemTransform": [
+        0.00634765,
+        0.0,
+        0.0,
+        0.00634765,
+        -0.888671,
+        9.71191
+      ],
+      "originalAlignmentRect": [
+        2.791248502291166,
+        2.7912500000000002,
+        31.983001045492365,
+        31.466473225736564
+      ],
+      "originalGlyphRoundedOrigin": [
+        3.0,
+        3.0
+      ],
+      "originalGlyphSize": [
+        32.0,
+        32.0
+      ],
+      "originalFillRect": [
+        0.0,
+        0.0,
+        32.0,
+        32.0
+      ],
+      "hostMappedFontRect": [
+        140.0,
+        -518.0011500319016,
+        2188.0020164942935,
+        1530.0008664623915
+      ]
+    },
+    {
+      "name": "airplay.audio",
+      "scale": "medium",
+      "weight": "regular",
+      "pointSize": 32.0,
+      "density": 3.0,
+      "nativeCanvasSize": [
+        12.993094174731272,
+        12.783254747955478
+      ],
+      "nativeInsets": {
+        "top": 1.1339453125,
+        "left": 1.1339447040557862,
+        "bottom": 1.1339453125,
+        "right": 1.1328412402365693
+      },
+      "systemTransform": [
+        0.00634765,
+        0.0,
+        0.0,
+        0.00634765,
+        -0.888671,
+        9.71191
+      ],
+      "originalAlignmentRect": [
+        2.791248502291166,
+        2.7912500000000002,
+        31.983001045492365,
+        31.466473225736564
+      ],
+      "originalGlyphRoundedOrigin": [
+        2.6666667461395264,
+        2.6666667461395264
+      ],
+      "originalGlyphSize": [
+        32.0,
+        31.666667938232422
+      ],
+      "originalFillRect": [
+        0.0,
+        0.0,
+        32.0,
+        31.666667938232422
+      ],
+      "hostMappedFontRect": [
+        140.0,
+        -496.66787707370787,
+        2188.0020164942935,
+        1530.0008664623915
+      ]
+    },
+    {
+      "name": "circle",
+      "scale": "small",
+      "weight": "regular",
+      "pointSize": 13.0,
+      "density": 1.0,
+      "nativeCanvasSize": [
+        10.25146,
+        10.245112
+      ],
+      "nativeInsets": {
+        "top": 0.888671875,
+        "left": 0.8886713981628418,
+        "bottom": 0.888671875,
+        "right": 0.8887689709663391
+      },
+      "systemTransform": [
+        0.00634765,
+        0.0,
+        0.0,
+        0.00634765,
+        -0.888671,
+        9.70556
+      ],
+      "originalAlignmentRect": [
+        0.8886713981628418,
+        0.888671875,
+        10.25146,
+        10.245112
+      ],
+      "originalGlyphRoundedOrigin": [
+        1.0,
+        1.0
+      ],
+      "originalGlyphSize": [
+        11.0,
+        11.0
+      ],
+      "originalFillRect": [
+        0.0,
+        0.0,
+        11.0,
+        11.0
+      ],
+      "hostMappedFontRect": [
+        140.0,
+        -203.92428694083634,
+        1872.9247831874789,
+        1529.0004962466426
+      ]
+    },
+    {
+      "name": "circle",
+      "scale": "small",
+      "weight": "regular",
+      "pointSize": 13.0,
+      "density": 3.0,
+      "nativeCanvasSize": [
+        10.25146,
+        10.245112
+      ],
+      "nativeInsets": {
+        "top": 0.888671875,
+        "left": 0.8886713981628418,
+        "bottom": 0.888671875,
+        "right": 0.8887689709663391
+      },
+      "systemTransform": [
+        0.00634765,
+        0.0,
+        0.0,
+        0.00634765,
+        -0.888671,
+        9.70556
+      ],
+      "originalAlignmentRect": [
+        0.8886713981628418,
+        0.888671875,
+        10.25146,
+        10.245112
+      ],
+      "originalGlyphRoundedOrigin": [
+        1.0,
+        1.0
+      ],
+      "originalGlyphSize": [
+        10.333333969116211,
+        10.333333969116211
+      ],
+      "originalFillRect": [
+        0.0,
+        0.0,
+        10.333333969116211,
+        10.333333969116211
+      ],
+      "hostMappedFontRect": [
+        140.0,
+        -98.89864266558659,
+        1767.899138912229,
+        1529.0004962466426
+      ]
+    },
+    {
+      "name": "circle",
+      "scale": "small",
+      "weight": "regular",
+      "pointSize": 32.0,
+      "density": 1.0,
+      "nativeCanvasSize": [
+        10.25146,
+        10.245112
+      ],
+      "nativeInsets": {
+        "top": 0.888671875,
+        "left": 0.8886713981628418,
+        "bottom": 0.888671875,
+        "right": 0.8887689709663391
+      },
+      "systemTransform": [
+        0.00634765,
+        0.0,
+        0.0,
+        0.00634765,
+        -0.888671,
+        9.70556
+      ],
+      "originalAlignmentRect": [
+        2.1874988262469954,
+        2.1875,
+        25.234363076923078,
+        25.218737230769232
+      ],
+      "originalGlyphRoundedOrigin": [
+        2.0,
+        2.0
+      ],
+      "originalGlyphSize": [
+        26.0,
+        26.0
+      ],
+      "originalFillRect": [
+        0.0,
+        0.0,
+        26.0,
+        26.0
+      ],
+      "hostMappedFontRect": [
+        140.0,
+        -135.00114215497072,
+        1804.0016384016133,
+        1529.0004962466426
+      ]
+    },
+    {
+      "name": "circle",
+      "scale": "small",
+      "weight": "regular",
+      "pointSize": 32.0,
+      "density": 3.0,
+      "nativeCanvasSize": [
+        10.25146,
+        10.245112
+      ],
+      "nativeInsets": {
+        "top": 0.888671875,
+        "left": 0.8886713981628418,
+        "bottom": 0.888671875,
+        "right": 0.8887689709663391
+      },
+      "systemTransform": [
+        0.00634765,
+        0.0,
+        0.0,
+        0.00634765,
+        -0.888671,
+        9.70556
+      ],
+      "originalAlignmentRect": [
+        2.1874988262469954,
+        2.1875,
+        25.234363076923078,
+        25.218737230769232
+      ],
+      "originalGlyphRoundedOrigin": [
+        2.3333334922790527,
+        2.3333334922790527
+      ],
+      "originalGlyphSize": [
+        25.33333396911621,
+        25.33333396911621
+      ],
+      "originalFillRect": [
+        0.0,
+        0.0,
+        25.33333396911621,
+        25.33333396911621
+      ],
+      "hostMappedFontRect": [
+        140.0,
+        -92.3344741681505,
+        1761.3349704147931,
+        1529.0004962466426
+      ]
+    },
+    {
+      "name": "circle",
+      "scale": "medium",
+      "weight": "regular",
+      "pointSize": 13.0,
+      "density": 1.0,
+      "nativeCanvasSize": [
+        12.948123068715056,
+        12.940023020715056
+      ],
+      "nativeInsets": {
+        "top": 1.1339453125,
+        "left": 1.1339447040557862,
+        "bottom": 1.1339453125,
+        "right": 1.1340247786158522
+      },
+      "systemTransform": [
+        0.00634765,
+        0.0,
+        0.0,
+        0.00634765,
+        -0.888671,
+        9.70556
+      ],
+      "originalAlignmentRect": [
+        1.1339447040557862,
+        1.1339453125,
+        12.948123068715056,
+        12.940023020715056
+      ],
+      "originalGlyphRoundedOrigin": [
+        1.0,
+        1.0
+      ],
+      "originalGlyphSize": [
+        13.0,
+        13.0
+      ],
+      "originalFillRect": [
+        0.0,
+        0.0,
+        13.0,
+        13.0
+      ],
+      "hostMappedFontRect": [
+        140.0,
+        -519.0015202476507,
+        2188.0020164942935,
+        1529.0004962466426
+      ]
+    },
+    {
+      "name": "circle",
+      "scale": "medium",
+      "weight": "regular",
+      "pointSize": 13.0,
+      "density": 3.0,
+      "nativeCanvasSize": [
+        12.948123068715056,
+        12.940023020715056
+      ],
+      "nativeInsets": {
+        "top": 1.1339453125,
+        "left": 1.1339447040557862,
+        "bottom": 1.1339453125,
+        "right": 1.1340247786158522
+      },
+      "systemTransform": [
+        0.00634765,
+        0.0,
+        0.0,
+        0.00634765,
+        -0.888671,
+        9.70556
+      ],
+      "originalAlignmentRect": [
+        1.1339447040557862,
+        1.1339453125,
+        12.948123068715056,
+        12.940023020715056
+      ],
+      "originalGlyphRoundedOrigin": [
+        1.0,
+        1.0
+      ],
+      "originalGlyphSize": [
+        13.0,
+        13.0
+      ],
+      "originalFillRect": [
+        0.0,
+        0.0,
+        13.0,
+        13.0
+      ],
+      "hostMappedFontRect": [
+        140.0,
+        -519.0015202476507,
+        2188.0020164942935,
+        1529.0004962466426
+      ]
+    },
+    {
+      "name": "circle",
+      "scale": "medium",
+      "weight": "regular",
+      "pointSize": 32.0,
+      "density": 1.0,
+      "nativeCanvasSize": [
+        12.948123068715056,
+        12.940023020715056
+      ],
+      "nativeInsets": {
+        "top": 1.1339453125,
+        "left": 1.1339447040557862,
+        "bottom": 1.1339453125,
+        "right": 1.1340247786158522
+      },
+      "systemTransform": [
+        0.00634765,
+        0.0,
+        0.0,
+        0.00634765,
+        -0.888671,
+        9.70556
+      ],
+      "originalAlignmentRect": [
+        2.791248502291166,
+        2.7912500000000002,
+        31.872302938375523,
+        31.852364358683218
+      ],
+      "originalGlyphRoundedOrigin": [
+        3.0,
+        3.0
+      ],
+      "originalGlyphSize": [
+        32.0,
+        32.0
+      ],
+      "originalFillRect": [
+        0.0,
+        0.0,
+        32.0,
+        32.0
+      ],
+      "hostMappedFontRect": [
+        140.0,
+        -519.0015202476507,
+        2188.0020164942935,
+        1529.0004962466426
+      ]
+    },
+    {
+      "name": "circle",
+      "scale": "medium",
+      "weight": "regular",
+      "pointSize": 32.0,
+      "density": 3.0,
+      "nativeCanvasSize": [
+        12.948123068715056,
+        12.940023020715056
+      ],
+      "nativeInsets": {
+        "top": 1.1339453125,
+        "left": 1.1339447040557862,
+        "bottom": 1.1339453125,
+        "right": 1.1340247786158522
+      },
+      "systemTransform": [
+        0.00634765,
+        0.0,
+        0.0,
+        0.00634765,
+        -0.888671,
+        9.70556
+      ],
+      "originalAlignmentRect": [
+        2.791248502291166,
+        2.7912500000000002,
+        31.872302938375523,
+        31.852364358683218
+      ],
+      "originalGlyphRoundedOrigin": [
+        2.6666667461395264,
+        2.6666667461395264
+      ],
+      "originalGlyphSize": [
+        32.0,
+        32.0
+      ],
+      "originalFillRect": [
+        0.0,
+        0.0,
+        32.0,
+        32.0
+      ],
+      "hostMappedFontRect": [
+        140.0,
+        -519.0015202476507,
+        2188.0020164942935,
+        1529.0004962466426
+      ]
+    }
+  ]
+}

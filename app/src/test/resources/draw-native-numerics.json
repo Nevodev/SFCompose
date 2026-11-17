@@ -1,0 +1,278 @@
+[
+  {
+    "name": "line",
+    "points": [
+      0.0,
+      0.0,
+      33.333333333333336,
+      0.0,
+      66.66666666666667,
+      0.0,
+      100.0,
+      0.0
+    ],
+    "sharedLength": 100.0,
+    "coreLength": 100.0,
+    "nearest": [
+      {
+        "target": [
+          50.0,
+          0.0
+        ],
+        "parameter": 0.50390625,
+        "projectionFraction": 0.50390625
+      },
+      {
+        "target": [
+          0.0,
+          0.0
+        ],
+        "parameter": 0.00390625,
+        "projectionFraction": 0.0
+      },
+      {
+        "target": [
+          100.0,
+          0.0
+        ],
+        "parameter": 0.99609375,
+        "projectionFraction": 0.9960937499999997
+      },
+      {
+        "target": [
+          75.0,
+          30.0
+        ],
+        "parameter": 0.75,
+        "projectionFraction": 0.75
+      }
+    ],
+    "indices": [
+      {
+        "distance": 12.5,
+        "parameter": 0.125,
+        "position": [
+          12.5,
+          0.0
+        ]
+      },
+      {
+        "distance": 50.0,
+        "parameter": 0.5,
+        "position": [
+          50.0,
+          0.0
+        ]
+      },
+      {
+        "distance": 87.5,
+        "parameter": 0.875,
+        "position": [
+          87.5,
+          0.0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "quarterCircle",
+    "points": [
+      100.0,
+      0.0,
+      100.0,
+      55.22847498307936,
+      55.22847498307936,
+      100.0,
+      0.0,
+      100.0
+    ],
+    "sharedLength": 157.1016776823076,
+    "coreLength": 156.9399611580539,
+    "nearest": [
+      {
+        "target": [
+          75.0,
+          75.0
+        ],
+        "parameter": 0.501953125,
+        "projectionFraction": 0.5019092166483671
+      },
+      {
+        "target": [
+          100.0,
+          0.0
+        ],
+        "parameter": 0.001953125,
+        "projectionFraction": 0.0
+      },
+      {
+        "target": [
+          0.0,
+          100.0
+        ],
+        "parameter": 0.998046875,
+        "projectionFraction": 0.9979409192980893
+      },
+      {
+        "target": [
+          30.0,
+          60.0
+        ],
+        "parameter": 0.70703125,
+        "projectionFraction": 0.7030117749290526
+      }
+    ],
+    "indices": [
+      {
+        "distance": 19.617495144756738,
+        "parameter": 0.1211035182863038,
+        "position": [
+          98.09108061489682,
+          19.544054537000534
+        ]
+      },
+      {
+        "distance": 78.46998057902695,
+        "parameter": 0.5000000102333269,
+        "position": [
+          70.710677007534,
+          70.71067922977551
+        ]
+      },
+      {
+        "distance": 137.32246601329717,
+        "parameter": 0.8788964897063387,
+        "position": [
+          19.544053285533302,
+          98.0910808628458
+        ]
+      }
+    ]
+  },
+  {
+    "name": "loop",
+    "points": [
+      0.0,
+      0.0,
+      200.0,
+      300.0,
+      -200.0,
+      300.0,
+      0.0,
+      0.0
+    ],
+    "sharedLength": 537.0398934896245,
+    "coreLength": 536.6935800051717,
+    "nearest": [
+      {
+        "target": [
+          0.0,
+          150.0
+        ],
+        "parameter": 0.749969482421875,
+        "projectionFraction": 0.6616065230062238
+      },
+      {
+        "target": [
+          100.0,
+          140.0
+        ],
+        "parameter": 0.2500152587890625,
+        "projectionFraction": 0.3383805631813581
+      },
+      {
+        "target": [
+          -80.0,
+          200.0
+        ],
+        "parameter": 0.7021484375,
+        "projectionFraction": 0.6238608111965754
+      }
+    ],
+    "indices": [
+      {
+        "distance": 67.08669750064647,
+        "parameter": 0.06971301406688649,
+        "position": [
+          33.486538940339514,
+          58.367798762936914
+        ]
+      },
+      {
+        "distance": 268.34679000258586,
+        "parameter": 0.5,
+        "position": [
+          0.0,
+          225.0
+        ]
+      },
+      {
+        "distance": 469.6068825045253,
+        "parameter": 0.9302869859331137,
+        "position": [
+          -33.48653894033946,
+          58.36779876293676
+        ]
+      }
+    ]
+  },
+  {
+    "name": "degenerate",
+    "points": [
+      15.0,
+      12.0,
+      15.0,
+      12.0,
+      15.0,
+      12.0,
+      15.0,
+      12.0
+    ],
+    "sharedLength": 0.0,
+    "coreLength": 0.0,
+    "nearest": [
+      {
+        "target": [
+          15.0,
+          12.0
+        ],
+        "parameter": 0.75,
+        "projectionFraction": 0.0
+      },
+      {
+        "target": [
+          100.0,
+          200.0
+        ],
+        "parameter": 0.75,
+        "projectionFraction": 0.0
+      }
+    ],
+    "indices": [
+      {
+        "distance": 0.0,
+        "parameter": 0.0,
+        "position": [
+          15.0,
+          12.0
+        ]
+      },
+      {
+        "distance": 0.0,
+        "parameter": 0.0,
+        "position": [
+          15.0,
+          12.0
+        ]
+      },
+      {
+        "distance": 0.0,
+        "parameter": 0.0,
+        "position": [
+          15.0,
+          12.0
+        ]
+      }
+    ]
+  }
+]

@@ -1,0 +1,24 @@
+{
+  "provenance": "Original RenderBox LengthEstimator methods, concatenated native layer monochrome-2 with source paths 2+3 and raw frame offsets; original Regular source scale applied to font-unit contours. Only translations/reflection omitted since length invariant.",
+  "name": "homepod.mini.arrow.forward",
+  "records": [
+    {
+      "pointSize": 13.0,
+      "normalizedLength": 384.9760569058932,
+      "nativeLength": 5.004688739776611,
+      "nativeMaximum": 5.004688690453339
+    },
+    {
+      "pointSize": 32.0,
+      "normalizedLength": 388.0270811227652,
+      "nativeLength": 5.044352054595947,
+      "nativeMaximum": 5.044352234617213
+    },
+    {
+      "pointSize": 160.0,
+      "normalizedLength": 391.9347983140212,
+      "nativeLength": 5.095152378082275,
+      "nativeMaximum": 5.095152421251322
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "sourceKind": "macOS-system-CoreGlyphs",
+  "sourceDirectory": "D:\\MACOS\\analysis\\system\\android-assets-system-catalog-modes",
+  "records": [
+    {
+      "name": "air.purifier.fill",
+      "sourceAssetSha256": "f258bd432d37c6bbc7432e4e661a2c61c84b279884f47639993fd0446f182707",
+      "retainedWeights": [
+        "Light",
+        "Regular"
+      ]
+    },
+    {
+      "name": "car.side.air.fresh.fill",
+      "sourceAssetSha256": "6160e3d5f6bcbe7b86a700b5248b696cf0458fdf9341c9a334a63303e70244db",
+      "retainedWeights": [
+        "Light",
+        "Regular"
+      ]
+    },
+    {
+      "name": "flag.slash.circle.fill",
+      "sourceAssetSha256": "58dc8a6c66a369d63b84954ec57cefe949e92847f3af28688400ae2bf51aa6b7",
+      "retainedWeights": [
+        "Light",
+        "Regular"
+      ]
+    }
+  ]
+}
