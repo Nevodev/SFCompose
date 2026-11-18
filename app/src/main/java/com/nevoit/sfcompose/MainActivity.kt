@@ -4,15 +4,15 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -34,30 +34,31 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.nevoit.sfcompose.browser.SymbolCatalogBrowser
 import com.nevoit.sfcompose.symbols.SFSymbol
 import com.nevoit.sfcompose.symbols.SFSymbolReplace
 import com.nevoit.sfcompose.symbols.SymbolAssetStore
 import com.nevoit.sfcompose.symbols.SymbolCatalog
-import com.nevoit.sfcompose.symbols.SymbolEffect
-import com.nevoit.sfcompose.symbols.SymbolInstance
-import com.nevoit.sfcompose.symbols.SymbolRenderingMode
-import com.nevoit.sfcompose.symbols.SymbolScale
-import com.nevoit.sfcompose.symbols.SymbolWeight
-import com.nevoit.sfcompose.symbols.SymbolDrawEffect
-import com.nevoit.sfcompose.symbols.SymbolEffectPlayback
-import com.nevoit.sfcompose.symbols.SymbolEffectLayerMode
-import com.nevoit.sfcompose.symbols.SymbolReplaceDirection
-import com.nevoit.sfcompose.symbols.SymbolVariableAnimation
-import com.nevoit.sfcompose.symbols.SymbolDrawTiming
-import com.nevoit.sfcompose.symbols.SymbolReplacePlan
-import com.nevoit.sfcompose.symbols.SymbolMotionTiming
-import com.nevoit.sfcompose.symbols.SymbolVariableDraw
 import com.nevoit.sfcompose.symbols.SymbolDisplayMode
-import com.nevoit.sfcompose.ui.SymbolDisplayModeSelector
+import com.nevoit.sfcompose.symbols.SymbolDrawEffect
+import com.nevoit.sfcompose.symbols.SymbolDrawTiming
+import com.nevoit.sfcompose.symbols.SymbolEffect
+import com.nevoit.sfcompose.symbols.SymbolEffectLayerMode
+import com.nevoit.sfcompose.symbols.SymbolEffectPlayback
+import com.nevoit.sfcompose.symbols.SymbolInstance
+import com.nevoit.sfcompose.symbols.SymbolMotionTiming
+import com.nevoit.sfcompose.symbols.SymbolRenderingMode
+import com.nevoit.sfcompose.symbols.SymbolReplaceDirection
+import com.nevoit.sfcompose.symbols.SymbolReplacePlan
+import com.nevoit.sfcompose.symbols.SymbolScale
+import com.nevoit.sfcompose.symbols.SymbolVariableAnimation
+import com.nevoit.sfcompose.symbols.SymbolVariableDraw
+import com.nevoit.sfcompose.symbols.SymbolWeight
 import com.nevoit.sfcompose.symbols.symbolMotionGroups
-import com.nevoit.sfcompose.symbols.systemStyle
+import com.nevoit.sfcompose.symbols.rememberSymbolResourceConfiguration
+import com.nevoit.sfcompose.ui.SymbolDisplayModeSelector
+import com.nevoit.sfcompose.ui.SymbolWeightSelector
 import com.nevoit.sfcompose.ui.theme.SFComposeTheme
-import com.nevoit.sfcompose.browser.SymbolCatalogBrowser
 import kotlinx.coroutines.CancellationException
 
 class MainActivity : ComponentActivity() {
@@ -94,6 +95,7 @@ internal fun SymbolInspector(store: SymbolAssetStore, initialName: String, onBac
     var drawReversed by remember { mutableStateOf(false) }
     var drawReversesMotionGroups by remember { mutableStateOf(false) }
     var variable by remember { mutableFloatStateOf(1f) }
+    var variableColor by remember { mutableStateOf(false) }
     var variableDraw by remember { mutableStateOf(false) }
     var animateVariable by remember { mutableStateOf(false) }
     var iterative by remember { mutableStateOf(false) }
@@ -125,7 +127,7 @@ internal fun SymbolInspector(store: SymbolAssetStore, initialName: String, onBac
         symbol?.let { supported(it.nodes) } == true
     }
     val manualDrawLabel = if (nativeVariableDrawModes.isNotEmpty()) "Variable Draw" else "Draw 进度"
-    val previewDuration = remember(symbol, replacement, draw, layerMode, drawReversed, drawReversesMotionGroups,
+    val playbackDuration = remember(symbol, replacement, draw, layerMode, drawReversed, drawReversesMotionGroups,
         replaceEnabled, magic, layeredReplace, replaceDirection, playback, effect, effectRepeatCount,
         animateVariable, iterative, bounceVariable) {
         val drawing = symbol?.let { current -> draw?.let { selected ->
@@ -138,31 +140,33 @@ internal fun SymbolInspector(store: SymbolAssetStore, initialName: String, onBac
         val replacing = if (replaceEnabled) symbol?.let { first -> replacement?.let { second ->
             SymbolReplacePlan(first, second, replaceDirection, magic, layeredReplace, pointSize = 160f).durationSeconds
         } } ?: 0f else 0f
-        val finiteAnimation = if (playback == SymbolEffectPlayback.Continuous) effectRepeatCount?.let { count ->
+        val finiteAnimation = if (playback == SymbolEffectPlayback.Continuous &&
+            effectRepeatCount == null && (effect.hasContinuousPlayback() || animateVariable)) Float.POSITIVE_INFINITY else {
             symbol?.let { current ->
                 val timing = SymbolMotionTiming(current.metadata.optString("sourceKind").startsWith("macOS-system"))
                 SymbolRenderingMode.entries.maxOf { mode ->
                     val groups = symbolMotionGroups(current.nodes, mode).maxGroupIndex + 1
-                    val motion = timing.continuousDuration(effect, count, groups,
-                        wholeSymbol = layerMode == SymbolEffectLayerMode.WholeSymbol)
-                    var variableGroups = 0
-                    fun visit(nodes: List<com.nevoit.sfcompose.symbols.SymbolNode>) {
-                        for (node in nodes) when (node) {
-                            is com.nevoit.sfcompose.symbols.SymbolNode.Layer ->
-                                if (node.source.systemStyle(mode)?.has("-sfsymbols-variable-threshold") == true) variableGroups++
-                            is com.nevoit.sfcompose.symbols.SymbolNode.Group -> visit(node.children)
+                    val repeatCount = effectRepeatCount.takeIf { playback == SymbolEffectPlayback.Continuous }
+                    val motion = if (repeatCount != null && effect.hasContinuousPlayback())
+                        timing.continuousDuration(effect, repeatCount, groups,
+                            wholeSymbol = layerMode == SymbolEffectLayerMode.WholeSymbol)
+                    else effect.discreteDuration()
+                    val variableGroups = if (animateVariable) current.prepared.mode(mode).variableThresholds.size else 0
+                    val variableDuration = when {
+                        variableGroups == 0 -> 0f
+                        repeatCount != null -> timing.variableContinuousDuration(variableGroups, iterative, bounceVariable,
+                            willLoop = !bounceVariable, repeatCount = repeatCount)
+                        else -> (0 until variableGroups).maxOf { index ->
+                            timing.variableColorTrack(index, variableGroups, iterative, bounceVariable).durationSeconds
                         }
                     }
-                    visit(current.nodes)
-                    val variableDuration = if (animateVariable && variableGroups > 0)
-                        timing.variableContinuousDuration(variableGroups, iterative, bounceVariable,
-                            willLoop = !bounceVariable, repeatCount = count) else 0f
                     maxOf(motion, variableDuration)
                 }
-            }
-        } ?: 0f else 0f
-        maxOf(6f, drawing, replacing, finiteAnimation)
+            } ?: 0f
+        }
+        maxOf(drawing, replacing, finiteAnimation)
     }
+    val previewDuration = maxOf(6f, playbackDuration.takeIf(Float::isFinite) ?: 0f)
     LaunchedEffect(store) {
         try {
             catalog = store.catalog()
@@ -172,34 +176,40 @@ internal fun SymbolInspector(store: SymbolAssetStore, initialName: String, onBac
             error = failure.message
         }
     }
-    LaunchedEffect(store, requestedName, weight, scale) {
-        symbol = null
+    val resourceConfiguration = rememberSymbolResourceConfiguration()
+    var weightPosition by remember { mutableStateOf<Float?>(null) }
+    LaunchedEffect(store, requestedName, weight, weightPosition, scale, resourceConfiguration) {
+        if (symbol?.name != requestedName) symbol = null
         error = null
         try {
-            symbol = store.load(requestedName, weight, scale)
+            symbol = weightPosition?.let { position ->
+                store.load(requestedName, weightPosition = position, scale = scale, configuration = resourceConfiguration)
+            } ?: store.load(requestedName, weight, scale, configuration = resourceConfiguration)
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (failure: Exception) {
             error = failure.message
         }
     }
-    LaunchedEffect(store, requestedReplacement, weight, scale) {
-        replacement = null
+    LaunchedEffect(store, requestedReplacement, weight, weightPosition, scale, resourceConfiguration) {
+        if (replacement?.name != requestedReplacement) replacement = null
         try {
-            replacement = store.load(requestedReplacement, weight, scale)
+            replacement = weightPosition?.let { position ->
+                store.load(requestedReplacement, weightPosition = position, scale = scale, configuration = resourceConfiguration)
+            } ?: store.load(requestedReplacement, weight, scale, configuration = resourceConfiguration)
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (failure: Exception) {
             error = failure.message
         }
     }
-    LaunchedEffect(effect, draw, playback, replay, symbol, replacement, animateVariable, replaceEnabled, playing, previewDuration) {
-        if (playing && symbol != null && (effect != SymbolEffect.None || draw != null || animateVariable || replaceEnabled)) {
+    LaunchedEffect(effect, draw, playback, replay, symbol, replacement, animateVariable, replaceEnabled, playing, playbackDuration) {
+        if (playing && symbol != null && elapsed < playbackDuration) {
             val start = withFrameNanos { it }
             val offset = elapsed
             do {
-                elapsed = withFrameNanos { offset + (it - start) / 1_000_000_000f }
-            } while ((playback == SymbolEffectPlayback.Continuous && effectRepeatCount == null) || elapsed < previewDuration)
+                elapsed = withFrameNanos { (offset + (it - start) / 1_000_000_000f).coerceAtMost(playbackDuration) }
+            } while (elapsed < playbackDuration)
         }
     }
     Column(
@@ -231,7 +241,7 @@ internal fun SymbolInspector(store: SymbolAssetStore, initialName: String, onBac
                                 effectRepeatCount = effectRepeatCount,
                                 effectLayerMode = layerMode,
                                 gradients = gradient,
-                                variableValue = if (variableDraw) null else { { variable } },
+                                variableValue = if (variableColor && !variableDraw) { { variable } } else null,
                                 variableDrawValue = if (variableDraw && mode in nativeVariableDrawModes) { { variable } } else null,
                                 drawProgress = if (variableDraw && mode !in nativeVariableDrawModes && supportsManualDraw)
                                     { { variable } } else null,
@@ -259,17 +269,22 @@ internal fun SymbolInspector(store: SymbolAssetStore, initialName: String, onBac
                 playback = if (playback == SymbolEffectPlayback.Continuous) SymbolEffectPlayback.Discrete else SymbolEffectPlayback.Continuous
             }, label = { Text("循环") })
         }
-        Text(if (variableDraw) manualDrawLabel else "变量颜色")
+        Text(if (variableDraw) manualDrawLabel else "变量值")
         if (variableDraw && nativeVariableDrawModes.isEmpty()) {
             Text(if (supportsManualDraw) "该符号无原生 Variable Draw 范围；滑块控制 Draw On 进度。"
                 else "该符号不支持 Draw 进度。")
         }
-        Slider(variable, { variable = it }, modifier = Modifier.testTag("variable-value"),
+        Slider(variable, { variable = it; if (!variableDraw) variableColor = true }, modifier = Modifier.testTag("variable-value"),
             enabled = !variableDraw || supportsManualDraw)
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FilterChip(variableColor, {
+                variableColor = !variableColor
+                variableDraw = false
+            }, modifier = Modifier.testTag("variable-color"), label = { Text("变量颜色") })
             FilterChip(variableDraw, {
                 variableDraw = !variableDraw
                 if (variableDraw) {
+                    variableColor = false
                     draw = null
                     animateVariable = false
                 }
@@ -285,20 +300,20 @@ internal fun SymbolInspector(store: SymbolAssetStore, initialName: String, onBac
             }
         }
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            FilterChip(draw == null && !variableDraw, { draw = null; variableDraw = false }, label = { Text("静态") })
+            FilterChip(draw == null && !variableDraw && !variableColor, {
+                draw = null
+                variableDraw = false
+                variableColor = false
+            }, label = { Text("静态") })
             for (value in SymbolDrawEffect.entries) {
                 FilterChip(draw == value, { variableDraw = false; draw = value; replay++ }, label = { Text("Draw ${value.name}") })
             }
             FilterChip(drawReversed, { drawReversed = !drawReversed; replay++ }, label = { Text("反向 Draw") })
             FilterChip(drawReversesMotionGroups, { drawReversesMotionGroups = !drawReversesMotionGroups; replay++ }, label = { Text("反转图层顺序") })
         }
-        Text("字重：${weight.name}")
-        Slider(
-            value = weight.ordinal.toFloat(),
-            onValueChange = { weight = SymbolWeight.entries[it.toInt().coerceIn(0, 8)] },
-            valueRange = 0f..8f,
-            steps = 7,
-        )
+        SymbolWeightSelector(catalog, weight, weightPosition,
+            onNamedWeight = { weight = it; weightPosition = null },
+            onWeightPosition = { weightPosition = it })
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             for (value in SymbolScale.entries) {
                 FilterChip(scale == value, { scale = value }, label = { Text(value.name) })
@@ -332,12 +347,35 @@ internal fun SymbolInspector(store: SymbolAssetStore, initialName: String, onBac
                 direction = replaceDirection, preferMagic = magic, layered = layeredReplace,
                 tint = Color(0xFF6254E8), elapsedSeconds = { elapsed }, displayMode = displayMode)
         } }
-        Text("时间：${"%.2f".format(elapsed)} s")
-        Slider(elapsed.coerceIn(0f, previewDuration), { playing = false; elapsed = it }, valueRange = 0f..previewDuration,
-            modifier = Modifier.testTag("animation-time"))
+        InspectorTimeline({ elapsed }, previewDuration) { playing = false; elapsed = it }
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Button(onClick = { playing = !playing }) { Text(if (playing) "暂停" else "播放") }
             Button(onClick = { elapsed = 0f; playing = true; replay++ }) { Text("重播") }
         }
     }
+}
+
+@Composable
+private fun InspectorTimeline(elapsed: () -> Float, duration: Float, seek: (Float) -> Unit) {
+    val time = elapsed()
+    Text("时间：${"%.2f".format(time)} s")
+    Slider(time.coerceIn(0f, duration), seek, valueRange = 0f..duration,
+        modifier = Modifier.testTag("animation-time"))
+}
+
+private fun SymbolEffect.hasContinuousPlayback(): Boolean = when (this) {
+    SymbolEffect.None, SymbolEffect.Appear, SymbolEffect.AppearDown, SymbolEffect.Disappear, SymbolEffect.DisappearUp,
+    SymbolEffect.ScaleUp, SymbolEffect.ScaleDown -> false
+    else -> true
+}
+
+private fun SymbolEffect.discreteDuration(): Float = when (this) {
+    SymbolEffect.None -> 0f
+    SymbolEffect.Appear, SymbolEffect.AppearDown -> .25f
+    SymbolEffect.Disappear, SymbolEffect.DisappearUp -> 1f / 6f
+    SymbolEffect.Bounce, SymbolEffect.BounceDown -> .7f
+    SymbolEffect.Breathe, SymbolEffect.BreathePulse -> 3f
+    SymbolEffect.Pulse, SymbolEffect.RotateClockwise, SymbolEffect.RotateCounterclockwise -> 2f
+    SymbolEffect.ScaleUp, SymbolEffect.ScaleDown -> 1f
+    else -> 4f * .167f + .267f
 }

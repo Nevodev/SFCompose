@@ -15,6 +15,7 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextReplacement
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -64,6 +65,108 @@ class SymbolBrowserVariableDrawTest {
     @Test
     fun choosingManualDrawReplacesAutomaticDraw() {
         assertSliderChangesPixels("cellularbars", "Variable Draw", automaticDraw = true)
+    }
+
+    @Test
+    fun shareplayKeepsItsHierarchyBeforeAndAfterManualDraw() {
+        compose.onAllNodesWithText("Symbol name")[0].performTextReplacement("shareplay")
+        compose.onNodeWithText("显示").performClick()
+        compose.waitUntil(10_000) {
+            compose.onAllNodesWithContentDescription("shareplay").fetchSemanticsNodes().size == 4
+        }
+        fun capture(label: String): Bitmap {
+            compose.onNodeWithTag("symbol-browser").performSemanticsAction(SemanticsActions.ScrollBy) { it(0f, -10_000f) }
+            val bitmap = compose.onAllNodesWithContentDescription("shareplay")[SymbolRenderingMode.Hierarchical.ordinal]
+                .performScrollTo().captureToImage().asAndroidBitmap()
+            val output = File("build/reports/symbols/browser-variable/shareplay-$label.png")
+            output.parentFile!!.mkdirs()
+            output.outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
+            return bitmap
+        }
+        fun pixels(bitmap: Bitmap) = IntArray(bitmap.width * bitmap.height).also {
+            bitmap.getPixels(it, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
+        }
+        val initial = capture("initial")
+        val symbol = runBlocking { SymbolAssetStore(RuntimeEnvironment.getApplication().assets).load("shareplay") }
+        val expected = Bitmap.createBitmap(initial.width, initial.height, Bitmap.Config.ARGB_8888)
+        expected.eraseColor(initial.getPixel(0, 0))
+        AndroidSymbolPainter(symbol).draw(Canvas(expected), initial.width.toFloat(), initial.height.toFloat(),
+            SymbolRenderingMode.Hierarchical, 0xff6254e8.toInt(), 0xfffa9d31.toInt(), 0xff33b899.toInt(),
+            false, SymbolEffect.None, 0f)
+        assertArrayEquals("Default preview must preserve the source secondary layers", pixels(expected), pixels(initial))
+        compose.onNodeWithText("Draw 进度").performScrollTo().performClick()
+        compose.onNodeWithTag("variable-value").performScrollTo()
+            .performSemanticsAction(SemanticsActions.SetProgress) { it(1f) }
+        assertArrayEquals("Completed Draw must retain static hierarchy", pixels(initial), pixels(capture("draw-full")))
+        compose.onNodeWithText("静态").performScrollTo().performClick()
+        assertArrayEquals("Returning to static must retain hierarchy", pixels(initial), pixels(capture("static-again")))
+        compose.onNodeWithTag("variable-color").performScrollTo().performClick()
+        assertTrue("Explicit variable color must still activate the secondary layers",
+            !pixels(initial).contentEquals(pixels(capture("variable-color"))))
+        compose.onNodeWithTag("variable-color").performScrollTo().performClick()
+        assertArrayEquals("Disabling variable color restores the source hierarchy", pixels(initial), pixels(capture("color-off")))
+    }
+
+    @Test
+    fun continuousWeightSliderRendersPositionsBetweenNamedWeights() {
+        val store = SymbolAssetStore(RuntimeEnvironment.getApplication().assets)
+        val catalog = runBlocking { store.catalog() }
+        compose.onAllNodesWithText("Symbol name")[0].performTextReplacement("person.fill")
+        compose.onNodeWithText("显示").performClick()
+        compose.waitUntil(10_000) {
+            compose.onAllNodesWithContentDescription("person.fill").fetchSemanticsNodes().size == 4
+        }
+        val start = catalog.weightPositions.getValue(com.nevoit.sfcompose.symbols.SymbolWeight.Regular)
+        val end = catalog.weightPositions.getValue(com.nevoit.sfcompose.symbols.SymbolWeight.Medium)
+        val frames = mutableListOf<IntArray>()
+        for (fraction in listOf(.2f, .5f, .8f)) {
+            val position = start + (end - start) * fraction
+            val symbol = runBlocking { store.load("person.fill", weightPosition = position) }
+            compose.onNodeWithTag("weight-position").performScrollTo()
+                .performSemanticsAction(SemanticsActions.SetProgress) { it(position) }
+            compose.onNodeWithTag("symbol-browser").performSemanticsAction(SemanticsActions.ScrollBy) { it(0f, -10_000f) }
+            var rendered = IntArray(0)
+            var maxChannelDifference = 0
+            try {
+                compose.waitUntil(10_000) {
+                    val actual = compose.onAllNodesWithContentDescription("person.fill")[0].captureToImage().asAndroidBitmap()
+                    val width = actual.width
+                    val height = actual.height
+                    val expected = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+                    expected.eraseColor(actual.getPixel(0, 0))
+                    AndroidSymbolPainter(symbol).draw(Canvas(expected), width.toFloat(), height.toFloat(),
+                        SymbolRenderingMode.Monochrome, 0xff6254e8.toInt(), 0xfffa9d31.toInt(), 0xff33b899.toInt(),
+                        false, SymbolEffect.None, 0f)
+                    fun pixels(bitmap: Bitmap) = IntArray(width * height).also {
+                        bitmap.getPixels(it, 0, width, 0, 0, width, height)
+                    }
+                    rendered = pixels(actual)
+                    val reference = pixels(expected)
+                    maxChannelDifference = 0
+                    rendered.indices.all { index ->
+                        if (rendered[index] == reference[index]) return@all true
+                        val difference = (0..24 step 8).maxOf { shift ->
+                            kotlin.math.abs((rendered[index] ushr shift and 255) - (reference[index] ushr shift and 255))
+                        }
+                        maxChannelDifference = maxOf(maxChannelDifference, difference)
+                        val x = index % width
+                        val y = index / width
+                        val atEdge = (maxOf(0, y - 1)..minOf(height - 1, y + 1)).any { row ->
+                            (maxOf(0, x - 1)..minOf(width - 1, x + 1)).any { column ->
+                                reference[row * width + column] != reference[index]
+                            }
+                        }
+                        // Direct rasterization and capture compositing round edge coverage differently.
+                        atEdge && difference <= 6
+                    }
+                }
+            } catch (failure: androidx.compose.ui.test.ComposeTimeoutException) {
+                throw AssertionError("Weight $position did not match the painter; max channel difference $maxChannelDifference", failure)
+            }
+            frames += rendered
+        }
+        assertFalse("Continuous slider must not snap to a named weight", frames[0].contentEquals(frames[1]))
+        assertFalse("Continuous slider must preserve intermediate geometry", frames[1].contentEquals(frames[2]))
     }
 
     @Test

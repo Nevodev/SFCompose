@@ -1,15 +1,15 @@
 package com.nevoit.sfcompose.symbols
 
 import android.content.res.AssetManager
+import android.content.Context
 import android.graphics.Path
 import android.graphics.RectF
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.LruCache
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.SupervisorJob
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.InputStream
@@ -39,13 +39,18 @@ class SymbolCatalog internal constructor(
     internal val drawWeightCoefficients: JSONObject,
     val localizations: Map<String, Int> = emptyMap(),
     val appearances: Map<String, Int> = emptyMap(),
-)
+) {
+    internal val nameSet = names.toHashSet()
+    val weightPositions: Map<SymbolWeight, Float> get() = weights
+    val weightRange: ClosedFloatingPointRange<Float>
+        get() = weights.values.min()..weights.values.max()
+}
 
 class SymbolInstance internal constructor(
     val name: String,
     val weight: SymbolWeight,
     val scale: SymbolScale,
-    internal val weightPosition: Float,
+    val weightPosition: Float,
     val advance: Float,
     internal val capHeight: Float,
     internal val unitsPerEm: Float,
@@ -63,8 +68,12 @@ class SymbolInstance internal constructor(
     internal val rotationAnchorPoint: Pair<Float, Float>? = null,
     internal val fillImages: Map<String, SymbolFillImage> = emptyMap(),
     internal val gradientMetrics: SymbolGradientMetrics? = null,
+    val variantId: String? = null,
+    val resourceName: String = name,
+    val mirroredForRightToLeft: Boolean = false,
 ) {
     internal val draw = SymbolDraw(this)
+    internal val prepared by lazy { PreparedSymbol(this) }
     val drawUnsupportedReasons: List<String> by lazy {
         buildList {
             fun visit(nodes: List<SymbolNode>) {
@@ -114,21 +123,43 @@ class SymbolAssetStore private constructor(
 
     internal constructor(openAsset: (String) -> InputStream) : this(openAsset, { null })
 
-    private val mutex = Mutex()
-    private var loadedCatalog: SymbolCatalog? = null
-    private val instances = LruCache<String, SymbolInstance>(48)
-    private val assetDirectoryNames = HashMap<String, Set<String>>()
-    private val fillImages = HashMap<String, SymbolFillImage>()
+    companion object {
+        private var applicationStore: SymbolAssetStore? = null
 
-    suspend fun catalog(): SymbolCatalog = withContext(Dispatchers.IO) {
-        mutex.withLock { readCatalog() }
+        /** Shares decoded and prepared symbols across screens in the application process. */
+        @Synchronized
+        fun shared(context: Context): SymbolAssetStore = applicationStore
+            ?: SymbolAssetStore(context.applicationContext.assets).also { applicationStore = it }
     }
 
-    suspend fun variants(name: String): List<SymbolResourceVariant> = withContext(Dispatchers.IO) {
-        mutex.withLock {
-            require(name in readCatalog().names) { "No imported SF Symbol named $name" }
-            readSymbolVariants(readJson("symbols/$name.json"))
-        }
+    private class Document(val json: JSONObject, val sourceChars: Int)
+    private data class InstanceKey(val name: String, val resourceName: String, val position: Float,
+        val scale: SymbolScale, val variant: String?, val mirrored: Boolean)
+    private data class ResourceKey(val name: String, val variant: String?, val configuration: SymbolResourceConfiguration?)
+    private data class Resource(val name: String, val asset: String, val variant: String?, val mirrored: Boolean)
+
+    private val loader = CoroutineScope(SupervisorJob() + Dispatchers.IO.limitedParallelism(4))
+    private val catalogs = SymbolLoadCache(loader, LruCache<Unit, SymbolCatalog>(1))
+    private val selections = SymbolLoadCache(loader, LruCache<Unit, SymbolResourceSelection>(1))
+    private val resources = SymbolLoadCache(loader, LruCache<ResourceKey, Resource>(256))
+    private val directories = SymbolLoadCache(loader, LruCache<String, Set<String>>(16))
+    private val decodedAssets = SymbolLoadCache(loader, object : LruCache<String, Document>(16 * 1024 * 1024) {
+        override fun sizeOf(key: String, value: Document): Int = maxOf(2 * 1024 * 1024, value.sourceChars * 4)
+    })
+    private val instances = SymbolLoadCache(loader, object : LruCache<InstanceKey, SymbolInstance>(48 * 256 * 1024) {
+        override fun sizeOf(key: InstanceKey, value: SymbolInstance): Int =
+            maxOf(256 * 1024, value.contourData.sumOf { it.points.size * 24 })
+    })
+    private val fillImages = SymbolLoadCache(loader, object : LruCache<String, SymbolFillImage>(8 * 1024 * 1024) {
+        override fun sizeOf(key: String, value: SymbolFillImage): Int =
+            value.light.allocationByteCount + value.dark.allocationByteCount
+    })
+
+    suspend fun catalog(): SymbolCatalog = catalogs.get(Unit) { readCatalog() }
+
+    suspend fun variants(name: String): List<SymbolResourceVariant> {
+        require(name in catalog().nameSet) { "No imported SF Symbol named $name" }
+        return readSymbolVariants(readJson("symbols/$name.json"))
     }
 
     suspend fun load(
@@ -136,21 +167,40 @@ class SymbolAssetStore private constructor(
         weight: SymbolWeight = SymbolWeight.Regular,
         scale: SymbolScale = SymbolScale.Medium,
         variantId: String? = null,
-    ): SymbolInstance = withContext(Dispatchers.IO) {
-        mutex.withLock {
-            val key = "$name/${weight.name}/${scale.name}/$variantId"
-            instances.get(key)?.let { return@withLock it }
-            val catalog = readCatalog()
-            require(name in catalog.names) { "No imported SF Symbol named $name" }
-            val defaultData = readJson("symbols/$name.json")
-            val variant = variantId?.let { requested ->
-                readSymbolVariants(defaultData).singleOrNull { it.id == requested }
-                    ?: error("No system resource variant $requested for $name")
-            }
-            val data = variant?.asset?.let(::readJson) ?: defaultData
+        configuration: SymbolResourceConfiguration? = null,
+    ): SymbolInstance = loadResolved(name, weight, null, scale, variantId, configuration)
+
+    /** The continuous source axis uses [SymbolCatalog.weightPositions] and [SymbolCatalog.weightRange]. */
+    suspend fun load(
+        name: String,
+        weightPosition: Float,
+        scale: SymbolScale = SymbolScale.Medium,
+        variantId: String? = null,
+        configuration: SymbolResourceConfiguration? = null,
+    ): SymbolInstance = loadResolved(name, null, weightPosition, scale, variantId, configuration)
+
+    private suspend fun loadResolved(
+        name: String,
+        namedWeight: SymbolWeight?,
+        requestedPosition: Float?,
+        scale: SymbolScale,
+        variantId: String?,
+        configuration: SymbolResourceConfiguration?,
+    ): SymbolInstance {
+        val catalog = catalog()
+        val position = requestedPosition ?: catalog.weights.getValue(requireNotNull(namedWeight))
+        require(position.isFinite() && position in catalog.weightRange) {
+            "Weight position must be finite and in ${catalog.weightRange}: $position"
+        }
+        require(name in catalog.nameSet) { "No imported SF Symbol named $name" }
+        val request = ResourceKey(name, variantId, configuration.takeIf { variantId == null })
+        val resource = resources.get(request) { resolveResource(request, catalog) }
+        val key = InstanceKey(name, resource.name, position, scale, resource.variant, resource.mirrored)
+        return instances.get(key) {
+            val weight = namedWeight ?: catalog.weights.minBy { kotlin.math.abs(it.value - position) }.key
+            val data = readJson(resource.asset)
             val masters = data.getJSONObject("scales").getJSONObject(scale.assetName)
                 .getJSONArray("masters")
-            val position = catalog.weights.getValue(weight)
             var left = masters.getJSONObject(0)
             var right = masters.getJSONObject(masters.length() - 1)
             for (index in 0 until masters.length() - 1) {
@@ -164,7 +214,8 @@ class SymbolAssetStore private constructor(
             }
             val lowerWeight = left.getDouble("weight").toFloat()
             val upperWeight = right.getDouble("weight").toFloat()
-            val fraction = ((position - lowerWeight) / (upperWeight - lowerWeight)).coerceIn(0f, 1f)
+            val fraction = if (lowerWeight == upperWeight) 0f else
+                ((position - lowerWeight) / (upperWeight - lowerWeight)).coerceIn(0f, 1f)
             val lowerContours = left.getJSONArray("contours")
             val upperContours = right.getJSONArray("contours")
             require(lowerContours.length() == upperContours.length()) { "Incompatible contour masters: $name" }
@@ -190,14 +241,23 @@ class SymbolAssetStore private constructor(
             val tree = data.optJSONArray("layerTree")
                 ?: data.optJSONObject("metadata")?.getJSONArray("layerTree")
                 ?: error("Missing original layer tree: $name")
-            val nodes = readNodes(tree, contours.size)
+            // Binding is instance-specific: decoded source documents are shared by the bounded cache.
+            val nodes = readNodes(JSONArray(tree.toString()), contours.size)
+            var resolvedMasters = masters
+            var selectedMaster = if (fraction >= 1f) right else left
             if (left.has("compiledLayers") || right.has("compiledLayers")) {
-                val selected = when {
+                selectedMaster = when {
                     fraction <= 0f -> left
                     fraction >= 1f -> right
-                    else -> error("System assets require an exact named-weight sample: $name/$weight")
+                    else -> interpolateSystemMaster(left, right, fraction).also { selected ->
+                        selected.put("weight", position.toDouble())
+                        resolvedMasters = JSONArray().apply {
+                            repeat(masters.length()) { put(masters.getJSONObject(it)) }
+                            put(selected)
+                        }
+                    }
                 }
-                bindCompiledLayers(nodes, selected.getJSONArray("compiledLayers"))
+                bindCompiledLayers(nodes, selectedMaster.getJSONArray("compiledLayers"))
             }
             val instance = SymbolInstance(
                 name = name,
@@ -209,10 +269,9 @@ class SymbolAssetStore private constructor(
                 unitsPerEm = data.getDouble("upm").toFloat(),
                 contours = contours,
                 contourData = contourData,
-                sourceMasters = masters,
+                sourceMasters = resolvedMasters,
                 sourceSmallMasters = data.getJSONObject("scales").getJSONObject("small").getJSONArray("masters"),
-                drawWeightCoefficients = catalog.drawWeightCoefficients.getJSONArray(scale.assetName)
-                    .getJSONArray(weight.ordinal).let { doubleArrayOf(it.getDouble(0), it.getDouble(1)) },
+                drawWeightCoefficients = continuousDrawWeightCoefficients(catalog, scale, position),
                 ultralightWeightPosition = catalog.weights.getValue(SymbolWeight.Ultralight),
                 bounds = bounds,
                 nodes = nodes,
@@ -223,16 +282,42 @@ class SymbolAssetStore private constructor(
                     right.optDouble("metricCenterY", data.getDouble("capHeight") * 0.5).toFloat(), fraction),
                 rotationAnchorPoint = interpolateAnchor(left, right, fraction, "rotation"),
                 fillImages = loadFillImages(data.optJSONObject("metadata") ?: data),
-                gradientMetrics = readGradientMetrics(if (fraction >= 1f) right else left),
+                gradientMetrics = readGradientMetrics(selectedMaster),
+                variantId = resource.variant,
+                resourceName = resource.name,
+                mirroredForRightToLeft = resource.mirrored,
             )
-            instance.drawUnsupportedReasons
-            instances.put(key, instance)
+            instance.prepared
             instance
         }
     }
 
-    private fun readCatalog(): SymbolCatalog {
-        loadedCatalog?.let { return it }
+    private suspend fun resolveResource(request: ResourceKey, catalog: SymbolCatalog): Resource {
+        val configuration = request.configuration
+        var name = request.name
+        var defaultAsset = "symbols/$name.json"
+        var data = readJson(defaultAsset)
+        val variants = readSymbolVariants(data)
+        var variant = request.variant?.let { requested ->
+            variants.singleOrNull { it.id == requested } ?: error("No system resource variant $requested for $name")
+        } ?: configuration?.let { selectSymbolVariant(variants, it, catalog) }
+        val selection = if (configuration != null) selections.get(Unit) { readResourceSelection() } else null
+        if (configuration?.rightToLeft == true && selection != null && variant?.direction != 4 &&
+            variant?.id !in selection.flippableVariants) {
+            selection.rightToLeftNames[name]?.let { counterpart ->
+                name = counterpart
+                defaultAsset = "symbols/$name.json"
+                data = readJson(defaultAsset)
+                variant = selectSymbolVariant(readSymbolVariants(data), configuration, catalog)
+            }
+        }
+        val mirrored = configuration?.rightToLeft == true && selection != null && variant?.direction != 4 &&
+            variant?.id in selection.flippableVariants
+        return Resource(name, variant?.asset ?: defaultAsset,
+            variant?.id ?: data.optString("systemVariantId").takeIf(String::isNotEmpty), mirrored)
+    }
+
+    private suspend fun readCatalog(): SymbolCatalog {
         val data = readJson("symbols/index.json")
         require(data.getInt("formatVersion") == 1) { "Unsupported symbol asset format" }
         val names = data.getJSONArray("symbols")
@@ -246,16 +331,23 @@ class SymbolAssetStore private constructor(
             drawWeightCoefficients = data.getJSONObject("drawWeightCoefficients"),
             localizations = readIdentifiers(data.optJSONObject("source")?.optJSONObject("localizations")),
             appearances = readIdentifiers(data.optJSONObject("source")?.optJSONObject("appearances")),
-        ).also { loadedCatalog = it }
+        )
     }
 
-    private fun loadFillImages(metadata: JSONObject): Map<String, SymbolFillImage> {
+    private suspend fun readResourceSelection(): SymbolResourceSelection {
+        val index = readJson("symbols/index.json")
+        return index.optString("resourceSelectionAsset").takeIf(String::isNotEmpty)?.let {
+            readSymbolResourceSelection(readJson(it), index.getJSONObject("source").getString("sourceCarSha256"))
+        } ?: SymbolResourceSelection()
+    }
+
+    private suspend fun loadFillImages(metadata: JSONObject): Map<String, SymbolFillImage> {
         val defaults = metadata.optJSONObject("systemModeDefaults") ?: return emptyMap()
         if (defaults.optString("-sfsymbols-has-fill-images") != "true") return emptyMap()
         val names = defaults.getString("-sfsymbols-fill-image-names").trim().split(Regex("\\s+"))
         val index = readJson("symbols/fill-images/index.json").getJSONArray("images")
         return names.associateWith { name ->
-            fillImages.getOrPut(name) {
+            fillImages.get(name) {
                 fun read(appearance: Int): Bitmap {
                     val entry = (0 until index.length()).map(index::getJSONObject).single {
                         it.getString("name") == name && it.getInt("appearance") == appearance
@@ -272,15 +364,18 @@ class SymbolAssetStore private constructor(
         }
     }
 
-    private fun readJson(path: String): JSONObject {
+    private suspend fun readJson(path: String): JSONObject = decodedAssets.get(path) {
         val directory = path.substringBeforeLast('/', "")
-        val names = assetDirectoryNames.getOrPut(directory) { listAssets(directory)?.toSet().orEmpty() }
+        val names = directories.get(directory) { listAssets(directory)?.toSet().orEmpty() }
         // .sfgz keeps the compressed bytes opaque to Android's automatic .gz asset expansion.
         val candidates = if (path.endsWith(".gz")) listOf(path.removeSuffix(".gz") + ".sfgz", path, path.removeSuffix(".gz"))
             else listOf("$path.sfgz", "$path.gz", path)
         val resolved = candidates.firstOrNull { it.substringAfterLast('/') in names } ?: path
-        return openAsset(resolved).use(::readSymbolJson)
-    }
+        openAsset(resolved).use { stream ->
+            val source = readSymbolText(stream)
+            Document(JSONObject(source), source.length)
+        }
+    }.json
 
     private fun readNodes(nodes: JSONArray, contourCount: Int): List<SymbolNode> = List(nodes.length()) { index ->
         val source = nodes.getJSONObject(index)
@@ -314,13 +409,15 @@ class SymbolAssetStore private constructor(
     }
 }
 
-internal fun readSymbolJson(stream: InputStream): JSONObject {
+internal fun readSymbolJson(stream: InputStream): JSONObject = JSONObject(readSymbolText(stream))
+
+private fun readSymbolText(stream: InputStream): String {
     val buffered = stream.buffered()
     buffered.mark(2)
     val compressed = buffered.read() == 0x1f && buffered.read() == 0x8b
     buffered.reset()
     return (if (compressed) GZIPInputStream(buffered) else buffered).bufferedReader(Charsets.UTF_8).use {
-        JSONObject(it.readText())
+        it.readText()
     }
 }
 

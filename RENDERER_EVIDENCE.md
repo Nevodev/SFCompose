@@ -169,11 +169,106 @@
   实际界面回归覆盖搜索、分类、详情、双选 Replace、交换、拖动时间轴，以及返回时网格位置。
 - 动画预览切换 Draw 时的 elapsed 现随符号和效果组合键同步创建，不再依赖异步 effect 归零，
   避免新 Draw 效果在归零前消费旧动画时钟。On / Off 来回切换后的起始像素回归已加入。
+- 动画预览默认不指定变量颜色值。此前始终传入 `variableValue=1`，会将 shareplay 等具有
+  变量颜色阈值的 secondary 层激活为不透明；启用手动 Draw 后撤掉该值才显得恢复正常。
+  现在通过“变量颜色”控件或主动调整颜色滑块启用该值，关闭控件或选择静态恢复源层级。
+  渲染器的显式变量颜色语义不变。真实 Compose 界面回归在旧默认值下失败，修复后检查
+  shareplay 默认像素、完整手动 Draw、返回静态与颜色开关恢复，截图在 browser-variable 下。
 - `SymbolDisplayMode` 独立控制占位与绘制大小：SquareOverflow 保留行高并允许越过方形占位，
   IntrinsicWidth 保持原有自然 advance 宽度，SquareFitWidth 仅在左右轮廓范围放不下时等比缩小。
   缩小后以占位中心定位，实际字号传给 Draw、渐变及 Replace 调度；Replace 使用两端共同范围，
   不随动画帧改变占位和比例。组件本身不添加裁切，祖先的裁切仍适用。
   Compose 原生图形测试检查实测占位、溢出像素、宽符号缩小、窄符号不放大以及 Replace 两端。
+
+- Replace 现在门控尚未开始的目标 Draw 层，并向路径绘制传递完整的原生附件时间状态，
+  包括被引用层的进度、时长和 Draw Off 尾段缩放；此前只传标量进度，可能提前漏出静态箭头。
+  `person.fill.and.arrow.left.and.arrow.right.outward` 的系统源引用不存在的第二个动态锚点，
+  原 CoreUI 会拒绝整组附件但保留 Draw 关键帧。底层原生解析继续保留此行为；默认 Android
+  画笔对五处坏数据另建兼容附件 store，从唯一的箭杆终端裁切弦恢复锚点，沿用一致的
+  原 sourceParameters。只跳过无 Draw 关键帧且可确认同层互指的 head→shaft 反向记录。
+  头部重新进入原 TimedAttachment 求值，包含出现阈值、反向和 Off 尾段；不再对这些符号
+  使用整层入退场。未知或歧义输入仍拒绝恢复，资源字节不变。
+  该恢复策略是 Android 兼容行为，不是原 CoreUI 对坏数据的行为；`adaptiveCaps=false` 的
+  原生基线默认同时关闭附件恢复，底层 pathFor 也能独立指定恢复开关。
+  回归覆盖报告中的两个人形符号、四种渲染模式、三个方向、交换 A/B 及首尾静态像素；
+  有效附件 `homepod.mini.arrow.forward` 的 Replace 入退场与独立 Draw 同时刻逐像素比较。
+  `SymbolAttachmentRecoveryTest` 另检查五符号的三命名字重、三个中间轴位置、三光学尺寸、
+  三原模式、实际 13/32/160 字号、原出现阈值与头部运动方向，以及 raw store 缓存隔离。
+  序列图位于 `app/build/reports/symbols/replace-attachments`，未执行设备或系统实屏对照。
+- 连续字重加载接口读取 catalog 的原始轴范围和命名坐标，路径、metrics、编译关键帧、
+  动态锚点和采样参数一起插值，精确命名字重继续使用原样本。缓存的源文档只读共享，
+  每个实例的 layerTree 独立绑定；文档缓存 8 项、实例缓存 48 项，不按拖动次数无限保留。
+  `SymbolContinuousWeightTest` 对中间轴、精确命名位置、Draw 附件与缓存边界做回归；
+  真实预览滑块三个非命名位置也与对应画笔逐像素一致。此处未执行 CoreUI 任意字重的
+  完整运行时对照，不能将插值可用等同于所有中间字重均已逐像素验收。
+- 自动资源选择读取 Android locale/night 与 Compose LayoutDirection，保留显式 variantId
+  最高优先级。方向 token 4/5 的原表含义是 Left/Right；CSI header +8 的 bit6 经原构造函数
+  映射为 rendition.isFlippable。新增独立 sidecar 保留全部 10,467 变体的原头部核查结果，
+  含 708 个可镜像变体和 135 对实际存在的 `.rtl` 资源，原 gzip 矢量文件未重写。
+  普通加载不读取 sidecar，自动选择时才惰性加载并校验源 CAR 身份。实例缓存区分实际
+  资源名、变体和镜像状态。`arrow.forward` 在 RTL 镜像，`arrow.right` 保持字面方向；
+  `airtag.forward.fill` 使用真实 RTL 资源，避免双重翻转。测试另覆盖 locale 回退、深色、
+  显式覆盖和 Compose 环境变化。locale/script/language 的回退与键优先级为 Android
+  消费策略，尚未执行完整 CoreUI matcher。原头部 offset/SHA 与原函数证据分别保存在
+  `D:/MACOS/analysis/system/resources/CoreGlyphs/system-resource-selection-header-audit.json` 和
+  `D:/MACOS/analysis/system/dyld/CoreUI/system-resource-selection-evidence.json`。
+- `SymbolReplaceController` 在统一绝对时钟上接收目标变化。返回前一目标时倒走同一对
+  原 recipe 时域；改向第三目标时捕获当前逐层矢量路径、材质和变换，并按原 Standard
+  入场分支显示新目标。中断后的出场保留已有 deadline，完成帧自动清理旧呈现组合。
+  不使用截图交叉淡化，也不保留嵌套历史树；SquareFitWidth 尺寸变化补偿既有呈现尺度。
+  回归检查瞬间像素连续、快速三目标、返回/续行、暂停时重画、尺寸变化和完成清理。
+  该控制器保证已测位置、形状与透明度连续，未建立系统中断时速度导数和全部 recipe 的一致性。
+- 本轮四项功能验证：完整运行 `:app:compileDebugKotlin :app:testDebugUnitTest :app:assembleDebug`，
+  编译与 APK 打包成功，47 类 182 项用例中 180 项通过。镜像的逐像素严格断言与空界面配置
+  等待用例失败后，仅修正测试的抗锯齿误差检查和异步观察方式，生产代码未改变；两个测试类
+  定向复测 5 项全部通过。全量与复测结果分开保留，不将后者写成整套再次运行。
+  更早的交互界面测试因冻结假时钟时等待滚动触发 OOM，该次运行已取消；预览完成后停止
+  驱帧、测试在暂停状态恢复滚动时钟后，完整回归中的交互用例已通过。Python 元数据导入
+  2 项测试通过。保留 Gradle/Conscrypt 的 JDK native-access 与 Git 换行提示；未安装手机应用。
+
+- Cutout 已按原 RenderBox presentation 拆分 drawing、erasing、common 三通道。
+  绘制透明度为 `drawing * common * materialOpacity`，颜色自身 alpha 只影响填充。
+  无 clearBehind 时擦除为零；材质 opacity 正值时擦除为 common；透明材质时为
+  `erasing * common`。完整擦除使用 COPY，部分擦除先 DST_OUT 再填充；不把 tint、
+  普通 hierarchy 或填充 Shader 的 alpha 乘入镂空覆盖。层级与材质透明度也分别插值后相乘。
+  `system-layer-opacity-native.json` 的 216 组 getter 与四模式 1,024 组 Pulse 结果执行原 ARM64
+  有界指令，测试逐 Float 位比较。Pulse 只有显式注解且 ByLayer 时调制 erasing，
+  WholeSymbol 或无显式注解时保留擦除覆盖；Replace / Appear / Draw fallback 的 drawing
+  淡出仍按原零值门控处理，不将其误当 common。四模式实际 Canvas 测试检查半透明 tint、
+  hierarchy、正材质、透明材质、通道组合和 Pulse 注解。
+- Variable Color 主段使用原 property 8 的 SetBoth 与可选 property 9 的 max；连续 intro/outro
+  使用 property 10，分别将既有 drawing / erasing 插值向 inactive。此前统一用“活动比例”
+  混合基线会错误保留主段 hierarchy。`system-variable-opacity-native.json` 含 1,656 组原
+  emitter / Animation::time / Keyframes.eval / apply 有界结果及五种通道基线，共 8,280 组。
+  存活轨道比较原输出；夹具额外求值的 end_time 之后样本检查撤销覆盖、恢复静态模型，
+  不把已结束 raw outro 的数值当作系统仍在显示的动画。生产画笔另检查主段不受旧 hierarchy
+  限制。模型的 inactive getter、内存与绘图后端使用明确 stub，此结果不代表系统窗口验证。
+- Cutout 几何走自身的原 `Layer::clip` → pathParams / matrix → set_shape，沿用其 Draw 与附件。
+  `arrow.up.right.circle.fill` 的透明层包含动态附件，镂空箭头随之移动；
+  `homepod.mini.arrow.forward`、`rectangle.portrait.and.arrow.forward` 的独立镂空层没有这些
+  数据，保持静止。不能只因同属一个 motion group 就强行跟随前景箭头。
+  `system-draw-cutout.json.gz` 保存 16 帧原始路径命令；测试在 On/Off、reverse、三种 tint alpha
+  下比较生产画笔，并检查上述两类独立静态 mask。原 clip 参数传递另以 12 组有界调用验证。
+- Enclosure Replace 按原 subtype 区分：fill/stroke 标记不同不创建材质 interpolation 记录；
+  同标记先按 clearBehind、material index、命名颜色检查配对。透明材质 index 10，
+  mono/hier 正材质 index 0，Palette 的 primary/secondary/tertiary 为 0/5/6，Multicolor
+  tintColor 为 0、其它命名色为 9 且要求同名。不匹配时保留两侧描述符，以 common 互补淡入淡出；
+  配对时分别插值材质与 presentation 通道，不先乘合成 alpha。材质记录直接采用原
+  Animation::time 的归一化线性进度，不套用运动效果的 Keyframes 缓动。原 LCS 前后缀筛选已确认外圈
+  标志 bit3 参与匹配；8,648 份资产扫描确认当前 enclosure 无 image/gradient/custom 材质，
+  不对未覆盖的外部自定义描述符推测配对。原 104 组 dispatch / pair / interpolation 采样和扫描证据
+  位于 `D:/MACOS/analysis/system/dyld/RenderBox/system-common-opacity-interpolation-native.json`
+  与 `system-enclosure-material-index-findings.md`；记录中明确保留 stub 与已执行分支范围。
+  Replace 测试覆盖 None 与正材质、Palette slot、不同命名色、common 淡入淡出及实际符号端点。
+- Cutout 最终验证完整运行 `:app:compileDebugKotlin :app:testDebugUnitTest :app:assembleDebug`
+  成功，51 类 200 项测试全部通过，失败、错误、跳过均为零；包含最后的线性材质插值修正。
+  早一轮完整运行的两项 Palette Pulse 旧断言预期为不透明绿色，按四模式原 property 12 的
+  指令结果修正为 alpha 76，定向复测及最终完整回归均通过。各轮结果分别归档，不混合 XML。
+  最终证据为 `D:/MACOS/analysis/system/cutout-final-20261118-083654`，APK 的 10,473 个
+  symbols 资源与工作区逐一校验一致，DEX 包含新通道及材质匹配实现；SHA-256 为
+  `af15d89420dae1f7049c808627bea2a6c5e432a3eb14d31f499f1e02af319bbf`。
+  `git diff --check` 通过；保留已有 JDK native-access 与 Git 换行提示，未安装手机应用，
+  未进行系统窗口或真机 GPU 逐像素验收。
 
 输出报告位于 `app/build/reports/symbols`，包括完整目录 Draw 覆盖、意外空白模式检查、
 端盖回归图和原版裁切对照图。Python 资源导入检查位于 `tools/test_import_symbols.py`，

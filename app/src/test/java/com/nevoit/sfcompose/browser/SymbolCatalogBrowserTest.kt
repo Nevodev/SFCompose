@@ -27,6 +27,8 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import java.io.File
 import android.graphics.Bitmap
+import org.junit.Assert.assertArrayEquals
+import org.junit.Assert.assertFalse
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34])
@@ -87,6 +89,42 @@ class SymbolCatalogBrowserTest {
         compose.onNodeWithTag("replace-target").assertTextEquals("B  heart")
         compose.onNodeWithText("清空").performClick()
         compose.onNodeWithTag("replace-source").assertTextEquals("A  未选择")
+    }
+
+    @Test
+    fun interactiveReplacementCanRetargetWhileTheClockIsPaused() {
+        search("heart", "heart")
+        compose.onNodeWithText("选择替换").performClick()
+        compose.onNodeWithTag("symbol-heart").performClick()
+        search("star", "star")
+        compose.onNodeWithTag("symbol-star").performClick()
+        compose.onNodeWithTag("open-replace").performClick()
+        compose.waitUntil(15_000) { compose.onAllNodesWithContentDescription("heart → star").fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithTag("replace-time").performScrollTo()
+            .performSemanticsAction(SemanticsActions.SetProgress) { it(.12f) }
+        compose.onNodeWithTag("replace-interactive").performScrollTo()
+        compose.mainClock.autoAdvance = false
+        compose.onNodeWithTag("replace-interactive").performClick()
+        compose.mainClock.advanceTimeBy(112)
+        compose.onNodeWithText("暂停").performClick()
+        compose.mainClock.autoAdvance = true
+        fun pixels(): IntArray {
+            val image = compose.onAllNodesWithContentDescription("heart → star")[0]
+                .performScrollTo().captureToImage().asAndroidBitmap()
+            return IntArray(image.width * image.height).also {
+                image.getPixels(it, 0, image.width, 0, 0, image.width, image.height)
+            }
+        }
+        val before = pixels()
+        compose.onNodeWithTag("replace-retarget").performScrollTo().performClick()
+        assertArrayEquals("Switching target while paused must preserve the presented image", before, pixels())
+        compose.onNodeWithText("播放").performScrollTo()
+        compose.mainClock.autoAdvance = false
+        compose.onNodeWithText("播放").performClick()
+        compose.mainClock.advanceTimeBy(80)
+        compose.onNodeWithText("暂停").performClick()
+        compose.mainClock.autoAdvance = true
+        assertFalse("Resuming must continue toward the new target", before.contentEquals(pixels()))
     }
 
     @Test

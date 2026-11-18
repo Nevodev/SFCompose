@@ -27,6 +27,8 @@ internal data class SymbolReplaceLayerState(
     val drawModeFrom: JSONObject? = null,
     val drawModeTo: JSONObject? = null,
     val drawModeProgress: Float = 1f,
+    val systemDrawState: ((Int) -> SystemDrawState?)? = null,
+    val commonOpacity: Float = 1f,
 )
 
 /** Recipes use font coordinates. The caller owns the clock and interrupt/repeat policy. */
@@ -36,7 +38,7 @@ internal class SymbolReplacePlan(
     private val direction: SymbolReplaceDirection = SymbolReplaceDirection.DownUp,
     preferMagic: Boolean = true,
     private val layered: Boolean = true,
-    mode: SymbolRenderingMode = SymbolRenderingMode.Monochrome,
+    private val mode: SymbolRenderingMode = SymbolRenderingMode.Monochrome,
     pointSize: Float = 13f,
 ) {
     private val firstReader = ReplaceTagReader(first, mode)
@@ -47,12 +49,12 @@ internal class SymbolReplacePlan(
     private val firstDrawTiming by lazy {
         SymbolDrawTiming(first, on = false, mode = mode, layerFilter = { source ->
             kind != SymbolReplaceKind.EnclosureMatch || firstReader.layers[source] !in firstReader.enclosures.values.flatten()
-        }, pointSize = pointSize)
+        }, pointSize = pointSize, fallbackInvalidAttachments = true, recoverMissingAttachmentAnchors = true)
     }
     private val secondDrawTiming by lazy {
         SymbolDrawTiming(second, on = true, mode = mode, layerFilter = { source ->
             kind != SymbolReplaceKind.EnclosureMatch || secondReader.layers[source] !in secondReader.enclosures.values.flatten()
-        }, pointSize = pointSize)
+        }, pointSize = pointSize, fallbackInvalidAttachments = true, recoverMissingAttachmentAnchors = true)
     }
     private val firstFallbackFinish by lazy {
         val hasFallback = firstReader.layers.values.any { layer ->
@@ -219,12 +221,23 @@ internal class SymbolReplacePlan(
             val otherLayer = otherMatch.value.getOrNull(index)
             val from = if (incoming) otherLayer else layer
             val to = if (incoming) layer else otherLayer
+            val nativeDescriptors = from?.source?.systemStyle(mode) != null && to?.source?.systemStyle(mode) != null
+            if (nativeDescriptors && match.key.filled != otherMatch.key.filled) {
+                return SymbolReplaceLayerState(opacity = opacity)
+            }
+            val normalizedTime = if (interiorDurationSeconds <= 0f) 1f
+                else (time / interiorDurationSeconds).coerceIn(0f, 1f)
+            // Native enclosure records use Animation::time directly, without a Keyframes curve.
+            val materialProgress = if (nativeDescriptors) normalizedTime else
+                SymbolTiming.cubicBezier(normalizedTime, 0.33f, 0f, 0.67f, 1f)
+            if (nativeDescriptors && !from.source.symbolMaterialMatches(to.source, mode)) {
+                return SymbolReplaceLayerState(commonOpacity = if (incoming) materialProgress else 1f - materialProgress)
+            }
             return SymbolReplaceLayerState(
                 opacity = opacity,
                 drawModeFrom = from?.source,
                 drawModeTo = to?.source,
-                drawModeProgress = if (interiorDurationSeconds <= 0f) 1f else SymbolTiming.cubicBezier(
-                    (time / interiorDurationSeconds).coerceIn(0f, 1f), 0.33f, 0f, 0.67f, 1f),
+                drawModeProgress = materialProgress,
             )
         }
         return draw(reader, layer, incoming, time)
@@ -239,9 +252,11 @@ internal class SymbolReplacePlan(
         val local = time - if (incoming) cutover else 0f
         val progress = timing.progress(layer.source, local) ?: return standard(reader, layer, incoming, local)
         return SymbolReplaceLayerState(
-            opacity = if (incoming || time < firstDrawTiming.drawDurationSeconds) 1f else 0f,
+            opacity = if (incoming) { if (local < 0f) 0f else 1f }
+                else if (time < firstDrawTiming.drawDurationSeconds) 1f else 0f,
             drawProgress = progress,
             drawOn = incoming,
+            systemDrawState = { index -> reader.systemLayers[index]?.let { timing.systemState(it, local) } },
         )
     }
 
@@ -336,6 +351,7 @@ private data class TaggedEnclosure(val tag: String, val filled: Boolean)
 
 private class ReplaceTagReader(private val symbol: SymbolInstance, mode: SymbolRenderingMode) {
     val layers = IdentityHashMap<JSONObject, ReplaceLayer>()
+    val systemLayers = HashMap<Int, JSONObject>()
     private val ordered = mutableListOf<ReplaceLayer>()
     val maxGroupIndex: Int
     val wholeTag: String?
@@ -381,6 +397,7 @@ private class ReplaceTagReader(private val symbol: SymbolInstance, mode: SymbolR
             val layer = ReplaceLayer(node.source, tags, bounds,
                 motion.indices[node.source] ?: inheritedGroup ?: 0, slashLine)
             layers[node.source] = layer
+            if (node.source.has("sourceLayerIndex")) systemLayers[node.source.getInt("sourceLayerIndex")] = node.source
             ordered += layer
         }
         fun visit(nodes: List<SymbolNode>, inheritedGroup: Int? = null) {

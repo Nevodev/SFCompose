@@ -63,6 +63,75 @@ shared by several layers. `store.variants(name)` lists the retained keys;
 `store.load(name, variantId = variant.id)` explicitly selects one.
 No network request is made by the Android renderer.
 
+Continuous weights use the original source axis rather than enum ordinals.
+Read its bounds from `catalog.weightRange` and the nine reference positions
+from `catalog.weightPositions`. For example:
+
+```kotlin
+val catalog = store.catalog()
+val from = catalog.weightPositions.getValue(SymbolWeight.Regular)
+val to = catalog.weightPositions.getValue(SymbolWeight.Medium)
+val symbol = store.load("wifi", weightPosition = from + (to - from) * fraction)
+```
+
+Intermediate instances interpolate paths, metrics, compiled Draw keyframes
+and dynamic anchors together. Exact named positions reuse the named instance.
+Decoded documents and generated instances use bounded caches. Both preview
+pages expose the continuous axis and the original named positions.
+
+`rememberSymbolResourceConfiguration()` observes Android locales, night mode
+and Compose layout direction. Pass its value as `configuration` to either
+`store.load` overload to enable automatic resource selection; the browser does
+this for thumbnails and both preview pages. A supplied `variantId` overrides
+automatic selection. `SymbolResourceConfiguration.from(configuration)` is
+available outside Compose.
+RTL selection uses retained Left resources or an actual `.rtl` counterpart,
+and otherwise mirrors only when the original CSI header marks that variant
+as flippable. Literal `arrow.right` stays right; `arrow.forward` may mirror.
+`resourceName`, `variantId` and `mirroredForRightToLeft` expose the resolved
+identity. Explicit variant selection bypasses both automatic matching and
+automatic mirroring. Locale fallback and key precedence are Android consumer
+policies; they are not a claim to execute the entire CoreUI resource matcher.
+
+For changes that can interrupt a replacement, keep one
+`SymbolReplaceController` and use one monotonic clock for updates and drawing:
+
+```kotlin
+val controller = rememberSymbolReplaceController(initialSymbol)
+// In a target-change handler, using the current clock value:
+controller.replaceWith(nextSymbol, clockSeconds)
+// In the UI:
+SFSymbolReplace(controller = controller, elapsedSeconds = { clockSeconds })
+```
+
+Returning to the previous source reverses the active pair's timeline. A third
+target captures the current vector paths, materials and transforms, retires
+that presentation and starts the new target. Captures remain vectors; the
+controller does not rasterize a screenshot or keep a nested history of
+transitions. Interrupted third-target entry uses the existing Standard recipe;
+position and opacity continuity do not establish native velocity matching.
+`reset` explicitly discards the transition. The replacement page's “交互接续”
+mode lets you switch targets during playback or while paused.
+
+Five source attachment stores contain absent dynamic anchors. The default
+Android painter recovers them only when a unique terminal shaft cut and
+consistent existing source parameters identify the missing reference. It then
+uses the normal timed attachment resolver, including reverse and Off tails.
+This is an Android compatibility policy: raw CoreUI rejects those stores.
+Raw native geometry remains available to the reference tests; source assets
+are preserved unchanged.
+
+System cutouts use separate drawing, erasing and common presentation opacity.
+Tint alpha and ordinary hierarchy affect the fill, while clear-behind coverage
+follows the original material and erasing rules. Pulse honors explicit layer
+annotations; Variable Color applies its original phase-specific channel updates.
+Cutout paths consume their own Draw and attachment data: animated holes move,
+while independent static holes remain static. Matching enclosure replacements
+interpolate compatible material channels separately; incompatible materials
+keep their descriptors and fade through common opacity. Native instruction and
+Android Canvas regressions cover these paths; system-window/GPU comparison
+remains outside that validation.
+
 Compose height in dp supplies the nominal font point size; display density
 only affects raster dimensions and pixel alignment. Glyph coordinates scale by
 the pixel height divided by source units-per-em. System metric centers determine

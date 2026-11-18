@@ -40,13 +40,17 @@ import androidx.compose.ui.unit.dp
 import com.nevoit.sfcompose.symbols.SFSymbolReplace
 import com.nevoit.sfcompose.symbols.SymbolAssetStore
 import com.nevoit.sfcompose.symbols.SymbolInstance
+import com.nevoit.sfcompose.symbols.SymbolCatalog
+import com.nevoit.sfcompose.symbols.SymbolReplaceController
 import com.nevoit.sfcompose.symbols.SymbolRenderingMode
 import com.nevoit.sfcompose.symbols.SymbolReplaceDirection
 import com.nevoit.sfcompose.symbols.SymbolReplacePlan
 import com.nevoit.sfcompose.symbols.SymbolScale
 import com.nevoit.sfcompose.symbols.SymbolWeight
 import com.nevoit.sfcompose.symbols.SymbolDisplayMode
+import com.nevoit.sfcompose.symbols.rememberSymbolResourceConfiguration
 import com.nevoit.sfcompose.ui.SymbolDisplayModeSelector
+import com.nevoit.sfcompose.ui.SymbolWeightSelector
 import kotlinx.coroutines.CancellationException
 import java.util.Locale
 
@@ -57,6 +61,9 @@ internal fun SymbolReplacementPreview(store: SymbolAssetStore, firstName: String
     var second by remember { mutableStateOf<SymbolInstance?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
     var weight by remember { mutableStateOf(SymbolWeight.Regular) }
+    var weightPosition by remember { mutableStateOf<Float?>(null) }
+    var catalog by remember { mutableStateOf<SymbolCatalog?>(null) }
+    val resourceConfiguration = rememberSymbolResourceConfiguration()
     var scale by remember { mutableStateOf(SymbolScale.Medium) }
     var mode by remember { mutableStateOf(SymbolRenderingMode.Monochrome) }
     var displayMode by remember { mutableStateOf(SymbolDisplayMode.IntrinsicWidth) }
@@ -66,14 +73,20 @@ internal fun SymbolReplacementPreview(store: SymbolAssetStore, firstName: String
     var looping by remember { mutableStateOf(false) }
     var playing by remember { mutableStateOf(true) }
     var replay by remember { mutableIntStateOf(0) }
+    var interactive by remember { mutableStateOf(false) }
+    var targetFirst by remember { mutableStateOf(false) }
+    var controller by remember { mutableStateOf<SymbolReplaceController?>(null) }
+    var transitionClock by remember { mutableFloatStateOf(0f) }
     var elapsed by remember(first, second, direction, magic, layered, mode, replay) { mutableFloatStateOf(0f) }
-    LaunchedEffect(store, firstName, secondName, weight, scale) {
-        first = null
-        second = null
+    LaunchedEffect(store) { catalog = store.catalog() }
+    LaunchedEffect(store, firstName, secondName, weight, weightPosition, scale, resourceConfiguration) {
         error = null
         try {
-            val loadedFirst = store.load(firstName, weight, scale)
-            val loadedSecond = store.load(secondName, weight, scale)
+            suspend fun load(name: String) = weightPosition?.let { position ->
+                store.load(name, weightPosition = position, scale = scale, configuration = resourceConfiguration)
+            } ?: store.load(name, weight, scale, configuration = resourceConfiguration)
+            val loadedFirst = load(firstName)
+            val loadedSecond = load(secondName)
             first = loadedFirst
             second = loadedSecond
         } catch (cancelled: CancellationException) {
@@ -82,12 +95,28 @@ internal fun SymbolReplacementPreview(store: SymbolAssetStore, firstName: String
             error = failure.message ?: "符号加载失败"
         }
     }
+    LaunchedEffect(interactive, first, second, targetFirst, direction, magic, layered) {
+        if (interactive) first?.let { a -> second?.let { b ->
+            val active = controller ?: SymbolReplaceController(a).also { controller = it }
+            active.replaceWith(if (targetFirst) a else b, transitionClock, direction, magic, layered)
+        } }
+    }
+    LaunchedEffect(interactive, playing, controller, controller?.target, targetFirst, first, second,
+        direction, magic, layered, replay) {
+        if (interactive && playing && controller?.isRunning(transitionClock) == true) {
+            val start = withFrameNanos { it }
+            val offset = transitionClock
+            do {
+                transitionClock = withFrameNanos { offset + (it - start) / 1_000_000_000f }
+            } while (controller?.advanceTo(transitionClock) == true)
+        }
+    }
     val duration = remember(first, second, direction, magic, layered, mode) {
         first?.let { a -> second?.let { b -> SymbolReplacePlan(a, b, direction, magic, layered, mode, pointSize = 144f).durationSeconds } }
             ?: 1f
     }.coerceAtLeast(.001f)
-    LaunchedEffect(first, second, direction, magic, layered, mode, replay, looping, playing, duration) {
-        if (playing && first != null && second != null) {
+    LaunchedEffect(first, second, direction, magic, layered, mode, replay, looping, playing, duration, interactive) {
+        if (!interactive && playing && first != null && second != null && (looping || elapsed < duration)) {
             val start = withFrameNanos { it }
             val offset = elapsed
             do {
@@ -118,29 +147,39 @@ internal fun SymbolReplacementPreview(store: SymbolAssetStore, firstName: String
                 when {
                     error != null -> Text(error!!, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(20.dp))
                     a == null || b == null -> CircularProgressIndicator()
+                    interactive && controller != null -> SFSymbolReplace(controller!!, Modifier.height(144.dp), mode = mode,
+                        tint = MaterialTheme.colorScheme.primary, secondary = MaterialTheme.colorScheme.tertiary,
+                        contentDescription = "$firstName → $secondName", elapsedSeconds = { transitionClock }, displayMode = displayMode)
                     else -> SFSymbolReplace(a, b, Modifier.height(144.dp), direction, magic, layered, mode,
                         tint = MaterialTheme.colorScheme.primary, secondary = MaterialTheme.colorScheme.tertiary,
                         contentDescription = "$firstName → $secondName", elapsedSeconds = { elapsed }, displayMode = displayMode)
                 }
             }
         }
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("${String.format(Locale.ROOT, "%.2f", minOf(elapsed, duration))} / ${String.format(Locale.ROOT, "%.2f", duration)} s",
-                style = MaterialTheme.typography.labelMedium)
-            Text(if (elapsed >= duration && !looping) "播放完成" else if (playing) "播放中" else "已暂停",
-                style = MaterialTheme.typography.labelMedium)
-        }
-        Slider(elapsed.coerceIn(0f, duration), { playing = false; elapsed = it }, valueRange = 0f..duration,
-            modifier = Modifier.testTag("replace-time"), enabled = first != null && second != null)
+        ReplacementTimeline({ elapsed }, duration, interactive, targetFirst, { transitionClock },
+            controller, playing, looping, first != null && second != null) { playing = false; elapsed = it }
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Button(onClick = {
-                if (!looping && elapsed >= duration) { elapsed = 0f; replay++; playing = true }
+                if (interactive) playing = !playing
+                else if (!looping && elapsed >= duration) { elapsed = 0f; replay++; playing = true }
                 else playing = !playing
             }) {
-                Text(if (!looping && elapsed >= duration) "播放" else if (playing) "暂停" else "播放")
+                ReplacementPlaybackLabel({ elapsed }, duration, interactive, looping, playing)
             }
-            OutlinedButton(onClick = { elapsed = 0f; playing = true; replay++ }) { Text("重播") }
-            FilterChip(looping, { looping = !looping }, label = { Text("循环") })
+            OutlinedButton(onClick = {
+                if (interactive) first?.let { a -> second?.let { b ->
+                    controller?.reset(if (targetFirst) b else a)
+                    controller?.replaceWith(if (targetFirst) a else b, transitionClock, direction, magic, layered)
+                    replay++
+                } }
+                else { elapsed = 0f; replay++ }
+                playing = true
+            }) { Text("重播") }
+            FilterChip(looping, { looping = !looping }, enabled = !interactive, label = { Text("循环") })
+            FilterChip(interactive, { interactive = !interactive; playing = true },
+                modifier = Modifier.testTag("replace-interactive"), label = { Text("交互接续") })
+            if (interactive) OutlinedButton(onClick = { targetFirst = !targetFirst },
+                modifier = Modifier.testTag("replace-retarget")) { Text(if (targetFirst) "切换到 B" else "切换到 A") }
         }
         Text("替换方式", style = MaterialTheme.typography.titleMedium)
         Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -159,11 +198,35 @@ internal fun SymbolReplacementPreview(store: SymbolAssetStore, firstName: String
                 FilterChip(mode == value, { mode = value }, label = { Text(value.name) })
             }
         }
-        Text("字重 · ${weight.name}", style = MaterialTheme.typography.titleMedium)
-        Slider(weight.ordinal.toFloat(), { weight = SymbolWeight.entries[it.toInt().coerceIn(0, SymbolWeight.entries.lastIndex)] },
-            valueRange = 0f..SymbolWeight.entries.lastIndex.toFloat(), steps = SymbolWeight.entries.size - 2)
+        SymbolWeightSelector(catalog, weight, weightPosition,
+            onNamedWeight = { weight = it; weightPosition = null },
+            onWeightPosition = { weightPosition = it })
         Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             SymbolScale.entries.forEach { value -> FilterChip(scale == value, { scale = value }, label = { Text(value.name) }) }
         }
     }
+}
+
+@Composable
+private fun ReplacementTimeline(elapsed: () -> Float, duration: Float, interactive: Boolean, targetFirst: Boolean,
+    transitionTime: () -> Float, controller: SymbolReplaceController?, playing: Boolean, looping: Boolean,
+    loaded: Boolean, seek: (Float) -> Unit) {
+    val time = elapsed()
+    val clock = if (interactive) transitionTime() else 0f
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+        Text(if (interactive) "目标 ${if (targetFirst) "A" else "B"} · ${String.format(Locale.ROOT, "%.2f", clock)} s"
+            else "${String.format(Locale.ROOT, "%.2f", minOf(time, duration))} / ${String.format(Locale.ROOT, "%.2f", duration)} s",
+            style = MaterialTheme.typography.labelMedium)
+        Text(if (interactive) if (!playing) "已暂停" else if (controller?.isRunning(clock) == true) "播放中" else "播放完成"
+            else if (time >= duration && !looping) "播放完成" else if (playing) "播放中" else "已暂停",
+            style = MaterialTheme.typography.labelMedium)
+    }
+    Slider(time.coerceIn(0f, duration), seek, valueRange = 0f..duration,
+        modifier = Modifier.testTag("replace-time"), enabled = !interactive && loaded)
+}
+
+@Composable
+private fun ReplacementPlaybackLabel(elapsed: () -> Float, duration: Float, interactive: Boolean,
+    looping: Boolean, playing: Boolean) {
+    Text(if (!interactive && !looping && elapsed() >= duration) "播放" else if (playing) "暂停" else "播放")
 }

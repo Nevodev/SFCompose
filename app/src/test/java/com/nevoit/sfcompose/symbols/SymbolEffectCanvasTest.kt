@@ -74,7 +74,7 @@ class SymbolEffectCanvasTest {
         assertEquals(127, layered.maxOf { Color.alpha(it) })
         val palette = frame(symbol, SymbolEffect.BreathePulse, 1.5f,
             SymbolEffectLayerMode.ByLayer, SymbolRenderingMode.Palette)
-        assertTrue(palette.any { it == Color.GREEN })
+        assertTrue(palette.any { it == Color.argb(76, 0, 255, 0) })
         assertTrue(palette.none { it == Color.RED })
     }
 
@@ -91,7 +91,7 @@ class SymbolEffectCanvasTest {
         assertEquals(127, hierarchy.maxOf { Color.alpha(it) })
         val palette = frame(symbol, SymbolEffect.Pulse, 1f,
             SymbolEffectLayerMode.ByLayer, SymbolRenderingMode.Palette)
-        assertTrue(palette.any { it == Color.GREEN })
+        assertTrue(palette.any { it == Color.argb(76, 0, 255, 0) })
         assertTrue(palette.none { it == Color.RED })
     }
 

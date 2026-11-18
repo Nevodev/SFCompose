@@ -236,7 +236,7 @@ class SymbolReplaceTest {
     }
 
     @Test
-    fun originalEnclosuresMatchAcrossFillAndStrokeAndInterpolateTheirOwnDescriptors() = runBlocking {
+    fun originalEnclosuresOnlyInterpolateCompatibleMatchingMarkers() = runBlocking {
         val pairs = listOf("heart.circle" to "star.circle", "heart.circle" to "star.circle.fill",
             "heart.circle.fill" to "star.circle")
         for ((firstName, secondName) in pairs) {
@@ -248,9 +248,15 @@ class SymbolReplaceTest {
                 val oldSource = old.nodes.first { it.source.supportsSymbolMode(mode) }.source
                 val newSource = new.nodes.first { it.source.supportsSymbolMode(mode) }.source
                 val middle = plan.layerState(oldSource, false, 0.175f)
-                assertTrue(middle.drawModeFrom === oldSource)
-                assertTrue(middle.drawModeTo === newSource)
-                assertTrue(middle.drawModeProgress > 0f && middle.drawModeProgress < 1f)
+                val matchingMarkers = firstName.endsWith(".fill") == secondName.endsWith(".fill")
+                if (matchingMarkers && oldSource.symbolMaterialMatches(newSource, mode)) {
+                    assertTrue(middle.drawModeFrom === oldSource)
+                    assertTrue(middle.drawModeTo === newSource)
+                    assertTrue(middle.drawModeProgress > 0f && middle.drawModeProgress < 1f)
+                } else {
+                    assertEquals(null, middle.drawModeFrom)
+                    assertEquals(null, middle.drawModeTo)
+                }
                 assertEquals(1f, middle.scaleX, 0f)
                 assertEquals(0f, middle.translateX, 0f)
                 val incoming = plan.layerState(newSource, true, 0.175f)
@@ -269,6 +275,49 @@ class SymbolReplaceTest {
         assertEquals(1f, plan.layerState(new.nodes.first().source, true, 0.35f).opacity, 0f)
         assertEquals(1f, plan.layerState(old.nodes.first().source, false, 0.35f).opacity, 0f)
         assertEquals(0f, plan.layerState(old.nodes.first().source, false, 0.433f).opacity, 0.00001f)
+    }
+
+    @Test
+    fun incompatibleEnclosureMaterialsFadeTheirOwnCommonOpacity() = runBlocking {
+        val template = store.load("heart.fill")
+        fun enclosure(name: String, opacity: Float, level: Int, color: String): SymbolInstance {
+            val symbol = fixture(template, listOf(listOf(name, "circle", "_enclosure.stroke"), listOf(name, "interior")))
+            for (node in symbol.nodes) {
+                val source = node.source
+                val tags = source.getJSONArray("tags")
+                source.put("hierarchical", level).put("multicolor", JSONObject().put("color", color))
+                source.put("sourceModeStyles", JSONObject().apply {
+                    for (mode in listOf("monochrome", "hierarchical", "multicolor")) put(mode, JSONObject()
+                        .put("selector", ".$mode-0").put("opacity", opacity.toString())
+                        .put("-sfsymbols-clear-behind", "true")
+                        .put("-sfsymbols-layer-tags", (0 until tags.length()).joinToString(" ") { tags.getString(it) }))
+                })
+            }
+            return symbol
+        }
+        val cases = listOf(
+            Triple(enclosure("old", 0f, 0, "tintColor"), enclosure("new", 1f, 0, "tintColor"), SymbolRenderingMode.Monochrome),
+            Triple(enclosure("old", 1f, 0, "tintColor"), enclosure("new", 1f, 1, "tintColor"), SymbolRenderingMode.Palette),
+            Triple(enclosure("old", 1f, 0, "systemRedColor"), enclosure("new", 1f, 0, "systemBlueColor"), SymbolRenderingMode.Multicolor),
+        )
+        for ((old, new, mode) in cases) {
+            val plan = SymbolReplacePlan(old, new, mode = mode)
+            assertEquals(SymbolReplaceKind.EnclosureMatch, plan.kind)
+            for (time in listOf(0f, .1f, .175f)) {
+                val outgoing = plan.layerState(old.nodes[0].source, false, time)
+                val incoming = plan.layerState(new.nodes[0].source, true, time)
+                assertEquals(null, outgoing.drawModeFrom)
+                assertEquals(null, incoming.drawModeTo)
+                assertEquals(1f, outgoing.opacity, 0f)
+                assertEquals(1f, incoming.opacity, 0f)
+                assertEquals(1f, outgoing.commonOpacity + incoming.commonOpacity, .000001f)
+                assertEquals(time / plan.durationSeconds, incoming.commonOpacity, .000001f)
+                if (time == 0f) assertEquals(0f, incoming.commonOpacity, 0f)
+                else assertTrue(incoming.commonOpacity > 0f && incoming.commonOpacity < 1f)
+            }
+            assertEquals(0f, plan.layerState(old.nodes[0].source, false, plan.durationSeconds).opacity, 0f)
+            assertEquals(1f, plan.layerState(new.nodes[0].source, true, plan.durationSeconds).opacity, 0f)
+        }
     }
 
     @Test

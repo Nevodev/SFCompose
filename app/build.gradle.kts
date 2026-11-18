@@ -6,13 +6,13 @@ plugins {
 android {
     namespace = "com.nevoit.sfcompose"
     compileSdk {
-        version = release(37)
+        version = release(libs.versions.androidCompileSdk.get().toInt())
     }
 
     defaultConfig {
         applicationId = "com.nevoit.sfcompose"
-        minSdk = 28
-        targetSdk = 37
+        minSdk = libs.versions.androidMinSdk.get().toInt()
+        targetSdk = libs.versions.androidTargetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
 
@@ -25,6 +25,14 @@ android {
                 enable = true
                 packageScope = setOf("androidx.**", "kotlin.**", "kotlinx.**")
             }
+        }
+        create("benchmark") {
+            initWith(getByName("release"))
+            signingConfig = signingConfigs.getByName("debug")
+            matchingFallbacks += "release"
+            applicationIdSuffix = ".benchmark"
+            isDebuggable = false
+            isProfileable = true
         }
     }
     compileOptions {

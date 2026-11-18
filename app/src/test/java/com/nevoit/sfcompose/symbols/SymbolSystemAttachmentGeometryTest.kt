@@ -248,8 +248,7 @@ class SymbolSystemAttachmentGeometryTest {
                     val prefix = "${symbol.name}-$flags-$on-$progress"
                     save("$prefix-native.png", expected)
                     save("$prefix-port.png", actual)
-                    val field = SymbolDraw::class.java.getDeclaredField("systemReferences").apply { isAccessible = true }
-                    val references = field.get(symbol.draw) as Map<*, *>
+                    val references = symbol.draw.currentDrawSizeField("references") as Map<*, *>
                     val method = SymbolDraw::class.java.getDeclaredMethod("systemAttachmentSlice", SymbolDrawAttachments.Entry::class.java,
                         SystemDrawState::class.java).apply { isAccessible = true }
                     for (entry in references.keys) {

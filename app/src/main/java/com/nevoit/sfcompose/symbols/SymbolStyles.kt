@@ -34,3 +34,29 @@ internal fun JSONObject.symbolOpacity(mode: SymbolRenderingMode): Double {
         optJSONObject("multicolor")?.optDouble("opacity", optDouble("opacity", 100.0)) ?: optDouble("opacity", 100.0)
     } else optDouble("opacity", 100.0)
 }
+
+internal fun JSONObject.symbolMaterialOpacity(mode: SymbolRenderingMode): Float =
+    systemStyle(mode)?.optDouble("opacity", 1.0)?.toFloat()
+        ?: if (symbolErases(mode)) 0f else (symbolOpacity(mode) / 100.0).toFloat()
+
+internal fun JSONObject.symbolMaterialMatches(other: JSONObject, mode: SymbolRenderingMode): Boolean {
+    val style = systemStyle(mode) ?: return false
+    val otherStyle = other.systemStyle(mode) ?: return false
+    if (symbolBoolean(mode, "-sfsymbols-clear-behind", "clearBehind") !=
+        other.symbolBoolean(mode, "-sfsymbols-clear-behind", "clearBehind")) return false
+    // Current system enclosures only use solid materials. Image/custom fill identity cannot
+    // be inferred from a selector or a shared material slot.
+    val customKeys = listOf("fillImage", "fill-image", "stroke", "strokeColor", "strokeColorName", "gradient")
+    if (customKeys.any { style.has(it) || otherStyle.has(it) } || has("gradient") || other.has("gradient")) return false
+    fun materialIndex(source: JSONObject): Int = when {
+        source.symbolMaterialOpacity(mode) <= 0f -> 10
+        mode == SymbolRenderingMode.Palette -> source.optInt("hierarchical", 0).let { if (it > 0) 4 + minOf(it, 4) else 0 }
+        mode == SymbolRenderingMode.Multicolor &&
+            (source.optJSONObject("multicolor")?.optString("color", "tintColor") ?: "tintColor") != "tintColor" -> 9
+        else -> 0
+    }
+    val index = materialIndex(this)
+    if (index != materialIndex(other)) return false
+    return index != 9 || optJSONObject("multicolor")?.optString("color", "tintColor") ==
+        other.optJSONObject("multicolor")?.optString("color", "tintColor")
+}

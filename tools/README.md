@@ -15,6 +15,18 @@ The system pipeline is:
 4. `install_system_catalog.py` verifies that manifest, preserves gzip bytes under
    `.json.sfgz`, records the deployment mapping, and publishes the index last.
    It requires the previous assets to have been archived before installation.
+5. `import_resource_selection.py` reads the same authenticated CAR's CSI headers
+   and appends a selection-sidecar reference to the installed index. It retains
+   the native flippability bit and actual RTL counterpart names without rewriting
+   the vector assets. Run this step again after reinstalling the catalog:
+
+   ```text
+   python tools/import_resource_selection.py --assets app/src/main/assets/symbols --car <same-source-Assets.car> --audit <header-audit.json>
+   ```
+
+   The importer checks the CAR hash against the installed index and records each
+   source header's offset, flags and hash in the audit. Its focused checks are
+   `python -m unittest discover -s tools -p test_import_resource_selection.py`.
 
 Each tool has `--help` for its structured inputs. System sampling accepts the
 original-machine-code interpolation helper or its separately verified exact port.

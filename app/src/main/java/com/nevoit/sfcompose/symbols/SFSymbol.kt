@@ -11,6 +11,7 @@ import android.graphics.Shader
 import android.graphics.RectF
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
+import android.util.LruCache
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.height
@@ -70,12 +71,18 @@ fun SFSymbol(
 ) {
     require(effectRepeatCount == null || effectRepeatCount > 0) { "Effect repeat count must be positive" }
     val painter = remember(symbol) { AndroidSymbolPainter(symbol) }
+    val tintArgb = tint.toArgb()
+    val secondaryArgb = secondary.toArgb()
+    val tertiaryArgb = tertiary.toArgb()
+    val paletteArgb = remember(palette) { palette?.map { it.toArgb() }?.toIntArray() }
+    val layoutRatio = remember(symbol, displayMode) { displayMode.layoutRatio(symbol.advance / symbol.unitsPerEm) }
+    val inkRatio = remember(symbol) { symbol.horizontalInkRatio() }
     val semantics = if (contentDescription == null) Modifier else Modifier.semantics {
         this.contentDescription = contentDescription
     }
     Canvas(modifier.then(semantics).height(32.dp)
-        .aspectRatio(displayMode.layoutRatio(symbol.advance / symbol.unitsPerEm), matchHeightConstraintsFirst = true)) {
-        val renderHeight = displayMode.renderHeight(size.width, size.height, symbol.horizontalInkRatio())
+        .aspectRatio(layoutRatio, matchHeightConstraintsFirst = true)) {
+        val renderHeight = displayMode.renderHeight(size.width, size.height, inkRatio)
         drawIntoCanvas { canvas ->
             val checkpoint = canvas.nativeCanvas.save()
             canvas.nativeCanvas.translate(0f, (size.height - renderHeight) * .5f)
@@ -85,9 +92,9 @@ fun SFSymbol(
                     size.width,
                     renderHeight,
                     mode,
-                    tint.toArgb(),
-                    secondary.toArgb(),
-                    tertiary.toArgb(),
+                    tintArgb,
+                    secondaryArgb,
+                    tertiaryArgb,
                     darkTheme,
                     effect,
                     elapsedSeconds(),
@@ -100,7 +107,7 @@ fun SFSymbol(
                     effectLayerMode,
                     appearance,
                     variableAnimation,
-                    palette?.map { it.toArgb() }?.toIntArray(),
+                    paletteArgb,
                     drawEffect = drawEffect,
                     variableDrawValue = variableDrawValue?.invoke(),
                     drawReversed = drawReversed,
@@ -115,108 +122,52 @@ fun SFSymbol(
     }
 }
 
-internal class AndroidSymbolPainter(private val symbol: SymbolInstance, private val adaptiveCaps: Boolean = true) {
-    private val motionTiming = SymbolMotionTiming(symbol.metadata.optString("sourceKind").startsWith("macOS-system"))
-    private val variableDraw = SymbolRenderingMode.entries.associateWith {
-        SymbolVariableDraw(symbol.nodes, symbol.metadata.optString("variableColorOrder") == "backToFront", it, symbol.draw::hasGeometry)
-    }
+internal class AndroidSymbolPainter(
+    private val symbol: SymbolInstance,
+    private val adaptiveCaps: Boolean = true,
+    private val recoverMissingAttachmentAnchors: Boolean = adaptiveCaps,
+) {
+    private val prepared = symbol.prepared
+    private val systemMaterials = symbol.metadata.optString("sourceKind").startsWith("macOS-system")
+    private val motionTiming = SymbolMotionTiming(systemMaterials)
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val erase = PorterDuffXfermode(PorterDuff.Mode.DST_OUT)
     private val copy = PorterDuffXfermode(PorterDuff.Mode.SRC)
-    private val compiled = compile(symbol.nodes)
-    private val systemLayers = SymbolRenderingMode.entries.associateWith { mode -> buildMap<Int, JSONObject> {
-        fun visit(nodes: List<SymbolNode>) {
-            for (node in nodes.filter { it.source.supportsSymbolMode(mode) }) when (node) {
-                is SymbolNode.Layer -> if (node.source.has("sourceLayerIndex")) {
-                    put(node.source.getInt("sourceLayerIndex"), node.source)
-                }
-                is SymbolNode.Group -> visit(node.children)
-            }
-        }
-        visit(symbol.nodes)
-    } }
-    private val drawableModes = SymbolRenderingMode.entries.associateWith { mode ->
-        compiled.any { hasMode(it, mode) }
-    }
-    private val motionGroups = SymbolRenderingMode.entries.associateWith { symbolMotionGroups(symbol.nodes, it) }
-    private val hasPulseLayers = motionGroups.mapValues { (mode, groups) ->
-        groups.indices.keys.any { it.symbolBoolean(mode, "-sfsymbols-always-pulses", "canPulse") }
-    }
-
-    private class Node(
-        val source: JSONObject,
-        val path: Path,
-        val children: List<Node>?,
-    ) {
-        val bounds: RectF by lazy { symbolPathBounds(path) }
-    }
-    private val gradientShaders = HashMap<String, Shader>()
+    private val gradientShaders = LruCache<String, Shader>(24)
     private data class DrawScheduleKey(val mode: SymbolRenderingMode, val layerMode: SymbolEffectLayerMode,
         val effect: SymbolDrawEffect, val reversed: Boolean, val reversesMotionGroups: Boolean, val pointSize: Float)
-    private val drawSchedules = HashMap<DrawScheduleKey, SymbolDrawTiming>()
+    private val drawSchedules = LruCache<DrawScheduleKey, SymbolDrawTiming>(8)
     private data class VariableTrackKey(val mode: SymbolRenderingMode, val animation: SymbolVariableAnimation,
         val continuous: Boolean, val repeatCount: Int?)
-    private val variableTracks = HashMap<VariableTrackKey, IdentityHashMap<JSONObject, VariableColorTrack>>()
-    private val variableThresholds = SymbolRenderingMode.entries.associateWith { mode ->
-        val eligible = buildList {
-            fun visit(nodes: List<Node>) {
-                for (node in nodes) {
-                    if (node.children != null) visit(node.children)
-                    else if ((node.source.systemStyle(mode)?.has("-sfsymbols-variable-threshold")
-                            ?: node.source.optBoolean("autovariable")) && hasMode(node, mode) && node.source.supportsSymbolMode(mode) &&
-                        (mode != SymbolRenderingMode.Multicolor ||
-                            node.source.optJSONObject("multicolor")?.optString("color") != "hidden")
-                    ) add(node)
-                }
-            }
-            visit(compiled)
-        }
-        IdentityHashMap<JSONObject, Float>().apply {
-            eligible.forEachIndexed { index, node ->
-                val compiledThreshold = node.source.systemStyle(mode)?.optDouble("-sfsymbols-variable-threshold", Double.NaN)
-                    ?: node.source.optDouble("variableThreshold", Double.NaN)
-                put(node.source, if (compiledThreshold.isFinite()) compiledThreshold.toFloat() else
-                    SymbolTiming.variableThreshold(index, eligible.size,
-                        reversed = symbol.metadata.optString("variableColorOrder") == "frontToBack"))
-            }
-        }
-    }
-    private val minimumHierarchy = run {
-        fun levels(nodes: List<Node>): List<Int> = nodes.flatMap { node ->
-            node.children?.let { levels(it) } ?: listOfNotNull(
-                node.source.optInt("hierarchical", -1).takeIf { it >= 0 },
-            )
-        }
-        levels(compiled).minOrNull() ?: 0
+    private val variableTracks = LruCache<VariableTrackKey, Map<JSONObject, VariableColorTrack>>(8)
+    private val staticBounds = RectF()
+
+    private fun baseColor(style: PreparedSymbol.Style, mode: SymbolRenderingMode, tint: Int, secondary: Int,
+        tertiary: Int, darkTheme: Boolean, appearance: SymbolAppearance, palette: IntArray?): Int = when (mode) {
+        SymbolRenderingMode.Monochrome, SymbolRenderingMode.Hierarchical -> tint
+        SymbolRenderingMode.Palette -> if (palette != null && palette.isNotEmpty()) {
+            palette[SymbolColors.paletteIndex(style.hierarchy, prepared.minimumHierarchy, palette.size).coerceAtLeast(0)]
+        } else when (style.hierarchy) { 1 -> secondary; 2, 3 -> tertiary; else -> tint }
+        SymbolRenderingMode.Multicolor -> SymbolColors.resolve(style.colorName, tint, darkTheme, appearance)
     }
 
-    private fun compile(nodes: List<SymbolNode>): List<Node> = nodes.map { node ->
-        when (node) {
-            is SymbolNode.Layer -> Node(node.source, Path().apply {
-                // Glyph.contours(at:) skips stale source indices while preserving valid contours.
-                for (component in node.components) symbol.contours.getOrNull(component)?.let { addPath(it) }
-            }, null)
-            is SymbolNode.Group -> {
-                val children = compile(node.children)
-                if (node.source.optString("type") == "shapeGroup") {
-                    val shape = Path()
-                    for (child in children) {
-                        val operation = if (child.source.optString("shapeGroupBehavior", "draw") == "erase")
-                            Path.Op.DIFFERENCE else Path.Op.UNION
-                        check(shape.op(child.path, operation)) { "Unable to resolve original shape group" }
-                    }
-                    Node(node.source, shape, null)
-                } else Node(node.source, Path().apply { children.forEach { addPath(it.path) } }, children)
-            }
+    private fun drawStatic(canvas: Canvas, mode: PreparedSymbol.Mode, tint: Int, secondary: Int, tertiary: Int,
+        darkTheme: Boolean, appearance: SymbolAppearance, palette: IntArray?) {
+        paint.shader = null
+        paint.xfermode = null
+        for (node in mode.layers) {
+            val style = node.style(mode.mode)
+            val color = baseColor(style, mode.mode, tint, secondary, tertiary, darkTheme, appearance, palette)
+            val hierarchy = if (mode.mode == SymbolRenderingMode.Hierarchical)
+                SymbolColors.hierarchyOpacity(style.hierarchy) else 1f
+            val alpha = if (style.native) AndroidColor.alpha(color) * (hierarchy * style.materialOpacity)
+                else (AndroidColor.alpha(color) * hierarchy * style.opacity / 100.0).toFloat()
+            if (alpha < 1f) continue
+            paint.color = color
+            paint.alpha = alpha.toInt().coerceIn(0, 255)
+            canvas.drawPath(node.path, paint)
         }
     }
-
-    private fun hasMode(node: Node, mode: SymbolRenderingMode): Boolean =
-        node.children?.any { hasMode(it, mode) } ?: node.source.has(when (mode) {
-            SymbolRenderingMode.Monochrome -> "monochrome"
-            SymbolRenderingMode.Hierarchical, SymbolRenderingMode.Palette -> "hierarchical"
-            SymbolRenderingMode.Multicolor -> "multicolor"
-        })
 
     fun draw(
         canvas: Canvas,
@@ -250,19 +201,40 @@ internal class AndroidSymbolPainter(private val symbol: SymbolInstance, private 
         require(effectRepeatCount == null || effectRepeatCount > 0) { "Effect repeat count must be positive" }
         if (symbol.bounds.isEmpty || width <= 0f || height <= 0f) return
         val scale = height / symbol.unitsPerEm
-        val layer = canvas.saveLayer(null, null)
-        canvas.translate(width * 0.5f, height * 0.5f)
-        canvas.scale(scale, -scale)
-        canvas.translate(-symbol.metricCenterX, -symbol.metricCenterY)
+        val resolvedMode = prepared.resolveMode(mode)
+        val modeData = prepared.mode(resolvedMode)
         val pivotX = symbol.metricCenterX
         val pivotY = symbol.metricCenterY
+        val mirrored = symbol.mirroredForRightToLeft || rightToLeft && symbol.metadata.optBoolean("rtl")
+        val staticGeometry = effect == SymbolEffect.None && drawEffect == null && drawProgress == null &&
+            replacementState == null && variableDrawValue == null
+        val needsIsolation = modeData.requiresIsolation || replacementState != null
+        val layer = if (needsIsolation) {
+            val bounds = if (staticGeometry) {
+                val ink = modeData.inkBounds
+                staticBounds.set(
+                    width * .5f + (if (mirrored) pivotX - ink.right else ink.left - pivotX) * scale - 1f,
+                    height * .5f + (pivotY - ink.bottom) * scale - 1f,
+                    width * .5f + (if (mirrored) pivotX - ink.left else ink.right - pivotX) * scale + 1f,
+                    height * .5f + (pivotY - ink.top) * scale + 1f,
+                )
+                staticBounds
+            } else null
+            canvas.saveLayer(bounds, null)
+        } else canvas.save()
+        canvas.translate(width * .5f, height * .5f)
+        canvas.scale(if (mirrored) -scale else scale, -scale)
+        canvas.translate(-pivotX, -pivotY)
+        if (staticGeometry && !needsIsolation && !gradients && variableValue == null &&
+            variableAnimation == null && (resolvedMode != SymbolRenderingMode.Multicolor || symbol.fillImages.isEmpty())) {
+            drawStatic(canvas, modeData, tint, secondary, tertiary, darkTheme, appearance, palette)
+            canvas.restoreToCount(layer)
+            return
+        }
         val transforms = SymbolFillTransform(canvas,
-            skipAnimationRotation = symbol.metadata.optString("sourceKind").startsWith("macOS-system"))
+            skipAnimationRotation = systemMaterials)
         val continuous = playback == SymbolEffectPlayback.Continuous
         val globalEffect = if (effectLayerMode == SymbolEffectLayerMode.WholeSymbol) effect else SymbolEffect.None
-        if (rightToLeft && symbol.metadata.optBoolean("rtl")) {
-            transforms.scale(-1f, 1f, pivotX, pivotY)
-        }
         if (isLinearWiggle(globalEffect)) {
             val offset = (if (continuous) motionTiming.continuousWiggleMagnitude(time, wholeSymbol = true, repeatCount = effectRepeatCount) * 0.025f
                 else motionTiming.wiggleOffsetFraction(time, wholeSymbol = true)) * symbol.unitsPerEm
@@ -314,28 +286,44 @@ internal class AndroidSymbolPainter(private val symbol: SymbolInstance, private 
             SymbolEffect.Breathe, SymbolEffect.BreathePulse -> motionTiming.breatheScale(if (continuous) motionTiming.periodTime(time, 3f, effectRepeatCount) else time, wholeSymbol = true)
             else -> 1f
         }
-        transforms.scale(effectScale, effectScale, pivotX, pivotY)
+        if (effectScale != 1f) transforms.scale(effectScale, effectScale, pivotX, pivotY)
         val opacity = when (globalEffect) {
             SymbolEffect.Appear, SymbolEffect.AppearDown, SymbolEffect.Disappear, SymbolEffect.DisappearUp ->
                 appearanceFrame(globalEffect, time, wholeSymbol = true).opacity
-            SymbolEffect.Pulse -> motionTiming.pulseOpacity(if (continuous) motionTiming.periodTime(time, 2f, effectRepeatCount) else time)
-            SymbolEffect.BreathePulse -> 1f - .7f * motionTiming.breathePulseAmount(if (continuous) motionTiming.periodTime(time, 3f, effectRepeatCount) else time, wholeSymbol = true)
+            SymbolEffect.Pulse -> if (systemMaterials) 1f else
+                motionTiming.pulseOpacity(if (continuous) motionTiming.periodTime(time, 2f, effectRepeatCount) else time)
+            SymbolEffect.BreathePulse -> if (systemMaterials) 1f else
+                1f - .7f * motionTiming.breathePulseAmount(if (continuous) motionTiming.periodTime(time, 3f, effectRepeatCount) else time, wholeSymbol = true)
             else -> 1f
         }
-        val resolvedMode = if (drawableModes.getValue(mode)) mode else SymbolRenderingMode.Monochrome
-        for (node in compiled) drawNode(canvas, node, resolvedMode, tint, secondary, tertiary, darkTheme, opacity, drawProgress, drawEffect?.let { it == SymbolDrawEffect.On } ?: drawOn, gradients, variableValue,
-            if (effectLayerMode == SymbolEffectLayerMode.WholeSymbol) SymbolEffect.None else effect, time, continuous, rightToLeft, appearance, variableAnimation, palette, replacementState,
-            drawEffect?.let { drawSchedules.getOrPut(DrawScheduleKey(resolvedMode, effectLayerMode, it, drawReversed, drawReversesMotionGroups, pointSize)) {
+        val wholeSymbolPulseAmount = if (systemMaterials) when (globalEffect) {
+            SymbolEffect.Pulse -> (1f - motionTiming.pulseOpacity(
+                if (continuous) motionTiming.periodTime(time, 2f, effectRepeatCount) else time)) / .7f
+            SymbolEffect.BreathePulse -> motionTiming.breathePulseAmount(
+                if (continuous) motionTiming.periodTime(time, 3f, effectRepeatCount) else time, wholeSymbol = true)
+            else -> null
+        } else null
+        val schedule = drawEffect?.let {
+            val key = DrawScheduleKey(resolvedMode, effectLayerMode, it, drawReversed, drawReversesMotionGroups, pointSize)
+            drawSchedules.getOrBuild(key) {
                 SymbolDrawTiming(symbol, it == SymbolDrawEffect.On, reverse = drawReversed, layerMode = effectLayerMode, mode = resolvedMode,
-                    drawReversesMotionGroups = drawReversesMotionGroups, pointSize = pointSize)
-            } },
-            continuous || effectLayerMode == SymbolEffectLayerMode.ByLayer, variableDrawValue, drawReversed, pointSize, height / pointSize, transforms, effectRepeatCount)
+                    drawReversesMotionGroups = drawReversesMotionGroups, pointSize = pointSize,
+                    recoverMissingAttachmentAnchors = recoverMissingAttachmentAnchors)
+            }
+        }
+        val systemState = schedule?.let { timing -> { index: Int ->
+            modeData.systemLayers[index]?.let { timing.systemState(it, time) }
+        } }
+        for (node in prepared.roots) drawNode(canvas, node, resolvedMode, tint, secondary, tertiary, darkTheme, opacity, drawProgress, drawEffect?.let { it == SymbolDrawEffect.On } ?: drawOn, gradients, variableValue,
+            if (effectLayerMode == SymbolEffectLayerMode.WholeSymbol) SymbolEffect.None else effect, time, continuous, rightToLeft, appearance, variableAnimation, palette, replacementState,
+            schedule, continuous || effectLayerMode == SymbolEffectLayerMode.ByLayer, variableDrawValue, drawReversed,
+            pointSize, height / pointSize, transforms, effectRepeatCount, wholeSymbolPulseAmount, systemState)
         canvas.restoreToCount(layer)
     }
 
     private fun drawNode(
         canvas: Canvas,
-        node: Node,
+        node: PreparedSymbol.Node,
         mode: SymbolRenderingMode,
         tint: Int,
         secondary: Int,
@@ -362,60 +350,56 @@ internal class AndroidSymbolPainter(private val symbol: SymbolInstance, private 
         canvasScaleDensity: Float,
         parentTransforms: SymbolFillTransform,
         effectRepeatCount: Int?,
+        wholeSymbolPulseAmount: Float?,
+        systemDrawState: ((Int) -> SystemDrawState?)?,
     ) {
         val source = node.source
-        if (!source.supportsSymbolMode(mode)) return
-        if (node.children == null && !hasMode(node, mode)) return
-        val monochrome = source.optString("monochrome", "draw")
-        val level = source.optInt("hierarchical", 0)
-        val multicolor = source.optJSONObject("multicolor")
-        val colorName = multicolor?.optString("color", "tintColor") ?: "tintColor"
-        var isErase = source.symbolErases(mode)
-        val hidden = when (mode) {
-            SymbolRenderingMode.Monochrome -> monochrome == "hidden"
-            SymbolRenderingMode.Multicolor -> colorName == "hidden"
-            else -> false
-        }
-        if (hidden) return
+        val style = node.style(mode)
+        if (!style.visible || node.children == null && !style.drawable) return
+        val level = style.hierarchy
+        val colorName = style.colorName
+        var isErase = style.erases
+        val nativeMaterial = style.native
+        var clearBehind = style.clearBehind
         if (node.children != null) {
-            if (source.optString("type") == "shapeGroup") {
-                val checkpoint = canvas.saveLayer(null, null)
-                for (child in node.children) drawNode(canvas, child, mode, tint, secondary, tertiary, darkTheme, inheritedOpacity, drawProgress, drawOn, gradients, variableValue, effect, time, continuous, rightToLeft, appearance, variableAnimation, palette, replacementState, drawSchedule, customRotationAnchors, variableDrawValue, drawReversed, pointSize, canvasScaleDensity, parentTransforms, effectRepeatCount)
-                canvas.restoreToCount(checkpoint)
-            } else {
-                for (child in node.children) drawNode(canvas, child, mode, tint, secondary, tertiary, darkTheme, inheritedOpacity, drawProgress, drawOn, gradients, variableValue, effect, time, continuous, rightToLeft, appearance, variableAnimation, palette, replacementState, drawSchedule, customRotationAnchors, variableDrawValue, drawReversed, pointSize, canvasScaleDensity, parentTransforms, effectRepeatCount)
-            }
+            for (child in node.children) drawNode(canvas, child, mode, tint, secondary, tertiary, darkTheme,
+                inheritedOpacity, drawProgress, drawOn, gradients, variableValue, effect, time, continuous, rightToLeft,
+                appearance, variableAnimation, palette, replacementState, drawSchedule, customRotationAnchors,
+                variableDrawValue, drawReversed, pointSize, canvasScaleDensity, parentTransforms, effectRepeatCount,
+                wholeSymbolPulseAmount, systemDrawState)
             return
         }
         val replacement = replacementState?.invoke(source)
-        if (replacement != null && replacement.opacity <= 0f) return
-        val checkpoint = canvas.save()
-        val transforms = parentTransforms.copy()
+        if (replacement != null && replacement.opacity <= 0f && !(nativeMaterial && clearBehind)) return
         val drawScale = drawSchedule?.scale(source, time) ?: 1f
-        val localBounds = node.bounds
-        transforms.scale(drawScale, drawScale, localBounds.centerX(), localBounds.centerY())
-        if (replacement != null) {
+        val transformsLayer = drawScale != 1f || effect != SymbolEffect.None && effect != SymbolEffect.Pulse ||
+            replacement != null && (replacement.translateX != 0f || replacement.translateY != 0f ||
+                replacement.scaleX != 1f || replacement.scaleY != 1f)
+        val checkpoint = if (transformsLayer) canvas.save() else null
+        val transforms = if (transformsLayer) parentTransforms.copy() else parentTransforms
+        if (drawScale != 1f) transforms.scale(drawScale, drawScale, node.bounds.centerX(), node.bounds.centerY())
+        if (replacement != null && transformsLayer) {
             transforms.translate(replacement.translateX, replacement.translateY)
             transforms.scale(replacement.scaleX, replacement.scaleY, replacement.pivotX ?: symbol.metricCenterX,
                 replacement.pivotY ?: symbol.metricCenterY)
         }
-        val motion = motionGroups.getValue(mode)
-        val motionIndex = motion.indices[source] ?: 0
+        val modeData = prepared.mode(mode)
+        val motion = if (effect == SymbolEffect.None) null else modeData.motion
+        val motionIndex = motion?.indices?.get(source) ?: 0
+        val motionMaximum = motion?.maxGroupIndex ?: 0
         val eligibleEffect = when {
-            effect == SymbolEffect.Pulse && hasPulseLayers.getValue(mode) && !source.symbolBoolean(mode, "-sfsymbols-always-pulses", "canPulse") -> SymbolEffect.None
-            effect in setOf(SymbolEffect.RotateClockwise, SymbolEffect.RotateCounterclockwise) &&
-                !source.symbolBoolean(mode, "-sfsymbols-always-rotates", "canRotate") -> SymbolEffect.None
+            effect == SymbolEffect.Pulse && modeData.hasPulseLayers && !style.pulses -> SymbolEffect.None
+            (effect == SymbolEffect.RotateClockwise || effect == SymbolEffect.RotateCounterclockwise) &&
+                !style.rotates -> SymbolEffect.None
             else -> effect
         }
-        val layerOpacity = applyLayerEffect(transforms, eligibleEffect, time, continuous, motionIndex, motion.maxGroupIndex, rightToLeft, customRotationAnchors, effectRepeatCount)
-        var color = when (mode) {
-            SymbolRenderingMode.Monochrome, SymbolRenderingMode.Hierarchical -> tint
-            SymbolRenderingMode.Palette -> if (palette != null && palette.isNotEmpty()) {
-                palette[SymbolColors.paletteIndex(level, minimumHierarchy, palette.size).coerceAtLeast(0)]
-            } else when (level) { 1 -> secondary; 2, 3 -> tertiary; else -> tint }
-            SymbolRenderingMode.Multicolor -> SymbolColors.resolve(colorName, tint, darkTheme, appearance)
-        }
-        var explicitOpacity = source.symbolOpacity(mode)
+        val layerOpacity = if (eligibleEffect == SymbolEffect.None || eligibleEffect == SymbolEffect.Pulse) 1f
+            else applyLayerEffect(transforms, eligibleEffect, time, continuous, motionIndex, motionMaximum,
+                rightToLeft, customRotationAnchors, effectRepeatCount)
+        var color = baseColor(style, mode, tint, secondary, tertiary, darkTheme, appearance, palette)
+        var explicitOpacity = style.opacity
+        var interpolatedMaterialOpacity: Float? = null
+        var interpolatedDrawingOpacity: Float? = null
         val from = replacement?.drawModeFrom
         val to = replacement?.drawModeTo
         if (from != null && to != null) {
@@ -424,25 +408,29 @@ internal class AndroidSymbolPainter(private val symbol: SymbolInstance, private 
             val firstErases = descriptorErases(from)
             val secondErases = descriptorErases(to)
             isErase = secondErases
+            clearBehind = to.symbolBoolean(mode, "-sfsymbols-clear-behind", "clearBehind")
             fun descriptorColor(value: JSONObject): Int = when (mode) {
                 SymbolRenderingMode.Multicolor -> SymbolColors.resolve(value.optJSONObject("multicolor")?.optString("color", "tintColor") ?: "tintColor", tint, darkTheme, appearance)
                 SymbolRenderingMode.Palette -> {
                     val hierarchy = value.optInt("hierarchical", 0)
-                    if (palette != null && palette.isNotEmpty()) palette[SymbolColors.paletteIndex(hierarchy, minimumHierarchy, palette.size).coerceAtLeast(0)]
+                    if (palette != null && palette.isNotEmpty()) palette[SymbolColors.paletteIndex(hierarchy, prepared.minimumHierarchy, palette.size).coerceAtLeast(0)]
                     else when (hierarchy) { 1 -> secondary; 2, 3 -> tertiary; else -> tint }
                 }
                 else -> tint
             }
             val firstColor = descriptorColor(from)
             val secondColor = descriptorColor(to)
-            color = if (firstErases != secondErases) secondColor else ((0..3).sumOf { channel ->
+            val nativeMatchedDescriptors = nativeMaterial && from.symbolMaterialMatches(to, mode)
+            color = if (firstErases != secondErases && !nativeMatchedDescriptors) secondColor else ((0..3).sumOf { channel ->
                 val shift = channel * 8
                 val old = (firstColor ushr shift) and 255
                 val new = (secondColor ushr shift) and 255
                 ((old + (new - old) * amount).toInt() shl shift)
             })
             fun descriptorOpacity(value: JSONObject): Double {
-                val opacity = if (mode == SymbolRenderingMode.Multicolor)
+                val opacity = if (value.systemStyle(mode) != null) {
+                    if (value.symbolErases(mode)) 0.0 else value.symbolOpacity(mode)
+                } else if (mode == SymbolRenderingMode.Multicolor)
                     value.optJSONObject("multicolor")?.optDouble("opacity", value.optDouble("opacity", 100.0))
                         ?: value.optDouble("opacity", 100.0)
                 else value.optDouble("opacity", 100.0)
@@ -452,15 +440,27 @@ internal class AndroidSymbolPainter(private val symbol: SymbolInstance, private 
             val oldOpacity = descriptorOpacity(from)
             val newOpacity = descriptorOpacity(to)
             explicitOpacity = if (firstErases != secondErases) newOpacity else oldOpacity + (newOpacity - oldOpacity) * amount
+            if (nativeMatchedDescriptors) {
+                val oldMaterial = from.symbolMaterialOpacity(mode)
+                val newMaterial = to.symbolMaterialOpacity(mode)
+                val mixedMaterial = ((newMaterial - oldMaterial).toDouble() * amount + oldMaterial).toFloat()
+                interpolatedMaterialOpacity = mixedMaterial
+                isErase = clearBehind && mixedMaterial <= 0f
+                val oldDrawing = if (mode == SymbolRenderingMode.Hierarchical)
+                    SymbolColors.hierarchyOpacity(from.optInt("hierarchical", 0)) else 1f
+                val newDrawing = if (mode == SymbolRenderingMode.Hierarchical)
+                    SymbolColors.hierarchyOpacity(to.optInt("hierarchical", 0)) else 1f
+                interpolatedDrawingOpacity = ((newDrawing - oldDrawing).toDouble() * amount + oldDrawing).toFloat()
+            }
         }
-        val threshold = variableThresholds.getValue(mode)[source]
+        val threshold = if (variableValue != null) modeData.variableThresholds[source] else null
         val variableActive = if (threshold != null && variableValue != null) {
             SymbolTiming.variableColorActive(variableValue.coerceIn(0f, 1f), threshold)
         } else null
-        val activeFraction = variableAnimation?.let { animation ->
+        val activeTrack = variableAnimation?.let { animation ->
             val repeatCount = effectRepeatCount.takeIf { continuous }
-            variableTracks.getOrPut(VariableTrackKey(mode, animation, continuous, repeatCount)) {
-                val ordered = variableThresholds.getValue(mode).entries.sortedBy { it.value }
+            variableTracks.getOrBuild(VariableTrackKey(mode, animation, continuous, repeatCount)) {
+                val ordered = modeData.variableThresholds.entries.sortedBy { it.value }
                 IdentityHashMap<JSONObject, VariableColorTrack>().apply {
                     ordered.forEachIndexed { index, entry ->
                         put(entry.key, if (continuous && animation.iterative && !animation.bounces) {
@@ -470,21 +470,20 @@ internal class AndroidSymbolPainter(private val symbol: SymbolInstance, private 
                             repeatCount = repeatCount, continuous = continuous))
                     }
                 }
-            }[source]?.let { track ->
-                if (continuous && time >= track.durationSeconds) null else track.activeFraction(time)
-            }
+            }[source]?.takeUnless { track -> continuous && time >= track.durationSeconds }
         }
-        val pulseAmount = if (!hasPulseLayers.getValue(mode) || source.symbolBoolean(mode, "-sfsymbols-always-pulses", "canPulse")) {
+        val activeFraction = if (nativeMaterial) null else activeTrack?.activeFraction(time)
+        val pulseAmount = wholeSymbolPulseAmount ?: if ((effect == SymbolEffect.Pulse || effect == SymbolEffect.BreathePulse) &&
+            (!modeData.hasPulseLayers || style.pulses)) {
             when (effect) {
-                SymbolEffect.BreathePulse -> motionTiming.breathePulseAmount(if (continuous) motionTiming.periodTime(time, 3f, effectRepeatCount) else time, motionIndex, motion.maxGroupIndex + 1)
+                SymbolEffect.BreathePulse -> motionTiming.breathePulseAmount(if (continuous) motionTiming.periodTime(time, 3f, effectRepeatCount) else time, motionIndex, motionMaximum + 1)
                 SymbolEffect.Pulse -> (1f - motionTiming.pulseOpacity(if (continuous) motionTiming.periodTime(time, 2f, effectRepeatCount) else time)) / .7f
-                else -> 0f
             }
         } else 0f
-        val semanticPulse = source.symbolBoolean(mode, "-sfsymbols-always-pulses", "canPulse") && level >= 0
+        val semanticPulse = wholeSymbolPulseAmount == null && style.pulses && level >= 0
         val hierarchyOpacity = if (mode == SymbolRenderingMode.Hierarchical && (from == null || to == null)) {
             if (activeFraction != null) {
-                val inactive = if (variableAnimation.hideInactive) 0f else SymbolColors.hierarchyOpacity(2)
+                val inactive = if (variableAnimation?.hideInactive == true) 0f else SymbolColors.hierarchyOpacity(2)
                 inactive + (1f - inactive) * activeFraction
             } else {
                 val initial = SymbolColors.hierarchyOpacity(when (variableActive) { true -> 0; false -> 2; null -> level })
@@ -495,7 +494,7 @@ internal class AndroidSymbolPainter(private val symbol: SymbolInstance, private 
         if (mode == SymbolRenderingMode.Palette && semanticPulse && pulseAmount > 0f) {
             val targetLevel = if (level == 0 || level == 2) 1 else 2
             val target = if (palette != null && palette.isNotEmpty()) {
-                palette[SymbolColors.paletteIndex(targetLevel, minimumHierarchy, palette.size).coerceAtLeast(0)]
+                palette[SymbolColors.paletteIndex(targetLevel, prepared.minimumHierarchy, palette.size).coerceAtLeast(0)]
             } else if (targetLevel == 1) secondary else tertiary
             color = (0..3).sumOf { channel ->
                 val shift = channel * 8
@@ -504,20 +503,20 @@ internal class AndroidSymbolPainter(private val symbol: SymbolInstance, private 
                 ((old + (new - old) * pulseAmount).toInt() shl shift)
             }
         }
-        val pulseOpacity = if (semanticPulse && mode in setOf(SymbolRenderingMode.Hierarchical, SymbolRenderingMode.Palette)) 1f
+        val pulseOpacity = if (semanticPulse && (mode == SymbolRenderingMode.Hierarchical || mode == SymbolRenderingMode.Palette)) 1f
             else 1f - .7f * pulseAmount
         val variableOpacity = if (mode == SymbolRenderingMode.Hierarchical) 1f else if (activeFraction != null) {
-            val inactive = if (variableAnimation.hideInactive) 0f else 0.3f
+            val inactive = if (variableAnimation?.hideInactive == true) 0f else 0.3f
             inactive + (1f - inactive) * activeFraction
         } else if (variableActive == false) 0.3f else 1f
         paint.color = color
-        val gradient = source.optJSONObject("gradient")
+        val gradient = node.gradient
         val fillImage = if (mode == SymbolRenderingMode.Multicolor && !isErase) symbol.fillImages[colorName] else null
         paint.isFilterBitmap = fillImage != null
         paint.shader = if (fillImage != null) {
             val bounds = node.bounds
             val key = "image/$colorName/$darkTheme/${bounds.left}/${bounds.top}/${bounds.right}/${bounds.bottom}"
-            gradientShaders.getOrPut(key) {
+            gradientShaders.getOrBuild(key) {
                 val bitmap = if (darkTheme) fillImage.dark else fillImage.light
                 BitmapShader(bitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP).apply {
                     // The system maps the image to this layer's ink bounds; PNG rows run opposite to font Y.
@@ -534,47 +533,109 @@ internal class AndroidSymbolPainter(private val symbol: SymbolInstance, private 
                 else symbol.gradientMetrics?.bounds(pointSize, (canvasScaleDensity).coerceAtLeast(.0001f))
                     ?: RectF(0f, 0f, symbol.advance, symbol.capHeight)
             val key = "$color/$angle/${bounds.left}/${bounds.top}/${bounds.right}/${bounds.bottom}"
-            gradientShaders.getOrPut(key) {
+            gradientShaders.getOrBuild(key) {
                 val colors = SymbolColors.gradient(color)
                 val points = SymbolColors.gradientPoints(angle, bounds.left, -bounds.bottom, bounds.right, -bounds.top)
                 LinearGradient(points[0], -points[1], points[2], -points[3], colors, null, Shader.TileMode.CLAMP)
             }
         } else null
         val colorAlpha = if (paint.shader == null) AndroidColor.alpha(color) else 255
-        paint.alpha = (colorAlpha * (replacement?.opacity ?: 1f) * (drawSchedule?.opacity(source, time) ?: 1f) * inheritedOpacity * layerOpacity * hierarchyOpacity * variableOpacity * pulseOpacity * explicitOpacity / 100.0)
-            .toInt().coerceIn(0, 255)
-        paint.xfermode = if (isErase) erase else if (source.symbolBoolean(mode, "-sfsymbols-clear-behind", "clearBehind")) copy else null
+        val nativeOpacity = if (nativeMaterial) {
+            var channels = SymbolLayerOpacity(common = replacement?.commonOpacity ?: 1f)
+            if (variableActive != null) {
+                channels = channels.multiplyBoth(if (variableActive) SymbolColors.hierarchyOpacity(0)
+                    else if (mode == SymbolRenderingMode.Hierarchical) SymbolColors.hierarchyOpacity(2) else .3f)
+            } else if (interpolatedDrawingOpacity != null) {
+                channels = channels.multiplyDrawing(interpolatedDrawingOpacity)
+            } else if (mode == SymbolRenderingMode.Hierarchical && (from == null || to == null)) {
+                channels = channels.multiplyDrawing(SymbolColors.hierarchyOpacity(level))
+            }
+            if (activeTrack != null) {
+                val inactive = if (variableAnimation.hideInactive) 0f
+                    else if (mode == SymbolRenderingMode.Hierarchical) SymbolColors.hierarchyOpacity(2) else .3f
+                channels = activeTrack.applyOpacity(channels, time, inactive)
+            }
+            channels
+                .multiplyDrawing(inheritedOpacity, hideErasingAtZero = true)
+                .multiplyDrawing(layerOpacity, hideErasingAtZero = true)
+                .multiplyDrawing(replacement?.opacity ?: 1f, hideErasingAtZero = true)
+                .multiplyDrawing(drawSchedule?.opacity(source, time) ?: 1f, hideErasingAtZero = true)
+                .let { if (pulseAmount == 0f) it else it.pulse(1f - pulseAmount, byLayer = wholeSymbolPulseAmount == null,
+                    hasExplicitPulseLayers = modeData.hasPulseLayers,
+                    hierarchical = mode == SymbolRenderingMode.Hierarchical,
+                    currentHierarchyOpacity = SymbolColors.hierarchyOpacity(level),
+                    nextHierarchyOpacity = SymbolColors.hierarchyOpacity(if (level >= 2) level - 1 else level + 1)) }
+        } else null
+        val materialOpacity = if (nativeMaterial) interpolatedMaterialOpacity ?: style.materialOpacity
+            else if (isErase) 0f else (explicitOpacity / 100.0).toFloat()
+        val fillAlpha = if (nativeOpacity != null) {
+            (colorAlpha * nativeOpacity.drawingOpacity(materialOpacity)).toInt().coerceIn(0, 255)
+        } else {
+            (colorAlpha * (replacement?.opacity ?: 1f) * (drawSchedule?.opacity(source, time) ?: 1f) * inheritedOpacity * layerOpacity * hierarchyOpacity * variableOpacity * pulseOpacity * explicitOpacity / 100.0)
+                .toInt().coerceIn(0, 255)
+        }
+        paint.alpha = fillAlpha
+        paint.xfermode = if (isErase) erase else if (style.clearBehind) copy else null
         val progress = replacement?.drawProgress ?: drawSchedule?.progress(source, time) ?: drawProgress
-        val path = replacement?.pathOverride ?: if (progress == null) node.path else {
+        val path = replacement?.pathOverride ?: if (progress == null || progress.isFinite() && !node.drawAnnotated) node.path else {
             symbol.draw.pathFor(source, node.path, progress, isOn = replacement?.drawOn ?: drawOn,
                 isReverse = drawReversed, removeOtherSubpaths = !source.has("systemClipStrokeKeyframes"), pointSize = pointSize,
-                systemDrawState = drawSchedule?.let { schedule -> { index ->
-                    systemLayers.getValue(mode)[index]?.let { schedule.systemState(it, time) }
-                } }, systemMode = systemStyleMode(mode),
-                adaptiveCaps = adaptiveCaps && source.has("systemClipStrokeKeyframes"))
+                systemDrawState = replacement?.systemDrawState ?: systemDrawState, systemMode = systemStyleMode(mode),
+                adaptiveCaps = adaptiveCaps && source.has("systemClipStrokeKeyframes"),
+                recoverMissingAttachmentAnchors = recoverMissingAttachmentAnchors, reuseSourcePath = true)
                 ?: error("Unsupported Draw geometry for ${symbol.name}")
         }
         val variableProgress = if (progress == null && replacement?.pathOverride == null && variableDrawValue != null) {
-            variableDraw.getValue(mode).progress(source, variableDrawValue)
+            modeData.variableDraw.progress(source, variableDrawValue)
         } else null
+        fun drawMaterial(path: Path, channelScale: Float = 1f) {
+            if (nativeOpacity == null) {
+                paint.alpha = (fillAlpha * channelScale).toInt()
+                canvas.drawPath(path, paint)
+                return
+            }
+            val channels = nativeOpacity.multiplyBoth(channelScale)
+            val coverage = channels.erasingOpacity(materialOpacity, clearBehind).coerceIn(0f, 1f)
+            val alpha = (colorAlpha * channels.drawingOpacity(materialOpacity)).toInt().coerceIn(0, 255)
+            if (coverage == 1f) {
+                paint.alpha = alpha
+                paint.xfermode = copy
+                canvas.drawPath(path, paint)
+            } else {
+                if (coverage > 0f) {
+                    val shader = paint.shader
+                    val fillColor = paint.color
+                    paint.shader = null
+                    paint.color = AndroidColor.BLACK
+                    paint.alpha = (coverage * 255f).toInt()
+                    paint.xfermode = erase
+                    canvas.drawPath(path, paint)
+                    paint.color = fillColor
+                    paint.shader = shader
+                }
+                if (alpha > 0) {
+                    paint.alpha = alpha
+                    paint.xfermode = null
+                    canvas.drawPath(path, paint)
+                }
+            }
+        }
         transforms.withShader(paint.shader) {
             if (variableProgress != null) {
                 val active = symbol.draw.pathFor(source, node.path, variableProgress, isOn = true,
                     removeOtherSubpaths = false, pointSize = pointSize, systemMode = systemStyleMode(mode),
-                    adaptiveCaps = adaptiveCaps && source.has("systemClipStrokeKeyframes"))
+                    adaptiveCaps = adaptiveCaps && source.has("systemClipStrokeKeyframes"),
+                    recoverMissingAttachmentAnchors = recoverMissingAttachmentAnchors)
                     ?: error("Unsupported Variable Draw geometry for ${symbol.name}")
                 val inactive = Path(node.path).apply { op(active, Path.Op.DIFFERENCE) }
-                val originalAlpha = paint.alpha
-                paint.alpha = (originalAlpha * 0.3f).toInt()
-                canvas.drawPath(inactive, paint)
-                paint.alpha = originalAlpha
-                canvas.drawPath(active, paint)
+                drawMaterial(inactive, .3f)
+                drawMaterial(active)
             } else {
-                canvas.drawPath(path, paint)
+                drawMaterial(path)
             }
         }
         paint.xfermode = null
-        canvas.restoreToCount(checkpoint)
+        if (checkpoint != null) canvas.restoreToCount(checkpoint)
     }
 
     private fun applyLayerEffect(
@@ -602,7 +663,7 @@ internal class AndroidSymbolPainter(private val symbol: SymbolInstance, private 
             SymbolEffect.Breathe, SymbolEffect.BreathePulse -> motionTiming.breatheScale(if (continuous) motionTiming.periodTime(time, 3f, effectRepeatCount) else time, index, maximum + 1)
             else -> 1f
         }
-        canvas.scale(scale, scale, pivotX, pivotY)
+        if (scale != 1f) canvas.scale(scale, scale, pivotX, pivotY)
         when (effect) {
             SymbolEffect.RotateClockwise, SymbolEffect.RotateCounterclockwise -> {
                 val clockwise = effect == SymbolEffect.RotateClockwise
@@ -679,3 +740,6 @@ internal class AndroidSymbolPainter(private val symbol: SymbolInstance, private 
         else -> symbol.metadata.optString("preferredWiggleDirection", "forward")
     }
 }
+
+internal inline fun <K : Any, V : Any> LruCache<K, V>.getOrBuild(key: K, build: () -> V): V =
+    get(key) ?: build().also { put(key, it) }

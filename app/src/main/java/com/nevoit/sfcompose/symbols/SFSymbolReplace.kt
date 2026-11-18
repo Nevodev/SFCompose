@@ -1,5 +1,6 @@
 package com.nevoit.sfcompose.symbols
 
+import android.util.LruCache
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.height
@@ -36,11 +37,16 @@ fun SFSymbolReplace(
     elapsedSeconds: () -> Float,
 ) {
     val plans = remember(first, second, direction, layered, preferMagic, mode) {
-        HashMap<Float, SymbolReplacePlan>()
+        LruCache<Float, SymbolReplacePlan>(4)
     }
     val oldPainter = remember(first) { AndroidSymbolPainter(first) }
     val newPainter = remember(second) { AndroidSymbolPainter(second) }
     val dark = isSystemInDarkTheme()
+    val tintArgb = tint.toArgb()
+    val secondaryArgb = secondary.toArgb()
+    val tertiaryArgb = tertiary.toArgb()
+    val colors = remember(palette) { palette?.map { it.toArgb() }?.toIntArray() }
+    val inkRatio = remember(first, second) { maxOf(first.horizontalInkRatio(), second.horizontalInkRatio()) }
     val semantics = if (contentDescription == null) Modifier else Modifier.semantics {
         this.contentDescription = contentDescription
     }
@@ -48,25 +54,90 @@ fun SFSymbolReplace(
         .aspectRatio(displayMode.layoutRatio(maxOf(first.advance / first.unitsPerEm, second.advance / second.unitsPerEm)),
             matchHeightConstraintsFirst = true)) {
         // Share one scale for the pair so replacing a narrow symbol with a wide one does not resize the slot.
-        val renderHeight = displayMode.renderHeight(size.width, size.height,
-            maxOf(first.horizontalInkRatio(), second.horizontalInkRatio()))
+        val renderHeight = displayMode.renderHeight(size.width, size.height, inkRatio)
         drawIntoCanvas { canvas ->
             val pointSize = renderHeight / density
-            val plan = plans.getOrPut(pointSize) {
+            val plan = plans.getOrBuild(pointSize) {
                 SymbolReplacePlan(first, second, direction, preferMagic, layered, mode, pointSize = pointSize)
             }
             val time = elapsedSeconds()
             val checkpoint = canvas.nativeCanvas.save()
             canvas.nativeCanvas.translate(0f, (size.height - renderHeight) * .5f)
             try {
-                oldPainter.draw(canvas.nativeCanvas, size.width, renderHeight, mode, tint.toArgb(), secondary.toArgb(), tertiary.toArgb(), dark,
-                    SymbolEffect.None, time, gradients = gradients, rightToLeft = rightToLeft, appearance = appearance,
-                    palette = palette?.map { it.toArgb() }?.toIntArray(),
+                if (time < plan.durationSeconds) oldPainter.draw(canvas.nativeCanvas, size.width, renderHeight, mode,
+                    tintArgb, secondaryArgb, tertiaryArgb, dark, SymbolEffect.None, time, gradients = gradients,
+                    rightToLeft = rightToLeft, appearance = appearance, palette = colors,
                     replacementState = { plan.layerState(it, false, time) }, pointSize = pointSize)
-                newPainter.draw(canvas.nativeCanvas, size.width, renderHeight, mode, tint.toArgb(), secondary.toArgb(), tertiary.toArgb(), dark,
-                    SymbolEffect.None, time, gradients = gradients, rightToLeft = rightToLeft, appearance = appearance,
-                    palette = palette?.map { it.toArgb() }?.toIntArray(),
-                    replacementState = { plan.layerState(it, true, time) }, pointSize = pointSize)
+                newPainter.draw(canvas.nativeCanvas, size.width, renderHeight, mode,
+                    tintArgb, secondaryArgb, tertiaryArgb, dark, SymbolEffect.None, time, gradients = gradients,
+                    rightToLeft = rightToLeft, appearance = appearance, palette = colors, pointSize = pointSize,
+                    replacementState = if (time < plan.durationSeconds) ({ plan.layerState(it, true, time) }) else null)
+            } finally {
+                canvas.nativeCanvas.restoreToCount(checkpoint)
+            }
+        }
+    }
+}
+
+@Composable
+fun rememberSymbolReplaceController(initialSymbol: SymbolInstance): SymbolReplaceController =
+    remember { SymbolReplaceController(initialSymbol) }
+
+/** Draws a controller on the same absolute clock passed to replaceWith. */
+@Composable
+fun SFSymbolReplace(
+    controller: SymbolReplaceController,
+    modifier: Modifier = Modifier,
+    mode: SymbolRenderingMode = SymbolRenderingMode.Monochrome,
+    tint: Color = Color.Black,
+    secondary: Color = tint,
+    tertiary: Color = secondary,
+    palette: List<Color>? = null,
+    gradients: Boolean = false,
+    rightToLeft: Boolean = false,
+    appearance: SymbolAppearance = SymbolAppearance.Standard,
+    contentDescription: String? = null,
+    displayMode: SymbolDisplayMode = SymbolDisplayMode.IntrinsicWidth,
+    elapsedSeconds: () -> Float,
+) {
+    // Reading the revision makes target changes update layout even with a paused external clock.
+    val layout = remember(controller, controller.revision) { controller.layoutAdvanceRatio to controller.layoutInkRatio }
+    val painters = remember(controller) { java.util.IdentityHashMap<SymbolInstance, AndroidSymbolPainter>() }
+    val dark = isSystemInDarkTheme()
+    val tintArgb = tint.toArgb()
+    val secondaryArgb = secondary.toArgb()
+    val tertiaryArgb = tertiary.toArgb()
+    val colors = remember(palette) { palette?.map { it.toArgb() }?.toIntArray() }
+    val semantics = if (contentDescription == null) Modifier else Modifier.semantics {
+        this.contentDescription = contentDescription
+    }
+    Canvas(modifier.then(semantics).height(32.dp)
+        .aspectRatio(displayMode.layoutRatio(layout.first), matchHeightConstraintsFirst = true)) {
+        // A paused clock must still redraw when a reset or retarget leaves the same layout metrics.
+        controller.revision
+        val renderHeight = displayMode.renderHeight(size.width, size.height, layout.second)
+        val pointSize = renderHeight / density
+        val time = elapsedSeconds()
+        val tracks = controller.tracks(time, pointSize)
+        painters.keys.removeAll { symbol -> tracks.none { it.symbol === symbol } }
+        drawIntoCanvas { canvas ->
+            val checkpoint = canvas.nativeCanvas.save()
+            canvas.nativeCanvas.translate(0f, (size.height - renderHeight) * .5f)
+            try {
+                for (track in tracks) {
+                    if (track.opacity <= 0f) continue
+                    val save = if (track.opacity < 1f) canvas.nativeCanvas.saveLayerAlpha(null,
+                        (track.opacity * 255f).toInt().coerceIn(0, 255)) else canvas.nativeCanvas.save()
+                    if (track.scale != 1f) {
+                        canvas.nativeCanvas.scale(track.scale, track.scale, size.width * .5f, renderHeight * .5f)
+                    }
+                    val painter = painters.getOrPut(track.symbol) { AndroidSymbolPainter(track.symbol) }
+                    painter.draw(canvas.nativeCanvas, size.width, renderHeight, mode, tintArgb, secondaryArgb,
+                        tertiaryArgb, dark, SymbolEffect.None, time, gradients = gradients, rightToLeft = rightToLeft,
+                        appearance = appearance, palette = colors,
+                        replacementState = track.painterState(mode, pointSize), pointSize = pointSize)
+                    canvas.nativeCanvas.restoreToCount(save)
+                }
             } finally {
                 canvas.nativeCanvas.restoreToCount(checkpoint)
             }

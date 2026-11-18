@@ -24,3 +24,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "SF Compose"
 include(":app")
+include(":benchmark")

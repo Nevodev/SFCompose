@@ -2,6 +2,7 @@ package com.nevoit.sfcompose.symbols
 
 import android.graphics.Path
 import android.graphics.Matrix
+import android.util.LruCache
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.IdentityHashMap
@@ -46,10 +47,18 @@ internal class SymbolDraw(private val symbol: SymbolInstance) {
         val plan: Plan?, val reason: String?, val raw: List<AnnotatedPair>? = null,
         val attachments: SymbolDrawAttachments? = null,
         val nativeFallback: String? = null,
+        val recoveredAttachments: SymbolDrawAttachments? = null,
     )
-    private val prepared = IdentityHashMap<JSONObject, Preparation>()
     private data class SystemReference(val plan: Plan, val first: Float, val second: Float, val progress: Float)
-    private val systemReferences = IdentityHashMap<SymbolDrawAttachments.Entry, SystemReference>()
+    private class SizePreparation {
+        val layers = IdentityHashMap<JSONObject, Preparation>()
+        val references = IdentityHashMap<SymbolDrawAttachments.Entry, SystemReference>()
+        var outlines: List<DrawOutline>? = null
+    }
+    private val sizes = LruCache<Float, SizePreparation>(3)
+    private var sizePreparation = SizePreparation().also { sizes.put(13f, it) }
+    private val prepared get() = sizePreparation.layers
+    private val systemReferences get() = sizePreparation.references
     private var systemAttachmentMode = "monochrome"
     private fun isSystemSource(source: JSONObject): Boolean =
         source.has("systemClipStrokeKeyframes") || source.has("systemClipStrokeKeyframeSets")
@@ -75,12 +84,11 @@ internal class SymbolDraw(private val symbol: SymbolInstance) {
         get() = systemMaster?.optJSONArray("systemTransform")?.optDouble(0) ?: (13.0 / symbol.unitsPerEm)
     private var systemPointSize = 13f
     private val legacyOutlines by lazy { symbol.contourData.map { DrawOutline.from(it) } }
-    private var systemOutlines: List<DrawOutline>? = null
     private val outlines: List<DrawOutline>
         get() = if (layers.any { node -> isSystemSource(node.source) }) {
-            systemOutlines ?: symbol.contourData.map {
+            sizePreparation.outlines ?: symbol.contourData.map {
                 DrawOutline.from(it, 0.5 * 13.0 / (systemPointSize * systemSourceScale))
-            }.also { systemOutlines = it }
+            }.also { sizePreparation.outlines = it }
         } else legacyOutlines
     private val authoringMasters by lazy {
         listOf(symbol.ultralightWeightPosition.toDouble(), 400.0, 1000.0).map(::readAuthoringGeometry)
@@ -115,13 +123,12 @@ internal class SymbolDraw(private val symbol: SymbolInstance) {
         if (!pointSize.isFinite() || pointSize <= 0f) return false
         if (pointSize != systemPointSize) {
             systemPointSize = pointSize
-            systemOutlines = null
-            prepared.clear()
-            systemReferences.clear()
+            sizePreparation = sizes.getOrBuild(pointSize, ::SizePreparation)
         }
         return true
     }
 
+    @Synchronized
     fun timingLengthSamples(source: JSONObject, components: IntArray, pointSize: Float = 13f): List<Double>? {
         if (isSystemSource(source)) {
             if (!prepareSystemSize(pointSize)) return null
@@ -153,6 +160,7 @@ internal class SymbolDraw(private val symbol: SymbolInstance) {
         }.takeIf { it.isNotEmpty() }
     }
 
+    @Synchronized
     fun unsupportedReason(source: JSONObject, components: IntArray): String? =
         prepared.getOrPut(source) {
             val preparation = prepare(source, components)
@@ -160,10 +168,14 @@ internal class SymbolDraw(private val symbol: SymbolInstance) {
                 val attachments = prepareAttachments(source, components, preparation.plan)
                 val required = if (isSystemSource(source)) SymbolDrawAttachments.systemRecords(source, attachmentMode(source))?.size ?: 1
                     else source.optJSONObject("drawRailRoadTies")?.optJSONObject("1")?.optJSONArray("attachments")?.length() ?: 0
-                preparation.copy(attachments = attachments, reason = if (required > 0 && attachments == null) "Invalid original Draw attachment metadata" else null)
+                val recovered = if (isSystemSource(source) && attachments?.isSystem != true)
+                    prepareSystemAttachments(source, components, preparation.plan, recoverMissingAnchors = true) else null
+                preparation.copy(attachments = attachments, recoveredAttachments = recovered,
+                    reason = if (required > 0 && attachments == null) "Invalid original Draw attachment metadata" else null)
             }
         }.reason
 
+    @Synchronized
     fun hasGeometry(source: JSONObject): Boolean {
         if (!prepared.containsKey(source)) {
             val layer = layers.firstOrNull { it.source === source } ?: return false
@@ -173,16 +185,27 @@ internal class SymbolDraw(private val symbol: SymbolInstance) {
         return prepared[source]?.let { it.plan != null && it.nativeFallback == null } ?: false
     }
 
-    fun nativeFallbackReason(source: JSONObject): String? = prepared[source]?.nativeFallback
+    @Synchronized
+    fun nativeFallbackReason(source: JSONObject): String? {
+        if (!prepared.containsKey(source)) {
+            val layer = layers.firstOrNull { it.source === source } ?: return null
+            unsupportedReason(source, layer.components)
+        }
+        return prepared[source]?.nativeFallback
+    }
 
-    fun hasSystemAttachments(source: JSONObject): Boolean {
+    @Synchronized
+    fun hasSystemAttachments(source: JSONObject, recoverMissingAnchors: Boolean = false): Boolean {
         if (!prepared.containsKey(source)) {
             val layer = layers.firstOrNull { it.source === source } ?: return false
             unsupportedReason(source, layer.components)
         }
-        return prepared[source]?.attachments?.isSystem == true
+        return prepared[source]?.let {
+            (if (recoverMissingAnchors) it.recoveredAttachments ?: it.attachments else it.attachments)?.isSystem
+        } == true
     }
 
+    @Synchronized
     fun pathFor(
         source: JSONObject,
         path: Path,
@@ -195,37 +218,42 @@ internal class SymbolDraw(private val symbol: SymbolInstance) {
         systemDrawState: ((Int) -> SystemDrawState?)? = null,
         systemMode: String = "monochrome",
         adaptiveCaps: Boolean = false,
+        recoverMissingAttachmentAnchors: Boolean = false,
+        reuseSourcePath: Boolean = false,
     ): Path? {
         if (!progress.isFinite()) return null
+        fun unchanged() = if (reuseSourcePath) path else Path(path)
         if (isSystemSource(source)) {
             if (systemMode != systemAttachmentMode) {
                 systemAttachmentMode = systemMode
                 if (!source.has("systemRenderingMode")) {
-                    prepared.clear()
-                    systemReferences.clear()
+                    sizes.evictAll()
+                    sizePreparation = SizePreparation().also { sizes.put(systemPointSize, it) }
                 }
             }
             if (!prepareSystemSize(pointSize ?: 13f)) return null
-            if (!prepared.containsKey(source)) unsupportedReason(source,
-                layers.firstOrNull { it.source === source }?.components ?: return null)
         }
-        if (source.optJSONObject("drawRailRoadTies") == null && !isSystemSource(source)) return Path(path)
+        if (source.optJSONObject("drawRailRoadTies") == null && !isSystemSource(source)) return unchanged()
+        if (!prepared.containsKey(source)) unsupportedReason(source,
+            layers.firstOrNull { it.source === source }?.components ?: return null)
         val preparation = prepared[source] ?: return null
-        if (preparation.nativeFallback != null) return Path(path)
-        val plan = preparation.plan ?: return Path(path)
+        if (preparation.nativeFallback != null) return unchanged()
+        val plan = preparation.plan ?: return unchanged()
+        val attachments = if (recoverMissingAttachmentAnchors)
+            preparation.recoveredAttachments ?: preparation.attachments else preparation.attachments
         val removeUnannotated = removeOtherSubpaths ?: !isSystemSource(source)
         val value = progress.coerceIn(0f, 1f)
         val geometryProgress = if (isReverse) 1f - value else value
         val geometryOn = isOn != isReverse
         if ((value == 0f && !isOn || value == 1f && isOn) &&
-            !(preparation.attachments?.isSystem == true && systemDrawState != null)) {
-            if (!removeUnannotated) return Path(path)
+            !(attachments?.isSystem == true && systemDrawState != null)) {
+            if (!removeUnannotated) return unchanged()
             val selected = (listOf(plan) + plan.additional).filter { it.markers.isNotEmpty() }.flatMap { it.components }.toSet() +
-                preparation.attachments?.components.orEmpty()
+                attachments?.components.orEmpty()
             return Path().apply { selected.forEach { addPath(symbol.contours[it]) } }
         }
         val empty = value == 0f && isOn || value == 1f && !isOn
-        val resolved = preparation.attachments?.resolve(value, isOn, isReverse, sliceTransform = { entry ->
+        val resolved = attachments?.resolve(value, isOn, isReverse, sliceTransform = { entry ->
             if (entry.system != null) {
                 val state = systemDrawState?.invoke(entry.system.layerIndex)
                     ?: SystemDrawState(if (geometryOn) 0f else geometryProgress, if (geometryOn) geometryProgress else 1f, 1f, 1f)
@@ -752,14 +780,26 @@ internal class SymbolDraw(private val symbol: SymbolInstance) {
         )
     }
 
-    private fun prepareSystemAttachments(source: JSONObject, components: IntArray, plan: Plan): SymbolDrawAttachments? {
+    private fun prepareSystemAttachments(source: JSONObject, components: IntArray, plan: Plan,
+        recoverMissingAnchors: Boolean = false): SymbolDrawAttachments? {
         val mode = attachmentMode(source)
         val records = SymbolDrawAttachments.systemRecords(source, mode) ?: return null
         if (records.isEmpty()) return SymbolDrawAttachments(emptyList())
         val anchors = systemMaster?.optJSONObject("systemAnchors")?.optJSONArray("dynamicFrames") ?: JSONArray()
-        // CoreUI rejects the entire attachment store if any referenced dynamic
-        // anchor is missing, including records that were already parsed.
-        if (records.any { it.anchorIndex !in 0 until anchors.length() }) return SymbolDrawAttachments(emptyList())
+        val missingAnchors = records.any { it.anchorIndex !in 0 until anchors.length() }
+        // Keep the native rejection and the opt-in repair in separate stores. Native
+        // CoreUI clears every record when one dynamic anchor is out of bounds.
+        if (missingAnchors && !recoverMissingAnchors) return SymbolDrawAttachments(emptyList())
+        if (!missingAnchors && recoverMissingAnchors) return null
+        val sharedParameters = if (recoverMissingAnchors) {
+            val parameters = (0 until anchors.length()).map { index ->
+                val values = anchors.getJSONObject(index).optJSONArray("sourceParameters") ?: return null
+                if (values.length() != 2) return null
+                values.getDouble(0).toFloat() to values.getDouble(1).toFloat()
+            }.distinct().singleOrNull() ?: return null
+            if (!parameters.first.isFinite() || !parameters.second.isFinite()) return null
+            parameters
+        } else null
         fun nativeLayerIndex(layerSource: JSONObject): Int? {
             if (layerSource.has("systemRenderingMode") && layerSource.getString("systemRenderingMode") != mode) return null
             if (layerSource.has("systemNativeLayerIndex")) return layerSource.getInt("systemNativeLayerIndex")
@@ -781,15 +821,40 @@ internal class SymbolDraw(private val symbol: SymbolInstance) {
             val layer = sourceMembers.first { component in it.components }
             val indices = record.targets.map { targetComponents.getOrNull(it) ?: return null }.filter { it in components }.toIntArray()
             if (indices.isEmpty()) continue
-            val anchor = anchors.optJSONObject(record.anchorIndex) ?: return null
-            val point = anchor.getJSONArray("point")
-            val parameters = anchor.getJSONArray("sourceParameters")
-            val to = record.explicitTo ?: parameters.getDouble(0).toFloat()
-            val from = record.explicitFrom ?: parameters.getDouble(1).toFloat()
             val other = if (layer.source === source) plan else prepare(layer.source, layer.components).plan ?: return null
             val part = (listOf(other) + other.additional).firstOrNull { component in it.components } ?: return null
-            val anchorX = point.getDouble(0).toFloat()
-            val anchorY = point.getDouble(1).toFloat()
+            // Some rejected stores contain a reciprocal head -> shaft record. A
+            // head without Draw keys cannot drive a moving attachment; its shaft
+            // must remain clipped, rather than being replaced by that static head.
+            if (recoverMissingAnchors && part.pairs.isEmpty()) {
+                val reciprocal = record.layerIndex == targetLayer && records.any { otherRecord ->
+                    otherRecord.layerIndex == targetLayer && otherRecord.subpathIndex in record.targets &&
+                        record.subpathIndex in otherRecord.targets &&
+                        targetComponents.getOrNull(otherRecord.subpathIndex)?.let { otherComponent ->
+                            (listOf(plan) + plan.additional).any { otherComponent in it.components && it.pairs.isNotEmpty() }
+                        } == true
+                }
+                if (!reciprocal) return null
+                continue
+            }
+            val anchor = anchors.optJSONObject(record.anchorIndex)
+            val parameters = anchor?.getJSONArray("sourceParameters")
+            val to = record.explicitTo ?: parameters?.getDouble(0)?.toFloat() ?: sharedParameters!!.first
+            val from = record.explicitFrom ?: parameters?.getDouble(1)?.toFloat() ?: sharedParameters!!.second
+            val point = anchor?.getJSONArray("point")
+            val recoveredPair = if (point == null) {
+                // A single compiled cut at the requested terminal progress gives
+                // a unique reference frame. Do not guess between multiple cuts.
+                part.pairs.filter { abs(it.progress - to) < 0.0001f }.singleOrNull() ?: return null
+            } else null
+            val recoveredPoint = recoveredPair?.let { pair ->
+                val a = FloatArray(2)
+                val b = FloatArray(2)
+                if (!part.measure.getPosTan(pair.first, a, null) || !part.measure.getPosTan(pair.second, b, null)) return null
+                floatArrayOf((a[0] + b[0]) * 0.5f, (a[1] + b[1]) * 0.5f)
+            }
+            val anchorX = point?.getDouble(0)?.toFloat() ?: recoveredPoint!![0]
+            val anchorY = point?.getDouble(1)?.toFloat() ?: recoveredPoint!![1]
             val candidate = part.pairs.filter { abs(it.progress - to) < 0.0001f }.minByOrNull { pair ->
                 val a = FloatArray(2)
                 val b = FloatArray(2)

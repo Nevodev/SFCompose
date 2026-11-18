@@ -4,6 +4,7 @@ internal object SymbolSystemVariableTiming {
     private const val third = 1f / 3f
     private const val twelfth = 1f / 12f
     private const val nativeNinth = .111111119389534f
+    private data class OpacitySample(val activeFraction: Float, val interpolatesBaseline: Boolean = false)
 
     private fun builder() = VariableColorTrack.Builder(system = true)
 
@@ -124,26 +125,29 @@ internal object SymbolSystemVariableTiming {
         val duration = if (repeatCount == null) Float.POSITIVE_INFINITY else
             (third.toDouble() + maximumDelay + (period * repeatCount).toDouble() +
                 (repeatDelay * (repeatCount - 1)).toDouble() + third).toFloat()
-        return VariableColorTrack.systemSampler(duration) { elapsed ->
-            if (repeatCount != null && elapsed >= duration) return@systemSampler 1f
+        fun sample(elapsed: Float): OpacitySample {
+            if (repeatCount != null && elapsed >= duration) return OpacitySample(1f, true)
             val time = maxOf(elapsed, .0001f)
-            if (time < third) {
-                1f - SymbolSystemTiming.curve(1, SystemFloatTiming.progress(time, third))
+            return if (time < third) {
+                OpacitySample(1f - SymbolSystemTiming.curve(1, SystemFloatTiming.progress(time, third)), true)
             } else {
                 val local = maxOf(time - third - delay, .0001f)
                 val span = period + repeatDelay
                 val outroTime = if (repeatCount == null) Float.NEGATIVE_INFINITY else local - span * repeatCount
                 if (outroTime > 0f) {
-                    SymbolSystemTiming.curve(1, SystemFloatTiming.progress(outroTime, third))
+                    OpacitySample(SymbolSystemTiming.curve(1, SystemFloatTiming.progress(outroTime, third)), true)
                 } else {
                     val sampleTime = if (repeatCount == 1) local.coerceAtMost(period) else {
                         val cycle = local * SystemFloatTiming.reciprocal(span)
                         val iteration = kotlin.math.floor(minOf(cycle, repeatCount?.toFloat() ?: Float.POSITIVE_INFINITY))
                         ((cycle - iteration) * span).coerceIn(0f, period)
                     }
-                    mainTrack.activeFraction(sampleTime)
+                    OpacitySample(mainTrack.activeFraction(sampleTime))
                 }
             }
+        }
+        return VariableColorTrack.systemSampler(duration, interpolatesBaseline = { sample(it).interpolatesBaseline }) {
+            sample(it).activeFraction
         }
     }
 

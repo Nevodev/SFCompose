@@ -3,14 +3,13 @@ package com.nevoit.sfcompose.browser
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,12 +19,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -57,23 +55,25 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nevoit.sfcompose.SymbolInspector
 import com.nevoit.sfcompose.symbols.SFSymbol
 import com.nevoit.sfcompose.symbols.SymbolAssetStore
 import com.nevoit.sfcompose.symbols.SymbolInstance
 import com.nevoit.sfcompose.symbols.SymbolScale
+import com.nevoit.sfcompose.symbols.rememberSymbolResourceConfiguration
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 @Composable
 internal fun SymbolCatalogBrowser(modifier: Modifier = Modifier) {
-    val assets = LocalContext.current.assets
+    val context = LocalContext.current
+    val assets = context.assets
     val keyboard = LocalSoftwareKeyboardController.current
-    val store = remember(assets) { SymbolAssetStore(assets) }
+    val store = remember(context.applicationContext) { SymbolAssetStore.shared(context) }
     var catalog by remember { mutableStateOf<SymbolBrowserCatalog?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
     var query by rememberSaveable { mutableStateOf("") }
@@ -243,11 +243,12 @@ private fun PairSelection(first: String?, second: String?, choosing: Boolean, on
 
 @Composable
 private fun SymbolTile(store: SymbolAssetStore, name: String, slot: String?, onClick: () -> Unit) {
+    val resourceConfiguration = rememberSymbolResourceConfiguration()
     var symbol by remember(name) { mutableStateOf<SymbolInstance?>(null) }
     var failed by remember(name) { mutableStateOf(false) }
-    LaunchedEffect(store, name) {
+    LaunchedEffect(store, name, resourceConfiguration) {
         try {
-            symbol = store.load(name, scale = SymbolScale.Small)
+            symbol = store.load(name, scale = SymbolScale.Small, configuration = resourceConfiguration)
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (_: Exception) {

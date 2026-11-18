@@ -14,6 +14,8 @@ internal class SymbolDrawTiming(
     layerFilter: (JSONObject) -> Boolean = { true },
     drawReversesMotionGroups: Boolean = false,
     pointSize: Float = 13f,
+    fallbackInvalidAttachments: Boolean = false,
+    recoverMissingAttachmentAnchors: Boolean = false,
 ) {
     private val groups = symbolMotionGroups(symbol.nodes, mode)
     private val sources = IdentityHashMap<JSONObject, Int>()
@@ -43,7 +45,12 @@ internal class SymbolDrawTiming(
                         collect(node.children).toIntArray()
                     }
                 }
-                val samples = symbol.draw.timingLengthSamples(node.source, components, pointSize)
+                // Rejected stores leave unannotated heads static while their shafts draw. Replace
+                // must transition that layer together rather than expose the detached heads.
+                val invalidAttachments = fallbackInvalidAttachments && systemTiming &&
+                    !SymbolDrawAttachments.systemRecords(node.source, node.source.optString("systemRenderingMode", "monochrome")).isNullOrEmpty() &&
+                    !symbol.draw.hasSystemAttachments(node.source, recoverMissingAttachmentAnchors)
+                val samples = if (invalidAttachments) null else symbol.draw.timingLengthSamples(node.source, components, pointSize)
                     ?.filter { it.isFinite() && it >= 0.0 }
                 if (!samples.isNullOrEmpty()) {
                     drawSources += node.source
@@ -52,7 +59,7 @@ internal class SymbolDrawTiming(
                     allLengths.add(operationLength)
                     if (systemTiming) {
                         sourceDurations[node.source] = DrawTimingSchedule.systemDuration(operationLength)
-                        if (symbol.draw.hasSystemAttachments(node.source)) attachmentSources += node.source
+                        if (symbol.draw.hasSystemAttachments(node.source, recoverMissingAttachmentAnchors)) attachmentSources += node.source
                     }
                 } else {
                     fallback += group

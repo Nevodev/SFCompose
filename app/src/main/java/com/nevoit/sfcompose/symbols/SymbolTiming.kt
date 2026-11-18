@@ -569,6 +569,7 @@ internal class VariableColorTrack private constructor(
     private val system: Boolean,
     private val maximum: VariableColorTrack? = null,
     private val sampler: ((Float) -> Float)? = null,
+    private val interpolatesBaseline: ((Float) -> Boolean)? = null,
 ) {
     private val period = segments.sumOf { it.duration }
 
@@ -576,13 +577,25 @@ internal class VariableColorTrack private constructor(
         maxOf(sampler?.invoke(elapsedSeconds) ?: sample(elapsedSeconds),
             maximum?.activeFraction(elapsedSeconds) ?: Float.NEGATIVE_INFINITY)
 
+    fun applyOpacity(channels: SymbolLayerOpacity, elapsedSeconds: Float, inactive: Float): SymbolLayerOpacity {
+        val fraction = activeFraction(elapsedSeconds)
+        // Native intro/outro uses property 10; the main tracks use property 8
+        // followed by optional property 9, replacing both presentation channels.
+        if (interpolatesBaseline?.invoke(elapsedSeconds) == true)
+            return channels.lerpBothToward(inactive, 1f - fraction)
+        val value = ((1f - inactive).toDouble() * fraction.toDouble() + inactive.toDouble()).toFloat()
+        return channels.copy(drawing = value, erasing = value)
+    }
+
     internal fun withMaximum(other: VariableColorTrack): VariableColorTrack =
         VariableColorTrack(initial, segments, maxOf(durationSeconds, other.durationSeconds), delay,
-            repeats, system, maximum?.withMaximum(other) ?: other, sampler)
+            repeats, system, maximum?.withMaximum(other) ?: other, sampler, interpolatesBaseline)
 
     companion object {
-        internal fun systemSampler(durationSeconds: Float, sampler: (Float) -> Float): VariableColorTrack =
-            VariableColorTrack(0f, emptyList(), durationSeconds, 0.0, false, true, sampler = sampler)
+        internal fun systemSampler(durationSeconds: Float, interpolatesBaseline: ((Float) -> Boolean)? = null,
+            sampler: (Float) -> Float): VariableColorTrack =
+            VariableColorTrack(0f, emptyList(), durationSeconds, 0.0, false, true, sampler = sampler,
+                interpolatesBaseline = interpolatesBaseline)
     }
 
     private fun sample(elapsedSeconds: Float): Float {
