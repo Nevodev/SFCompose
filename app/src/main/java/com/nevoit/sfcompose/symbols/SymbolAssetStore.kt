@@ -2,6 +2,7 @@ package com.nevoit.sfcompose.symbols
 
 import android.content.res.AssetManager
 import android.content.Context
+import android.content.res.Resources
 import android.graphics.Path
 import android.graphics.RectF
 import android.graphics.Bitmap
@@ -39,6 +40,7 @@ class SymbolCatalog internal constructor(
     internal val drawWeightCoefficients: JSONObject,
     val localizations: Map<String, Int> = emptyMap(),
     val appearances: Map<String, Int> = emptyMap(),
+    internal val packedWeight: SymbolWeight? = null,
 ) {
     internal val nameSet = names.toHashSet()
     val weightPositions: Map<SymbolWeight, Float> get() = weights
@@ -130,6 +132,27 @@ class SymbolAssetStore private constructor(
         @Synchronized
         fun shared(context: Context): SymbolAssetStore = applicationStore
             ?: SymbolAssetStore(context.applicationContext.assets).also { applicationStore = it }
+
+        /** Opens only the raw resources referenced by a generated static symbol entry. */
+        fun fromResourceClosure(resources: Resources, arrayId: Int): SymbolAssetStore {
+            val array = resources.obtainTypedArray(arrayId)
+            val ids = try {
+                IntArray(array.length()) { i -> array.getResourceId(i, 0).also { require(it != 0) } }
+            } finally {
+                array.recycle()
+            }
+            val indexId = ids.first()
+            val files by lazy {
+                val paths = resources.openRawResource(indexId).use(::readSymbolJson).getJSONArray("packedFiles")
+                require(paths.length() == ids.size - 1) { "Symbol resource index does not match its closure" }
+                List(paths.length()) { i -> paths.getString(i) to ids[i + 1] }.toMap()
+            }
+            return SymbolAssetStore { path ->
+                val id = if (path == "symbols/index.json") indexId else
+                    files[path] ?: error("Missing packed symbol asset: $path")
+                resources.openRawResource(id)
+            }
+        }
     }
 
     private class Document(val json: JSONObject, val sourceChars: Int)
@@ -189,6 +212,9 @@ class SymbolAssetStore private constructor(
     ): SymbolInstance {
         val catalog = catalog()
         val position = requestedPosition ?: catalog.weights.getValue(requireNotNull(namedWeight))
+        catalog.packedWeight?.let { retained ->
+            require(position == catalog.weights.getValue(retained)) { "This symbol resource closure only contains $retained" }
+        }
         require(position.isFinite() && position in catalog.weightRange) {
             "Weight position must be finite and in ${catalog.weightRange}: $position"
         }
@@ -331,6 +357,7 @@ class SymbolAssetStore private constructor(
             drawWeightCoefficients = data.getJSONObject("drawWeightCoefficients"),
             localizations = readIdentifiers(data.optJSONObject("source")?.optJSONObject("localizations")),
             appearances = readIdentifiers(data.optJSONObject("source")?.optJSONObject("appearances")),
+            packedWeight = data.optString("packedWeight").takeIf(String::isNotEmpty)?.let(SymbolWeight::valueOf),
         )
     }
 
@@ -373,7 +400,7 @@ class SymbolAssetStore private constructor(
         val resolved = candidates.firstOrNull { it.substringAfterLast('/') in names } ?: path
         openAsset(resolved).use { stream ->
             val source = readSymbolText(stream)
-            Document(JSONObject(source), source.length)
+            Document(restorePackedSymbolOutlines(JSONObject(source)), source.length)
         }
     }.json
 

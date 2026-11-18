@@ -1,0 +1,13 @@
+<resources>
+    <integer-array name="symbol_wifi">
+        <item>@raw/symbol_wifi_default</item>
+    </integer-array>
+    <integer-array name="symbol_localized">
+        <item>@raw/symbol_localized_default</item>
+        <item>@raw/symbol_localized_variant_one</item>
+        <item>@raw/symbol_localized_variant_two</item>
+    </integer-array>
+    <integer-array name="symbol_person">
+        <item>@raw/symbol_person_default</item>
+    </integer-array>
+</resources>

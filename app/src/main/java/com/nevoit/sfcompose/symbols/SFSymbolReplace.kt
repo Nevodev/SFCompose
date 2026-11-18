@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -34,6 +35,7 @@ fun SFSymbolReplace(
     appearance: SymbolAppearance = SymbolAppearance.Standard,
     contentDescription: String? = null,
     displayMode: SymbolDisplayMode = SymbolDisplayMode.IntrinsicWidth,
+    pointSize: Dp = 32.dp,
     elapsedSeconds: () -> Float,
 ) {
     val plans = remember(first, second, direction, layered, preferMagic, mode) {
@@ -50,7 +52,7 @@ fun SFSymbolReplace(
     val semantics = if (contentDescription == null) Modifier else Modifier.semantics {
         this.contentDescription = contentDescription
     }
-    Canvas(modifier.then(semantics).height(32.dp)
+    Canvas(modifier.then(semantics).height(pointSize)
         .aspectRatio(displayMode.layoutRatio(maxOf(first.advance / first.unitsPerEm, second.advance / second.unitsPerEm)),
             matchHeightConstraintsFirst = true)) {
         // Share one scale for the pair so replacing a narrow symbol with a wide one does not resize the slot.
@@ -98,6 +100,7 @@ fun SFSymbolReplace(
     appearance: SymbolAppearance = SymbolAppearance.Standard,
     contentDescription: String? = null,
     displayMode: SymbolDisplayMode = SymbolDisplayMode.IntrinsicWidth,
+    pointSize: Dp = 32.dp,
     elapsedSeconds: () -> Float,
 ) {
     // Reading the revision makes target changes update layout even with a paused external clock.
@@ -111,7 +114,7 @@ fun SFSymbolReplace(
     val semantics = if (contentDescription == null) Modifier else Modifier.semantics {
         this.contentDescription = contentDescription
     }
-    Canvas(modifier.then(semantics).height(32.dp)
+    Canvas(modifier.then(semantics).height(pointSize)
         .aspectRatio(displayMode.layoutRatio(layout.first), matchHeightConstraintsFirst = true)) {
         // A paused clock must still redraw when a reset or retarget leaves the same layout metrics.
         controller.revision

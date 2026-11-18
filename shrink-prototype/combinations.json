@@ -1,0 +1,398 @@
+[
+  {
+    "accessor": "WifiUltralightSmall",
+    "resource": "combo_wifi_ultralight_small",
+    "name": "wifi",
+    "weight": "Ultralight",
+    "scale": "Small",
+    "filled": false,
+    "closure": "closure_wifi"
+  },
+  {
+    "accessor": "WifiUltralightMedium",
+    "resource": "combo_wifi_ultralight_medium",
+    "name": "wifi",
+    "weight": "Ultralight",
+    "scale": "Medium",
+    "filled": false,
+    "closure": "closure_wifi"
+  },
+  {
+    "accessor": "WifiUltralightLarge",
+    "resource": "combo_wifi_ultralight_large",
+    "name": "wifi",
+    "weight": "Ultralight",
+    "scale": "Large",
+    "filled": false,
+    "closure": "closure_wifi"
+  },
+  {
+    "accessor": "WifiThinSmall",
+    "resource": "combo_wifi_thin_small",
+    "name": "wifi",
+    "weight": "Thin",
+    "scale": "Small",
+    "filled": false,
+    "closure": "closure_wifi"
+  },
+  {
+    "accessor": "WifiThinMedium",
+    "resource": "combo_wifi_thin_medium",
+    "name": "wifi",
+    "weight": "Thin",
+    "scale": "Medium",
+    "filled": false,
+    "closure": "closure_wifi"
+  },
+  {
+    "accessor": "WifiThinLarge",
+    "resource": "combo_wifi_thin_large",
+    "name": "wifi",
+    "weight": "Thin",
+    "scale": "Large",
+    "filled": false,
+    "closure": "closure_wifi"
+  },
+  {
+    "accessor": "WifiLightSmall",
+    "resource": "combo_wifi_light_small",
+    "name": "wifi",
+    "weight": "Light",
+    "scale": "Small",
+    "filled": false,
+    "closure": "closure_wifi"
+  },
+  {
+    "accessor": "WifiLightMedium",
+    "resource": "combo_wifi_light_medium",
+    "name": "wifi",
+    "weight": "Light",
+    "scale": "Medium",
+    "filled": false,
+    "closure": "closure_wifi"
+  },
+  {
+    "accessor": "WifiLightLarge",
+    "resource": "combo_wifi_light_large",
+    "name": "wifi",
+    "weight": "Light",
+    "scale": "Large",
+    "filled": false,
+    "closure": "closure_wifi"
+  },
+  {
+    "accessor": "WifiRegularSmall",
+    "resource": "combo_wifi_regular_small",
+    "name": "wifi",
+    "weight": "Regular",
+    "scale": "Small",
+    "filled": false,
+    "closure": "closure_wifi"
+  },
+  {
+    "accessor": "WifiRegularMedium",
+    "resource": "combo_wifi_regular_medium",
+    "name": "wifi",
+    "weight": "Regular",
+    "scale": "Medium",
+    "filled": false,
+    "closure": "closure_wifi"
+  },
+  {
+    "accessor": "WifiRegularLarge",
+    "resource": "combo_wifi_regular_large",
+    "name": "wifi",
+    "weight": "Regular",
+    "scale": "Large",
+    "filled": false,
+    "closure": "closure_wifi"
+  },
+  {
+    "accessor": "WifiMediumSmall",
+    "resource": "combo_wifi_medium_small",
+    "name": "wifi",
+    "weight": "Medium",
+    "scale": "Small",
+    "filled": false,
+    "closure": "closure_wifi"
+  },
+  {
+    "accessor": "WifiMediumMedium",
+    "resource": "combo_wifi_medium_medium",
+    "name": "wifi",
+    "weight": "Medium",
+    "scale": "Medium",
+    "filled": false,
+    "closure": "closure_wifi"
+  },
+  {
+    "accessor": "WifiMediumLarge",
+    "resource": "combo_wifi_medium_large",
+    "name": "wifi",
+    "weight": "Medium",
+    "scale": "Large",
+    "filled": false,
+    "closure": "closure_wifi"
+  },
+  {
+    "accessor": "WifiSemiboldSmall",
+    "resource": "combo_wifi_semibold_small",
+    "name": "wifi",
+    "weight": "Semibold",
+    "scale": "Small",
+    "filled": false,
+    "closure": "closure_wifi"
+  },
+  {
+    "accessor": "WifiSemiboldMedium",
+    "resource": "combo_wifi_semibold_medium",
+    "name": "wifi",
+    "weight": "Semibold",
+    "scale": "Medium",
+    "filled": false,
+    "closure": "closure_wifi"
+  },
+  {
+    "accessor": "WifiSemiboldLarge",
+    "resource": "combo_wifi_semibold_large",
+    "name": "wifi",
+    "weight": "Semibold",
+    "scale": "Large",
+    "filled": false,
+    "closure": "closure_wifi"
+  },
+  {
+    "accessor": "WifiBoldSmall",
+    "resource": "combo_wifi_bold_small",
+    "name": "wifi",
+    "weight": "Bold",
+    "scale": "Small",
+    "filled": false,
+    "closure": "closure_wifi"
+  },
+  {
+    "accessor": "WifiBoldMedium",
+    "resource": "combo_wifi_bold_medium",
+    "name": "wifi",
+    "weight": "Bold",
+    "scale": "Medium",
+    "filled": false,
+    "closure": "closure_wifi"
+  },
+  {
+    "accessor": "WifiBoldLarge",
+    "resource": "combo_wifi_bold_large",
+    "name": "wifi",
+    "weight": "Bold",
+    "scale": "Large",
+    "filled": false,
+    "closure": "closure_wifi"
+  },
+  {
+    "accessor": "WifiHeavySmall",
+    "resource": "combo_wifi_heavy_small",
+    "name": "wifi",
+    "weight": "Heavy",
+    "scale": "Small",
+    "filled": false,
+    "closure": "closure_wifi"
+  },
+  {
+    "accessor": "WifiHeavyMedium",
+    "resource": "combo_wifi_heavy_medium",
+    "name": "wifi",
+    "weight": "Heavy",
+    "scale": "Medium",
+    "filled": false,
+    "closure": "closure_wifi"
+  },
+  {
+    "accessor": "WifiHeavyLarge",
+    "resource": "combo_wifi_heavy_large",
+    "name": "wifi",
+    "weight": "Heavy",
+    "scale": "Large",
+    "filled": false,
+    "closure": "closure_wifi"
+  },
+  {
+    "accessor": "WifiBlackSmall",
+    "resource": "combo_wifi_black_small",
+    "name": "wifi",
+    "weight": "Black",
+    "scale": "Small",
+    "filled": false,
+    "closure": "closure_wifi"
+  },
+  {
+    "accessor": "WifiBlackMedium",
+    "resource": "combo_wifi_black_medium",
+    "name": "wifi",
+    "weight": "Black",
+    "scale": "Medium",
+    "filled": false,
+    "closure": "closure_wifi"
+  },
+  {
+    "accessor": "WifiBlackLarge",
+    "resource": "combo_wifi_black_large",
+    "name": "wifi",
+    "weight": "Black",
+    "scale": "Large",
+    "filled": false,
+    "closure": "closure_wifi"
+  },
+  {
+    "accessor": "PersonFillRegularSmall",
+    "resource": "combo_personfill_regular_small",
+    "name": "person.fill",
+    "weight": "Regular",
+    "scale": "Small",
+    "filled": true,
+    "closure": "closure_personfill"
+  },
+  {
+    "accessor": "PersonFillRegularMedium",
+    "resource": "combo_personfill_regular_medium",
+    "name": "person.fill",
+    "weight": "Regular",
+    "scale": "Medium",
+    "filled": true,
+    "closure": "closure_personfill"
+  },
+  {
+    "accessor": "PersonFillRegularLarge",
+    "resource": "combo_personfill_regular_large",
+    "name": "person.fill",
+    "weight": "Regular",
+    "scale": "Large",
+    "filled": true,
+    "closure": "closure_personfill"
+  },
+  {
+    "accessor": "PersonFillSemiboldSmall",
+    "resource": "combo_personfill_semibold_small",
+    "name": "person.fill",
+    "weight": "Semibold",
+    "scale": "Small",
+    "filled": true,
+    "closure": "closure_personfill"
+  },
+  {
+    "accessor": "PersonFillSemiboldMedium",
+    "resource": "combo_personfill_semibold_medium",
+    "name": "person.fill",
+    "weight": "Semibold",
+    "scale": "Medium",
+    "filled": true,
+    "closure": "closure_personfill"
+  },
+  {
+    "accessor": "PersonFillSemiboldLarge",
+    "resource": "combo_personfill_semibold_large",
+    "name": "person.fill",
+    "weight": "Semibold",
+    "scale": "Large",
+    "filled": true,
+    "closure": "closure_personfill"
+  },
+  {
+    "accessor": "PersonFillBoldSmall",
+    "resource": "combo_personfill_bold_small",
+    "name": "person.fill",
+    "weight": "Bold",
+    "scale": "Small",
+    "filled": true,
+    "closure": "closure_personfill"
+  },
+  {
+    "accessor": "PersonFillBoldMedium",
+    "resource": "combo_personfill_bold_medium",
+    "name": "person.fill",
+    "weight": "Bold",
+    "scale": "Medium",
+    "filled": true,
+    "closure": "closure_personfill"
+  },
+  {
+    "accessor": "PersonFillBoldLarge",
+    "resource": "combo_personfill_bold_large",
+    "name": "person.fill",
+    "weight": "Bold",
+    "scale": "Large",
+    "filled": true,
+    "closure": "closure_personfill"
+  },
+  {
+    "accessor": "ZeroCircleRegularSmall",
+    "resource": "combo_zerocircle_regular_small",
+    "name": "0.circle",
+    "weight": "Regular",
+    "scale": "Small",
+    "filled": false,
+    "closure": "closure_zerocircle"
+  },
+  {
+    "accessor": "ZeroCircleRegularMedium",
+    "resource": "combo_zerocircle_regular_medium",
+    "name": "0.circle",
+    "weight": "Regular",
+    "scale": "Medium",
+    "filled": false,
+    "closure": "closure_zerocircle"
+  },
+  {
+    "accessor": "ZeroCircleBoldSmall",
+    "resource": "combo_zerocircle_bold_small",
+    "name": "0.circle",
+    "weight": "Bold",
+    "scale": "Small",
+    "filled": false,
+    "closure": "closure_zerocircle"
+  },
+  {
+    "accessor": "ZeroCircleBoldMedium",
+    "resource": "combo_zerocircle_bold_medium",
+    "name": "0.circle",
+    "weight": "Bold",
+    "scale": "Medium",
+    "filled": false,
+    "closure": "closure_zerocircle"
+  },
+  {
+    "accessor": "ZeroCircleArRegularSmall",
+    "resource": "combo_zerocirclear_regular_small",
+    "name": "0.circle.ar",
+    "weight": "Regular",
+    "scale": "Small",
+    "filled": false,
+    "closure": "closure_zerocirclear"
+  },
+  {
+    "accessor": "ZeroCircleArRegularMedium",
+    "resource": "combo_zerocirclear_regular_medium",
+    "name": "0.circle.ar",
+    "weight": "Regular",
+    "scale": "Medium",
+    "filled": false,
+    "closure": "closure_zerocirclear"
+  },
+  {
+    "accessor": "ZeroCircleArBoldSmall",
+    "resource": "combo_zerocirclear_bold_small",
+    "name": "0.circle.ar",
+    "weight": "Bold",
+    "scale": "Small",
+    "filled": false,
+    "closure": "closure_zerocirclear"
+  },
+  {
+    "accessor": "ZeroCircleArBoldMedium",
+    "resource": "combo_zerocirclear_bold_medium",
+    "name": "0.circle.ar",
+    "weight": "Bold",
+    "scale": "Medium",
+    "filled": false,
+    "closure": "closure_zerocirclear"
+  }
+]

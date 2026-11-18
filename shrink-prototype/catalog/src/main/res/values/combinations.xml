@@ -1,0 +1,215 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <integer-array name="combo_wifi_ultralight_small">
+        <item>@raw/combo_wifi_ultralight_small</item>
+        <item>@raw/closure_wifi</item>
+    </integer-array>
+    <integer-array name="combo_wifi_ultralight_medium">
+        <item>@raw/combo_wifi_ultralight_medium</item>
+        <item>@raw/closure_wifi</item>
+    </integer-array>
+    <integer-array name="combo_wifi_ultralight_large">
+        <item>@raw/combo_wifi_ultralight_large</item>
+        <item>@raw/closure_wifi</item>
+    </integer-array>
+    <integer-array name="combo_wifi_thin_small">
+        <item>@raw/combo_wifi_thin_small</item>
+        <item>@raw/closure_wifi</item>
+    </integer-array>
+    <integer-array name="combo_wifi_thin_medium">
+        <item>@raw/combo_wifi_thin_medium</item>
+        <item>@raw/closure_wifi</item>
+    </integer-array>
+    <integer-array name="combo_wifi_thin_large">
+        <item>@raw/combo_wifi_thin_large</item>
+        <item>@raw/closure_wifi</item>
+    </integer-array>
+    <integer-array name="combo_wifi_light_small">
+        <item>@raw/combo_wifi_light_small</item>
+        <item>@raw/closure_wifi</item>
+    </integer-array>
+    <integer-array name="combo_wifi_light_medium">
+        <item>@raw/combo_wifi_light_medium</item>
+        <item>@raw/closure_wifi</item>
+    </integer-array>
+    <integer-array name="combo_wifi_light_large">
+        <item>@raw/combo_wifi_light_large</item>
+        <item>@raw/closure_wifi</item>
+    </integer-array>
+    <integer-array name="combo_wifi_regular_small">
+        <item>@raw/combo_wifi_regular_small</item>
+        <item>@raw/closure_wifi</item>
+    </integer-array>
+    <integer-array name="combo_wifi_regular_medium">
+        <item>@raw/combo_wifi_regular_medium</item>
+        <item>@raw/closure_wifi</item>
+    </integer-array>
+    <integer-array name="combo_wifi_regular_large">
+        <item>@raw/combo_wifi_regular_large</item>
+        <item>@raw/closure_wifi</item>
+    </integer-array>
+    <integer-array name="combo_wifi_medium_small">
+        <item>@raw/combo_wifi_medium_small</item>
+        <item>@raw/closure_wifi</item>
+    </integer-array>
+    <integer-array name="combo_wifi_medium_medium">
+        <item>@raw/combo_wifi_medium_medium</item>
+        <item>@raw/closure_wifi</item>
+    </integer-array>
+    <integer-array name="combo_wifi_medium_large">
+        <item>@raw/combo_wifi_medium_large</item>
+        <item>@raw/closure_wifi</item>
+    </integer-array>
+    <integer-array name="combo_wifi_semibold_small">
+        <item>@raw/combo_wifi_semibold_small</item>
+        <item>@raw/closure_wifi</item>
+    </integer-array>
+    <integer-array name="combo_wifi_semibold_medium">
+        <item>@raw/combo_wifi_semibold_medium</item>
+        <item>@raw/closure_wifi</item>
+    </integer-array>
+    <integer-array name="combo_wifi_semibold_large">
+        <item>@raw/combo_wifi_semibold_large</item>
+        <item>@raw/closure_wifi</item>
+    </integer-array>
+    <integer-array name="combo_wifi_bold_small">
+        <item>@raw/combo_wifi_bold_small</item>
+        <item>@raw/closure_wifi</item>
+    </integer-array>
+    <integer-array name="combo_wifi_bold_medium">
+        <item>@raw/combo_wifi_bold_medium</item>
+        <item>@raw/closure_wifi</item>
+    </integer-array>
+    <integer-array name="combo_wifi_bold_large">
+        <item>@raw/combo_wifi_bold_large</item>
+        <item>@raw/closure_wifi</item>
+    </integer-array>
+    <integer-array name="combo_wifi_heavy_small">
+        <item>@raw/combo_wifi_heavy_small</item>
+        <item>@raw/closure_wifi</item>
+    </integer-array>
+    <integer-array name="combo_wifi_heavy_medium">
+        <item>@raw/combo_wifi_heavy_medium</item>
+        <item>@raw/closure_wifi</item>
+    </integer-array>
+    <integer-array name="combo_wifi_heavy_large">
+        <item>@raw/combo_wifi_heavy_large</item>
+        <item>@raw/closure_wifi</item>
+    </integer-array>
+    <integer-array name="combo_wifi_black_small">
+        <item>@raw/combo_wifi_black_small</item>
+        <item>@raw/closure_wifi</item>
+    </integer-array>
+    <integer-array name="combo_wifi_black_medium">
+        <item>@raw/combo_wifi_black_medium</item>
+        <item>@raw/closure_wifi</item>
+    </integer-array>
+    <integer-array name="combo_wifi_black_large">
+        <item>@raw/combo_wifi_black_large</item>
+        <item>@raw/closure_wifi</item>
+    </integer-array>
+    <integer-array name="combo_personfill_regular_small">
+        <item>@raw/combo_personfill_regular_small</item>
+        <item>@raw/closure_personfill</item>
+    </integer-array>
+    <integer-array name="combo_personfill_regular_medium">
+        <item>@raw/combo_personfill_regular_medium</item>
+        <item>@raw/closure_personfill</item>
+    </integer-array>
+    <integer-array name="combo_personfill_regular_large">
+        <item>@raw/combo_personfill_regular_large</item>
+        <item>@raw/closure_personfill</item>
+    </integer-array>
+    <integer-array name="combo_personfill_semibold_small">
+        <item>@raw/combo_personfill_semibold_small</item>
+        <item>@raw/closure_personfill</item>
+    </integer-array>
+    <integer-array name="combo_personfill_semibold_medium">
+        <item>@raw/combo_personfill_semibold_medium</item>
+        <item>@raw/closure_personfill</item>
+    </integer-array>
+    <integer-array name="combo_personfill_semibold_large">
+        <item>@raw/combo_personfill_semibold_large</item>
+        <item>@raw/closure_personfill</item>
+    </integer-array>
+    <integer-array name="combo_personfill_bold_small">
+        <item>@raw/combo_personfill_bold_small</item>
+        <item>@raw/closure_personfill</item>
+    </integer-array>
+    <integer-array name="combo_personfill_bold_medium">
+        <item>@raw/combo_personfill_bold_medium</item>
+        <item>@raw/closure_personfill</item>
+    </integer-array>
+    <integer-array name="combo_personfill_bold_large">
+        <item>@raw/combo_personfill_bold_large</item>
+        <item>@raw/closure_personfill</item>
+    </integer-array>
+    <integer-array name="combo_zerocircle_regular_small">
+        <item>@raw/combo_zerocircle_regular_small</item>
+        <item>@raw/closure_zerocircle</item>
+    </integer-array>
+    <integer-array name="combo_zerocircle_regular_medium">
+        <item>@raw/combo_zerocircle_regular_medium</item>
+        <item>@raw/closure_zerocircle</item>
+    </integer-array>
+    <integer-array name="combo_zerocircle_bold_small">
+        <item>@raw/combo_zerocircle_bold_small</item>
+        <item>@raw/closure_zerocircle</item>
+    </integer-array>
+    <integer-array name="combo_zerocircle_bold_medium">
+        <item>@raw/combo_zerocircle_bold_medium</item>
+        <item>@raw/closure_zerocircle</item>
+    </integer-array>
+    <integer-array name="combo_zerocirclear_regular_small">
+        <item>@raw/combo_zerocirclear_regular_small</item>
+        <item>@raw/closure_zerocirclear</item>
+    </integer-array>
+    <integer-array name="combo_zerocirclear_regular_medium">
+        <item>@raw/combo_zerocirclear_regular_medium</item>
+        <item>@raw/closure_zerocirclear</item>
+    </integer-array>
+    <integer-array name="combo_zerocirclear_bold_small">
+        <item>@raw/combo_zerocirclear_bold_small</item>
+        <item>@raw/closure_zerocirclear</item>
+    </integer-array>
+    <integer-array name="combo_zerocirclear_bold_medium">
+        <item>@raw/combo_zerocirclear_bold_medium</item>
+        <item>@raw/closure_zerocirclear</item>
+    </integer-array>
+    <integer-array name="full_wifi">
+        <item>@raw/combo_wifi_ultralight_small</item>
+        <item>@raw/combo_wifi_ultralight_medium</item>
+        <item>@raw/combo_wifi_ultralight_large</item>
+        <item>@raw/combo_wifi_thin_small</item>
+        <item>@raw/combo_wifi_thin_medium</item>
+        <item>@raw/combo_wifi_thin_large</item>
+        <item>@raw/combo_wifi_light_small</item>
+        <item>@raw/combo_wifi_light_medium</item>
+        <item>@raw/combo_wifi_light_large</item>
+        <item>@raw/combo_wifi_regular_small</item>
+        <item>@raw/combo_wifi_regular_medium</item>
+        <item>@raw/combo_wifi_regular_large</item>
+        <item>@raw/combo_wifi_medium_small</item>
+        <item>@raw/combo_wifi_medium_medium</item>
+        <item>@raw/combo_wifi_medium_large</item>
+        <item>@raw/combo_wifi_semibold_small</item>
+        <item>@raw/combo_wifi_semibold_medium</item>
+        <item>@raw/combo_wifi_semibold_large</item>
+        <item>@raw/combo_wifi_bold_small</item>
+        <item>@raw/combo_wifi_bold_medium</item>
+        <item>@raw/combo_wifi_bold_large</item>
+        <item>@raw/combo_wifi_heavy_small</item>
+        <item>@raw/combo_wifi_heavy_medium</item>
+        <item>@raw/combo_wifi_heavy_large</item>
+        <item>@raw/combo_wifi_black_small</item>
+        <item>@raw/combo_wifi_black_medium</item>
+        <item>@raw/combo_wifi_black_large</item>
+        <item>@raw/closure_wifi</item>
+    </integer-array>
+    <integer-array name="family_wifi_regular">
+        <item>@raw/combo_wifi_regular_small</item>
+        <item>@raw/combo_wifi_regular_medium</item>
+        <item>@raw/combo_wifi_regular_large</item>
+        <item>@raw/closure_wifi</item>
+    </integer-array>
+</resources>

@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import org.json.JSONObject
 import java.util.IdentityHashMap
@@ -39,7 +40,7 @@ data class SymbolVariableAnimation(
     val willLoop: Boolean = false,
 )
 
-/** The clock is supplied by the caller so interruption and repeat policy remain explicit. */
+/** [pointSize] is the requested em height. [symbol] already carries its optical scale. */
 @Composable
 fun SFSymbol(
     symbol: SymbolInstance,
@@ -68,6 +69,7 @@ fun SFSymbol(
     drawReversesMotionGroups: Boolean = false,
     effectRepeatCount: Int? = null,
     displayMode: SymbolDisplayMode = SymbolDisplayMode.IntrinsicWidth,
+    pointSize: Dp = 32.dp,
 ) {
     require(effectRepeatCount == null || effectRepeatCount > 0) { "Effect repeat count must be positive" }
     val painter = remember(symbol) { AndroidSymbolPainter(symbol) }
@@ -80,7 +82,7 @@ fun SFSymbol(
     val semantics = if (contentDescription == null) Modifier else Modifier.semantics {
         this.contentDescription = contentDescription
     }
-    Canvas(modifier.then(semantics).height(32.dp)
+    Canvas(modifier.then(semantics).height(pointSize)
         .aspectRatio(layoutRatio, matchHeightConstraintsFirst = true)) {
         val renderHeight = displayMode.renderHeight(size.width, size.height, inkRatio)
         drawIntoCanvas { canvas ->

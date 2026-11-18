@@ -25,3 +25,5 @@ dependencyResolutionManagement {
 rootProject.name = "SF Compose"
 include(":app")
 include(":benchmark")
+include(":shrink-prototype:catalog")
+include(":shrink-prototype:consumer")
