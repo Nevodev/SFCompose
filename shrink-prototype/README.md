@@ -62,6 +62,30 @@ the sample's coefficients. `verify_master_reconstruction.py` separately checks
 complete offline reconstruction against deployed original samples using the
 local source BVG directory and CoreUI interpolation inputs.
 
+`compiledDraw` and `liveDraw` use the same compact outline data, symbols,
+weights, and resource closures. The compiled build reads the sampled Draw
+keyframes and anchors. The live build computes them on the first load of each
+scale and reuses the resulting cached `SymbolInstance`. Attachment layer
+descriptors are retained as source metadata in both builds. The seed file
+contains the original per-layer contours and keyframes for the three source
+masters and can be recreated with `generate_draw_seeds.py` from the local BVGs.
+
+```text
+gradlew :shrink-prototype:consumer:assembleCompiledDrawRelease :shrink-prototype:consumer:assembleLiveDrawRelease
+```
+
+These two variants have separate application IDs and use the debug key for
+local installation. Launching their `PackedActivity` with a `drawBenchmarkRun`
+string extra runs the same eight symbols and three scales through `load()`,
+using a fixed Arabic RTL configuration. It logs per-symbol and total load time
+in nanoseconds under `SFDrawLoad`. It measures process-local cold symbol loads,
+including resource decoding and render preparation. Activity startup, frame
+rendering and operating system file cache eviction are outside that measurement.
+
+`apiRegular`, `apiBold`, `apiFill` and `apiDynamic` consume the `:sfcompose`
+library through its public generated entries. Their release reports enforce the
+expected names, weights, scales and variant closures in the packaged APKs.
+
 ```text
 python shrink-prototype/generate_combinations.py
 gradlew :shrink-prototype:consumer:assembleRelease

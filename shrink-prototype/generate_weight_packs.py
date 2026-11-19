@@ -25,17 +25,17 @@ USED = set(entry[0] for entry in ENTRIES) - {'WifiBold', 'PersonFillBold'}
 DOCUMENT_KEYS = ('name', 'upm', 'capHeight', 'layerTree', 'metadata', 'systemVariantId', 'systemVariants')
 
 
-def read_asset(path):
+def read_asset(path, assets=ASSETS):
     keys = (path.removesuffix('.gz') + '.sfgz', path, path + '.gz')
     for key in dict.fromkeys(keys):
-        file = ASSETS / key
+        file = assets / key
         if file.is_file():
             return file.read_bytes()
     raise FileNotFoundError(path)
 
 
-def read_json(path):
-    data = read_asset(path)
+def read_json(path, assets=ASSETS):
+    data = read_asset(path, assets)
     return json.loads(gzip.decompress(data) if data.startswith(b'\x1f\x8b') else data)
 
 
@@ -60,17 +60,25 @@ def interpolate_contours(anchors, sample):
     return output
 
 
-def static_document(source, weight, weights, compressed_geometry):
+def static_document(source, weight, weights, compressed_geometry, draw_seed=None):
     result = {key: source[key] for key in DOCUMENT_KEYS}
     anchors = [next(m for m in source['scales']['small']['masters'] if m['weight'] == weights[name])
                for name in ('Ultralight', 'Regular', 'Black')]
     result['scales'] = {}
     if compressed_geometry:
         result['outlineMasters'] = [m['contours'] for m in anchors]
+    if draw_seed is not None:
+        result['drawMasters'] = draw_seed
     for scale in SCALES:
         sample = next(m for m in source['scales'][scale]['masters'] if m['weight'] == weights[weight]).copy()
         # The renderer gets geometry from the top-level contours. Compiled layers supply Draw data.
         sample['compiledLayers'] = [{k: v for k, v in layer.items() if k != 'contours'} for layer in sample['compiledLayers']]
+        if draw_seed is not None:
+            for layer in sample['compiledLayers']:
+                layer.pop('clipStrokeKeyframes')
+                layer.pop('clipStrokeKeyframeSets')
+            sample.pop('systemAnchors')
+            sample.pop('systemDynamicAnchorSource', None)
         if compressed_geometry:
             actual = interpolate_contours(anchors, sample)
             for expected, reconstructed in zip(sample.pop('contours'), actual, strict=True):
@@ -81,6 +89,45 @@ def static_document(source, weight, weights, compressed_geometry):
     return result
 
 
+def resource_closure(name, accessor, source_index, selection, assets=ASSETS):
+    selection_path = source_index['resourceSelectionAsset']
+    rtl = selection['rightToLeftNames'].get(name)
+    names = [name, rtl] if rtl and rtl != name else [name]
+    documents = {}
+    variants = {}
+    for resource_name in names:
+        default_path = f'symbols/{resource_name}.json'
+        default = read_json(default_path, assets)
+        for variant in default['systemVariants']:
+            path = variant['asset'] or default_path
+            documents[path] = read_json(path, assets) if variant['asset'] else default
+            variants[path] = {'resourceName': resource_name, 'locale': variant['localeTag'],
+                              'direction': variant['direction'], 'appearance': variant['appearance'],
+                              'variantId': variant['id']}
+    ids = {v['variantId'] for v in variants.values()}
+    scoped_selection = {**selection, 'packedFor': accessor,
+                        'flippableVariants': sorted(ids.intersection(selection['flippableVariants'])),
+                        'rightToLeftNames': {name: rtl} if rtl else {}}
+    fill_names = set()
+    for data in documents.values():
+        defaults = data['metadata'].get('systemModeDefaults', {})
+        if defaults.get('-sfsymbols-has-fill-images') == 'true':
+            fill_names.update(defaults['-sfsymbols-fill-image-names'].split())
+    extra_assets = {selection_path: pack(scoped_selection)}
+    if fill_names:
+        fill_path = 'symbols/fill-images/index.json'
+        fills = read_json(fill_path, assets)
+        fills['images'] = [v for v in fills['images'] if v['name'] in fill_names]
+        extra_assets[fill_path] = pack(fills)
+        for image in fills['images']:
+            extra_assets[image['asset']] = read_asset(image['asset'], assets)
+    index = {k: source_index[k] for k in ('formatVersion', 'weights', 'drawWeightCoefficients')}
+    index.update(symbols=names, packedFor=accessor, resourceSelectionAsset=selection_path,
+                 packedFiles=list(documents) + list(extra_assets),
+                 source={k: source_index['source'][k] for k in ('sourceCarSha256', 'localizations', 'appearances')})
+    return index, documents, variants, extra_assets
+
+
 def generate(output):
     source_index = read_json('symbols/index.json')
     selection_path = source_index['resourceSelectionAsset']
@@ -88,53 +135,25 @@ def generate(output):
     kotlin = ['package com.nevoit.shrinkprototype.catalog', '',
               'object ExpandedSymbols {']
     compact_accessors = []
+    live_accessors = []
+    draw_seeds = json.loads(gzip.decompress(Path(__file__).with_name('draw-seeds.json.sfgz').read_bytes()))
     xml = ET.Element('resources')
     inventory = {}
     raw_dir = output / 'res/raw'
     raw_dir.mkdir(parents=True, exist_ok=True)
 
     for accessor, name, weight in ENTRIES:
-        rtl = selection['rightToLeftNames'].get(name)
-        names = [name, rtl] if rtl and rtl != name else [name]
-        documents = {}
-        variants = {}
-        for resource_name in names:
-            default_path = f'symbols/{resource_name}.json'
-            default = read_json(default_path)
-            for variant in default['systemVariants']:
-                path = variant['asset'] or default_path
-                documents[path] = read_json(path) if variant['asset'] else default
-                variants[path] = {'resourceName': resource_name, 'locale': variant['localeTag'],
-                                  'direction': variant['direction'], 'appearance': variant['appearance'],
-                                  'variantId': variant['id']}
-        ids = {v['variantId'] for v in variants.values()}
-        scoped_selection = {**selection, 'packedFor': accessor,
-                            'flippableVariants': sorted(ids.intersection(selection['flippableVariants'])),
-                            'rightToLeftNames': {name: rtl} if rtl else {}}
-        fill_names = set()
-        for data in documents.values():
-            defaults = data['metadata'].get('systemModeDefaults', {})
-            if defaults.get('-sfsymbols-has-fill-images') == 'true':
-                fill_names.update(defaults['-sfsymbols-fill-image-names'].split())
-        extra_assets = {selection_path: pack(scoped_selection)}
-        if fill_names:
-            fill_path = 'symbols/fill-images/index.json'
-            fills = read_json(fill_path)
-            fills['images'] = [v for v in fills['images'] if v['name'] in fill_names]
-            extra_assets[fill_path] = pack(fills)
-            for image in fills['images']:
-                extra_assets[image['asset']] = read_asset(image['asset'])
-        paths = list(documents) + list(extra_assets)
-        index = {k: source_index[k] for k in ('formatVersion', 'weights', 'drawWeightCoefficients')}
-        index.update(symbols=names, packedFor=accessor, packedWeight=weight, resourceSelectionAsset=selection_path, packedFiles=paths,
-                     source={k: source_index['source'][k] for k in ('sourceCarSha256', 'localizations', 'appearances')})
+        index, documents, variants, extra_assets = resource_closure(name, accessor, source_index, selection)
+        index['packedWeight'] = weight
         # Both encodings share this index and the same locale/direction manifest.
-        for compact, prefix, getters in [(False, 'expanded', kotlin), (True, 'compact', compact_accessors)]:
+        for compact, prefix, getters in [(False, 'expanded', kotlin), (True, 'compact', compact_accessors),
+                                          (True, 'live', live_accessors)]:
             stem = f'{prefix}_{accessor.lower()}'
             array = ET.SubElement(xml, 'integer-array', name=stem)
             inventory[stem] = []
             payloads = {'symbols/index.json': pack(index)}
-            payloads.update({path: pack(static_document(doc, weight, source_index['weights'], compact))
+            payloads.update({path: pack(static_document(doc, weight, source_index['weights'], compact,
+                                draw_seeds[variants[path]['variantId']] if prefix == 'live' else None))
                              for path, doc in documents.items()})
             payloads.update(extra_assets)
             for i, (path, content) in enumerate(payloads.items()):
@@ -148,7 +167,7 @@ def generate(output):
                     record.update(variants[path], weight=weight, scales=list(SCALES))
                 inventory[stem].append(record)
             getters.append(f'    val {accessor} get() = PackedSymbolRef("{name}", "{weight}", R.array.{stem})')
-    kotlin += ['}', '', 'object CompactSymbols {', *compact_accessors, '}']
+    kotlin += ['}', '', 'object CompactSymbols {', *compact_accessors, '}', '', 'object LiveDrawSymbols {', *live_accessors, '}']
     src = output / 'java/com/nevoit/shrinkprototype/catalog'
     src.mkdir(parents=True, exist_ok=True)
     (src / 'PackedSymbols.kt').write_text('\n'.join(kotlin) + '\n', encoding='utf-8')

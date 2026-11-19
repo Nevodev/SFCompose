@@ -50,6 +50,10 @@ android {
     }
 }
 
+androidComponents.onVariants { variant ->
+    variant.sources.kotlin?.addStaticSourceDirectory(rootProject.file("sfcompose/renderer").absolutePath)
+}
+
 dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)

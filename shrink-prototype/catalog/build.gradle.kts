@@ -6,6 +6,7 @@ plugins {
 
 abstract class GenerateWeightPacks @Inject constructor(private val exec: org.gradle.process.ExecOperations) : DefaultTask() {
     @get:InputFile abstract val generator: RegularFileProperty
+    @get:InputFile abstract val drawSeeds: RegularFileProperty
     @get:InputDirectory abstract val sourceSymbols: DirectoryProperty
     @get:Input abstract val python: Property<String>
     @get:OutputDirectory abstract val kotlinDir: DirectoryProperty
@@ -23,6 +24,7 @@ abstract class GenerateWeightPacks @Inject constructor(private val exec: org.gra
 val packDir = layout.buildDirectory.dir("generated/weightPacks")
 val generateWeightPacks = tasks.register<GenerateWeightPacks>("generateWeightPacks") {
     generator.set(rootProject.layout.projectDirectory.file("shrink-prototype/generate_weight_packs.py"))
+    drawSeeds.set(rootProject.layout.projectDirectory.file("shrink-prototype/draw-seeds.json.sfgz"))
     sourceSymbols.set(rootProject.layout.projectDirectory.dir("app/src/main/assets/symbols"))
     python.set(providers.gradleProperty("sfcomposePython").orElse("python"))
     kotlinDir.set(packDir.map { it.dir("java") })

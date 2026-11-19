@@ -2,8 +2,14 @@
 
 Android Compose renderer using macOS 27.2.1 system CoreGlyphs vector resources
 and behavior recovered from CoreUI, Symbols, and RenderBox. The renderer is
-in `app/src/main/java/com/nevoit/sfcompose/symbols`; the application is an
+in `sfcompose/renderer`; the application is an
 interactive catalog and animation inspector.
+
+The reusable Android library and complete generated public catalog are documented
+in [sfcompose/README.md](sfcompose/README.md). The catalog dependency exposes all
+imported public names through `SFSymbols`. The Gradle plugin selects payloads from
+a separate build-only catalog after compilation, including for debug builds.
+Consumers do not need a symbol allowlist for generated static references.
 
 The browser uses the original system symbol order and 32 category definitions,
 with Apple's aliases and English search keywords. Chinese category labels are

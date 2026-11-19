@@ -10,7 +10,7 @@
 不能将旧应用资源测试描述为全目录系统渲染一致性测试。
 
 公开入口为 `SFSymbol`、`SFSymbolReplace` 和 `SymbolAssetStore`，源码位于
-`app/src/main/java/com/nevoit/sfcompose/symbols`。资源的原始身份和哈希以
+`sfcompose/renderer`。资源的原始身份和哈希以
 `app/src/main/assets/symbols/index.json` 及原版函数夹具的 provenance 为准。
 
 | 功能 | 实际调用链 | 主要验证 |

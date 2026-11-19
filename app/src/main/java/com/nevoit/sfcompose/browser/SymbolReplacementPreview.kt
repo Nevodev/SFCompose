@@ -47,7 +47,7 @@ import com.nevoit.sfcompose.symbols.SymbolReplaceDirection
 import com.nevoit.sfcompose.symbols.SymbolReplacePlan
 import com.nevoit.sfcompose.symbols.SymbolScale
 import com.nevoit.sfcompose.symbols.SymbolWeight
-import com.nevoit.sfcompose.symbols.SymbolDisplayMode
+import com.nevoit.sfcompose.symbols.DefaultSymbolDisplayMode
 import com.nevoit.sfcompose.symbols.rememberSymbolResourceConfiguration
 import com.nevoit.sfcompose.ui.SymbolDisplayModeSelector
 import com.nevoit.sfcompose.ui.SymbolWeightSelector
@@ -66,7 +66,7 @@ internal fun SymbolReplacementPreview(store: SymbolAssetStore, firstName: String
     val resourceConfiguration = rememberSymbolResourceConfiguration()
     var scale by remember { mutableStateOf(SymbolScale.Medium) }
     var mode by remember { mutableStateOf(SymbolRenderingMode.Monochrome) }
-    var displayMode by remember { mutableStateOf(SymbolDisplayMode.IntrinsicWidth) }
+    var displayMode by remember { mutableStateOf(DefaultSymbolDisplayMode) }
     var direction by remember { mutableStateOf(SymbolReplaceDirection.DownUp) }
     var magic by remember { mutableStateOf(true) }
     var layered by remember { mutableStateOf(true) }

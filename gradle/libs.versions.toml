@@ -1,4 +1,8 @@
 [versions]
+sfcompose = "0.1.0"
+catalogMetadata = "2.3.20"
+catalogAsm = "9.10.1"
+selectionAsm = "9.9"
 androidCompileSdk = "37"
 androidMinSdk = "28"
 androidTargetSdk = "37"
@@ -16,6 +20,11 @@ benchmarkMacro = "1.4.0"
 uiautomator = "2.3.0"
 
 [libraries]
+catalog-kotlin-metadata = { group = "org.jetbrains.kotlin", name = "kotlin-metadata-jvm", version.ref = "catalogMetadata" }
+catalog-asm = { group = "org.ow2.asm", name = "asm", version.ref = "catalogAsm" }
+selection-asm = { group = "org.ow2.asm", name = "asm", version.ref = "selectionAsm" }
+selection-asm-tree = { group = "org.ow2.asm", name = "asm-tree", version.ref = "selectionAsm" }
+selection-asm-analysis = { group = "org.ow2.asm", name = "asm-analysis", version.ref = "selectionAsm" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -23,6 +32,7 @@ androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-co
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation" }
 androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
@@ -35,6 +45,7 @@ androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchm
 androidx-test-uiautomator = { group = "androidx.test.uiautomator", name = "uiautomator", version.ref = "uiautomator" }
 
 [plugins]
+sfcompose = { id = "com.nevoit.sfcompose", version.ref = "sfcompose" }
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

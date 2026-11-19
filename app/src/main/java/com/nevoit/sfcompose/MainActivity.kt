@@ -39,10 +39,12 @@ import com.nevoit.sfcompose.symbols.SFSymbol
 import com.nevoit.sfcompose.symbols.SFSymbolReplace
 import com.nevoit.sfcompose.symbols.SymbolAssetStore
 import com.nevoit.sfcompose.symbols.SymbolCatalog
-import com.nevoit.sfcompose.symbols.SymbolDisplayMode
+import com.nevoit.sfcompose.symbols.DefaultSymbolDisplayMode
 import com.nevoit.sfcompose.symbols.SymbolDrawEffect
 import com.nevoit.sfcompose.symbols.SymbolDrawTiming
 import com.nevoit.sfcompose.symbols.SymbolEffect
+import com.nevoit.sfcompose.symbols.discreteDuration
+import com.nevoit.sfcompose.symbols.hasContinuousPlayback
 import com.nevoit.sfcompose.symbols.SymbolEffectLayerMode
 import com.nevoit.sfcompose.symbols.SymbolEffectPlayback
 import com.nevoit.sfcompose.symbols.SymbolInstance
@@ -82,7 +84,7 @@ internal fun SymbolInspector(store: SymbolAssetStore, initialName: String, onBac
     var requestedName by remember { mutableStateOf(initialName) }
     var weight by remember { mutableStateOf(SymbolWeight.Regular) }
     var scale by remember { mutableStateOf(SymbolScale.Medium) }
-    var displayMode by remember { mutableStateOf(SymbolDisplayMode.IntrinsicWidth) }
+    var displayMode by remember { mutableStateOf(DefaultSymbolDisplayMode) }
     var symbol by remember { mutableStateOf<SymbolInstance?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
     var effect by remember { mutableStateOf(SymbolEffect.None) }
@@ -361,21 +363,4 @@ private fun InspectorTimeline(elapsed: () -> Float, duration: Float, seek: (Floa
     Text("时间：${"%.2f".format(time)} s")
     Slider(time.coerceIn(0f, duration), seek, valueRange = 0f..duration,
         modifier = Modifier.testTag("animation-time"))
-}
-
-private fun SymbolEffect.hasContinuousPlayback(): Boolean = when (this) {
-    SymbolEffect.None, SymbolEffect.Appear, SymbolEffect.AppearDown, SymbolEffect.Disappear, SymbolEffect.DisappearUp,
-    SymbolEffect.ScaleUp, SymbolEffect.ScaleDown -> false
-    else -> true
-}
-
-private fun SymbolEffect.discreteDuration(): Float = when (this) {
-    SymbolEffect.None -> 0f
-    SymbolEffect.Appear, SymbolEffect.AppearDown -> .25f
-    SymbolEffect.Disappear, SymbolEffect.DisappearUp -> 1f / 6f
-    SymbolEffect.Bounce, SymbolEffect.BounceDown -> .7f
-    SymbolEffect.Breathe, SymbolEffect.BreathePulse -> 3f
-    SymbolEffect.Pulse, SymbolEffect.RotateClockwise, SymbolEffect.RotateCounterclockwise -> 2f
-    SymbolEffect.ScaleUp, SymbolEffect.ScaleDown -> 1f
-    else -> 4f * .167f + .267f
 }
