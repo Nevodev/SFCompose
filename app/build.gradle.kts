@@ -1,20 +1,29 @@
 import javax.inject.Inject
-import org.gradle.api.file.FileSystemOperations
+import org.gradle.process.ExecOperations
 
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
 }
 
-abstract class PreparePrivateSymbolAssets @Inject constructor(private val files: FileSystemOperations) : DefaultTask() {
-    @get:InputFiles abstract val sourceAssets: ConfigurableFileCollection
+abstract class PrepareBrowserSymbolAssets @Inject constructor(private val exec: ExecOperations) : DefaultTask() {
+    @get:InputDirectory abstract val publicAssets: DirectoryProperty
+    @get:InputFiles abstract val privateAssets: ConfigurableFileCollection
+    @get:InputFiles abstract val publicCatalog: ConfigurableFileCollection
+    @get:InputFiles abstract val privateCatalog: ConfigurableFileCollection
+    @get:InputFile abstract val script: RegularFileProperty
+    @get:Input abstract val python: Property<String>
     @get:OutputDirectory abstract val output: DirectoryProperty
 
     @TaskAction
     fun prepare() {
-        files.sync {
-            from(sourceAssets) { into("private") }
-            into(output)
+        exec.exec {
+            commandLine(python.get(), "-B", script.get().asFile,
+                "--public-assets", publicAssets.get().asFile,
+                "--private-assets", privateAssets.singleFile,
+                "--public-catalog", publicCatalog.singleFile,
+                "--private-catalog", privateCatalog.singleFile,
+                "--output", output.get().asFile)
         }
     }
 }
@@ -24,16 +33,32 @@ val privateSymbolAssets = configurations.create("privateSymbolAssets") {
     isCanBeConsumed = false
     isCanBeResolved = true
 }
+val publicBuildData = configurations.create("publicBuildData") {
+    isCanBeConsumed = false
+    isCanBeResolved = true
+}
+val privateBuildData = configurations.create("privateBuildData") {
+    isCanBeConsumed = false
+    isCanBeResolved = true
+}
 dependencies {
     add(privateSymbolAssets.name, project(mapOf("path" to ":sfcompose-catalog-private", "configuration" to "sfcomposeBrowserAssets")))
+    add(publicBuildData.name, project(mapOf("path" to ":sfcompose-catalog", "configuration" to "sfcomposeBuildData")))
+    add(privateBuildData.name, project(mapOf("path" to ":sfcompose-catalog-private", "configuration" to "sfcomposeBuildData")))
 }
-val preparePrivateSymbolAssets = tasks.register<PreparePrivateSymbolAssets>("preparePrivateSymbolAssets") {
-    sourceAssets.from(privateSymbolAssets)
-    output.set(layout.buildDirectory.dir("generated/privateSymbolAssets"))
+val prepareBrowserSymbolAssets = tasks.register<PrepareBrowserSymbolAssets>("prepareBrowserSymbolAssets") {
+    publicAssets.set(layout.projectDirectory.dir("src/main/assets"))
+    privateAssets.from(privateSymbolAssets)
+    publicCatalog.from(publicBuildData)
+    privateCatalog.from(privateBuildData)
+    script.set(layout.projectDirectory.file("prepare_browser_assets.py"))
+    python.set(providers.gradleProperty("sfcomposePython").orElse("python"))
+    output.set(layout.buildDirectory.dir("generated/browserSymbolAssets"))
 }
 
 android {
     namespace = "com.nevoit.sfcompose"
+    sourceSets.getByName("main").assets.directories.clear()
     compileSdk {
         version = release(libs.versions.androidCompileSdk.get().toInt()){
             minorApiLevel = libs.versions.androidCompileSdkMinor.get().toInt()
@@ -83,7 +108,7 @@ android {
 
 androidComponents.onVariants { variant ->
     variant.sources.kotlin?.addStaticSourceDirectory(rootProject.file("sfcompose/renderer").absolutePath)
-    variant.sources.assets?.addGeneratedSourceDirectory(preparePrivateSymbolAssets, PreparePrivateSymbolAssets::output)
+    variant.sources.assets?.addGeneratedSourceDirectory(prepareBrowserSymbolAssets, PrepareBrowserSymbolAssets::output)
 }
 
 dependencies {
