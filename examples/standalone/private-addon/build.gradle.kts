@@ -5,7 +5,7 @@ plugins {
 }
 
 sfcompose {
-    additionalCatalogs.add("com.nevoit.sfcompose:sfcompose-catalog-private:${libs.versions.sfcompose.get()}")
+    additionalCatalogs.add("io.github.nevodev:sfcompose-catalog-private:${libs.versions.sfcompose.get()}")
 }
 
 android {

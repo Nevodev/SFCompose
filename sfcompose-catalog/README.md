@@ -9,7 +9,7 @@ The public catalog exposes every imported name through the existing
   nine weights, three optical scales and compiled Draw samples, including each
   symbol's locale, appearance, RTL and auxiliary-image closure.
 
-The consuming application must apply `com.nevoit.sfcompose`. The plugin resolves
+The consuming application must apply `io.github.nevodev.sfcompose`. The plugin resolves
 the ZIP on a separate build-only configuration, scans compiled app/dependency
 classes, selects entries and writes generated Android assets. It runs before
 asset merging in debug and release. The ZIP never enters the runtime classpath.

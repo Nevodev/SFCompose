@@ -2,7 +2,7 @@ pluginManagement {
     repositories {
         maven {
             url = uri(providers.gradleProperty("sfcomposeRepository").orElse("../../build/sfcompose-repository").get())
-            content { includeGroupByRegex("com\\.nevoit\\.sfcompose(\\..*)?") }
+            content { includeGroupByRegex("io\\.github\\.nevodev(\\..*)?") }
         }
         google {
             content {
@@ -21,7 +21,7 @@ dependencyResolutionManagement {
     repositories {
         maven {
             url = uri(providers.gradleProperty("sfcomposeRepository").orElse("../../build/sfcompose-repository").get())
-            content { includeGroup("com.nevoit.sfcompose") }
+            content { includeGroup("io.github.nevodev") }
         }
         google()
         mavenCentral()

@@ -5,5 +5,5 @@ plugins {
 }
 
 sfcompose {
-    catalog.set("com.nevoit.sfcompose:sfcompose-catalog-private:${libs.versions.sfcompose.get()}")
+    catalog.set("io.github.nevodev:sfcompose-catalog-private:${libs.versions.sfcompose.get()}")
 }

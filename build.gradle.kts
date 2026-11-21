@@ -5,13 +5,12 @@ plugins {
     alias(libs.plugins.android.library) apply false
     alias(libs.plugins.kotlin.compose) apply false
     alias(libs.plugins.android.test) apply false
+    alias(libs.plugins.maven.publish.base) apply false
 }
-val sfcomposeVersion = libs.versions.sfcompose.get()
 val sfcomposeRepository = layout.buildDirectory.dir("sfcompose-repository")
 subprojects {
     pluginManager.withPlugin("maven-publish") {
-        group = "com.nevoit.sfcompose"
-        version = sfcomposeVersion
+        apply(from = rootProject.file("gradle/publishing.gradle"))
         extensions.configure<PublishingExtension> {
             repositories.maven {
                 name = "sfcomposeLocal"

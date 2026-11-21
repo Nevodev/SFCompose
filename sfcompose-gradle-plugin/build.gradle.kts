@@ -2,15 +2,16 @@ plugins {
     groovy
     `java-gradle-plugin`
     `maven-publish`
+    alias(libs.plugins.maven.publish.base)
 }
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
+    withSourcesJar()
 }
 
-group = "com.nevoit.sfcompose"
-version = libs.versions.sfcompose.get()
+apply(from = "../gradle/publishing.gradle")
 publishing {
     repositories.maven {
         name = "sfcomposeLocal"
@@ -30,14 +31,16 @@ dependencies {
 gradlePlugin {
     plugins {
         create("sfcompose") {
-            id = "com.nevoit.sfcompose"
+            id = libs.plugins.sfcompose.get().pluginId
+            displayName = "SFCompose"
+            description = "Selects SFCompose symbol assets from catalog references during Android builds"
             implementationClass = "com.nevoit.sfcompose.gradle.SFComposePlugin"
         }
     }
 }
 
 tasks.processResources {
-    val properties = mapOf("version" to libs.versions.sfcompose.get())
+    val properties = mapOf("version" to project.version.toString(), "group" to project.group.toString())
     inputs.properties(properties)
     filesMatching("sfcompose-plugin.properties") { expand(properties) }
 }

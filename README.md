@@ -1,192 +1,181 @@
-# SF Compose
+# SFCompose
 
-Android Compose renderer using macOS 27.2.1 system CoreGlyphs vector resources
-and behavior recovered from CoreUI, Symbols, and RenderBox. The renderer is
-in `sfcompose/renderer`; the application is an
-interactive catalog and animation inspector.
+SFCompose brings SF Symbols to Android Jetpack Compose.
+Display static and animated symbols with configurable weights, optical scales, colors and replacement transitions.
 
-The reusable Android library and complete generated public catalog are documented
-in [sfcompose/README.md](sfcompose/README.md). The catalog dependency exposes all
-imported public names through `SFSymbols`. The Gradle plugin selects payloads from
-a separate build-only catalog after compilation, including for debug builds.
-Consumers do not need a symbol allowlist for generated static references.
+## Installation
 
-The browser uses the original system symbol order and 32 category definitions,
-with Apple's aliases and English search keywords. Chinese category labels are
-also searchable. Android search prioritizes exact names and prefixes, then
-matches all query terms; this is not a claim to reproduce Apple's search ranking.
-The original category map leaves some names uncategorized; they remain in All.
-Metadata provenance and rebuilding are documented in [tools/BROWSER_METADATA.md](tools/BROWSER_METADATA.md).
+> The first Maven Central release is being prepared. Use the following setup after that release is available.
 
-Tap a symbol to open its animation inspector. Choose “选择替换”, select source A
-and target B, then tap Replace to preview them. The replacement page supports
-swapping A/B, direction, Magic Replace, layer mode, rendering mode, weight,
-optical size, replay, looping and timeline scrubbing. Returning to the browser
-keeps the search, category, selection and grid position. Thumbnails load only
-for visible grid cells; searching does not decode the rendering catalog.
+Add Maven Central to both plugin and dependency repositories in `settings.gradle.kts`:
 
 ```kotlin
-val store = remember(context.assets) { SymbolAssetStore(context.assets) }
-var symbol by remember { mutableStateOf<SymbolInstance?>(null) }
-LaunchedEffect(store) {
-    symbol = store.load("wifi", SymbolWeight.Regular, SymbolScale.Medium)
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
 }
-symbol?.let {
-    SFSymbol(
-        symbol = it,
-        contentDescription = "Wi-Fi",
-        mode = SymbolRenderingMode.Palette,
-        palette = listOf(Color.Blue, Color.Cyan),
-        variableValue = { signalStrength },
-    )
+
+dependencyResolutionManagement {
+    repositories {
+        google()
+        mavenCentral()
+    }
 }
 ```
 
-The caller supplies animation time in seconds using `elapsedSeconds`, so a
-frame clock, playback speed, seeking, interruption, and repeat policy can be
-controlled without replacing the renderer's timing curves. `drawEffect`
-selects timed Draw On/Off. `drawProgress` provides raw geometry progress;
-`drawReversed` selects the original reverse geometry and ordering option.
-`drawReversesMotionGroups` independently reverses the layer choreography.
-`variableDrawValue` selects the source's separate Variable Draw behavior.
-`variableAnimation` controls cumulative/iterative Variable Color, bouncing,
-inactive appearance, and looping. `SFSymbolReplace` renders a replacement
-between two loaded instances with semantic Magic Replace admission.
+Add SFCompose to your version catalog, replacing `<release-version>` with the version you want to use:
 
-For continuous motion, `effectRepeatCount = 3` selects the original intro,
-three loop cycles, and outro. `null` keeps infinite playback. Time remains
-absolute; the caller does not need to switch phases or capture an intermediate
-transform. The catalog preview exposes finite counts and lets the clock run
-through the complete native duration, including the last layer's delay.
+```toml
+[versions]
+sfcompose = "<release-version>"
 
-The catalog includes 8,647 canonical names, nine named weights, and the three
-original optical scales. Its 10,467 resource variants preserve appearance,
-localization and direction keys, with 282,609 named samples. Paths, metrics,
-hierarchy, palette levels, semantic colors, erase operations, shape groups,
-motion groups, compiled Draw keyframes, and attachments come from the system
-catalog. Each mode uses the original named layer selectors, including paths
-shared by several layers. `store.variants(name)` lists the retained keys;
-`store.load(name, variantId = variant.id)` explicitly selects one.
-No network request is made by the Android renderer.
-
-Continuous weights use the original source axis rather than enum ordinals.
-Read its bounds from `catalog.weightRange` and the nine reference positions
-from `catalog.weightPositions`. For example:
-
-```kotlin
-val catalog = store.catalog()
-val from = catalog.weightPositions.getValue(SymbolWeight.Regular)
-val to = catalog.weightPositions.getValue(SymbolWeight.Medium)
-val symbol = store.load("wifi", weightPosition = from + (to - from) * fraction)
+[plugins]
+sfcompose = { id = "io.github.nevodev.sfcompose", version.ref = "sfcompose" }
 ```
 
-Intermediate instances interpolate paths, metrics, compiled Draw keyframes
-and dynamic anchors together. Exact named positions reuse the named instance.
-Decoded documents and generated instances use bounded caches. Both preview
-pages expose the continuous axis and the original named positions.
-
-`rememberSymbolResourceConfiguration()` observes Android locales, night mode
-and Compose layout direction. Pass its value as `configuration` to either
-`store.load` overload to enable automatic resource selection; the browser does
-this for thumbnails and both preview pages. A supplied `variantId` overrides
-automatic selection. `SymbolResourceConfiguration.from(configuration)` is
-available outside Compose.
-RTL selection uses retained Left resources or an actual `.rtl` counterpart,
-and otherwise mirrors only when the original CSI header marks that variant
-as flippable. Literal `arrow.right` stays right; `arrow.forward` may mirror.
-`resourceName`, `variantId` and `mirroredForRightToLeft` expose the resolved
-identity. Explicit variant selection bypasses both automatic matching and
-automatic mirroring. Locale fallback and key precedence are Android consumer
-policies; they are not a claim to execute the entire CoreUI resource matcher.
-
-For changes that can interrupt a replacement, keep one
-`SymbolReplaceController` and use one monotonic clock for updates and drawing:
+Apply the plugin in your Android app's `build.gradle.kts`, alongside your Android and Compose plugins:
 
 ```kotlin
-val controller = rememberSymbolReplaceController(initialSymbol)
-// In a target-change handler, using the current clock value:
-controller.replaceWith(nextSymbol, clockSeconds)
-// In the UI:
-SFSymbolReplace(controller = controller, elapsedSeconds = { clockSeconds })
+plugins {
+    alias(libs.plugins.sfcompose)
+}
 ```
 
-Returning to the previous source reverses the active pair's timeline. A third
-target captures the current vector paths, materials and transforms, retires
-that presentation and starts the new target. Captures remain vectors; the
-controller does not rasterize a screenshot or keep a nested history of
-transitions. Interrupted third-target entry uses the existing Standard recipe;
-position and opacity continuity do not establish native velocity matching.
-`reset` explicitly discards the transition. The replacement page's “交互接续”
-mode lets you switch targets during playback or while paused.
+The plugin adds `io.github.nevodev:sfcompose-catalog` and its runtime dependency automatically.
+You do not need an additional `implementation` declaration. It packages the data selected by your symbol references.
+Consumers of the published artifacts need neither Python nor the original system resources.
 
-Five source attachment stores contain absent dynamic anchors. The default
-Android painter recovers them only when a unique terminal shaft cut and
-consistent existing source parameters identify the missing reference. It then
-uses the normal timed attachment resolver, including reverse and Off tails.
-This is an Android compatibility policy: raw CoreUI rejects those stores.
-Raw native geometry remains available to the reference tests; source assets
-are preserved unchanged.
+The project's Android SDK and dependency versions are listed in the [version catalog](gradle/libs.versions.toml).
+For an existing explicit catalog dependency, set `sfcompose { automaticDependency.set(false) }` to avoid adding it again.
 
-System cutouts use separate drawing, erasing and common presentation opacity.
-Tint alpha and ordinary hierarchy affect the fill, while clear-behind coverage
-follows the original material and erasing rules. Pulse honors explicit layer
-annotations; Variable Color applies its original phase-specific channel updates.
-Cutout paths consume their own Draw and attachment data: animated holes move,
-while independent static holes remain static. Matching enclosure replacements
-interpolate compatible material channels separately; incompatible materials
-keep their descriptors and fade through common opacity. Native instruction and
-Android Canvas regressions cover these paths; system-window/GPU comparison
-remains outside that validation.
+## Static symbols
 
-Compose height in dp supplies the nominal font point size; display density
-only affects raster dimensions and pixel alignment. Glyph coordinates scale by
-the pixel height divided by source units-per-em. System metric centers determine
-positioning. Width follows the glyph's advance when
-unconstrained. A narrow canvas does not shrink the font to fit its outline.
+Import the APIs from `com.nevoit.sfcompose.symbols`. The examples below belong inside a `@Composable` function.
+Use IDE completion on `SFSymbols` to find names and variants:
 
-`SFSymbol` and `SFSymbolReplace` accept a separate `displayMode` parameter:
+```kotlin
+import androidx.compose.ui.unit.dp
+import com.nevoit.sfcompose.symbols.SFSymbol
+import com.nevoit.sfcompose.symbols.SFSymbols
+import com.nevoit.sfcompose.symbols.SymbolScale
 
-| Value | Layout and drawing |
-| --- | --- |
-| `SquareOverflow` | Square slot, nominal line height, drawing may extend outside the slot |
-| `IntrinsicWidth` (default) | Nominal line height, natural glyph advance determines layout width |
-| `SquareFitWidth` | Square slot, keeps the nominal line height when the horizontal outline fits; otherwise shrinks uniformly around the center |
+SFSymbol(SFSymbols.Wifi, contentDescription = "Wi-Fi")
 
-For example, `Modifier.height(32.dp)` with
-`displayMode = SymbolDisplayMode.SquareFitWidth` reserves a 32 × 32 dp slot.
-Narrow symbols keep their original font scale; wide symbols shrink only enough
-to fit horizontally. Overflow mode does not add a clip, so an ancestor's
-explicit clipping still applies. Replace uses the larger of the two symbols'
-horizontal extents to keep one stable scale and slot throughout the transition.
-Both animation preview pages expose the three modes.
+SFSymbol(
+    symbol = SFSymbols.Heart.Fill.Bold,
+    contentDescription = "Favorite",
+    pointSize = 24.dp,
+    scale = SymbolScale.Small,
+)
+```
 
-The importer and reproducibility instructions are in [tools/README.md](tools/README.md).
-The generated asset index records source hashes. Recovered native evidence is
-kept separately under `D:/MACOS/analysis/system`.
-Decompiled pseudocode is evidence for the port, not original source code.
+A bare entry uses Regular weight. Select a weight with `.Bold`, `.Light` and other named accessors;
+use `.Fill` and other name variants where the catalog exposes them.
+Set `contentDescription = null` for a decorative icon.
 
-Verification uses Python importer tests and Robolectric's native Android
-graphics backend, including all catalog names and rendering modes, original
-ARM64 numerical fixtures, Draw intermediate frames, and replacement endpoints.
-Reports and frame images are generated under `app/build/reports/symbols`.
-These checks establish the tested Android behavior. A side-by-side capture
-against the macOS runtime and physical Android GPU rendering are separate
-checks; neither is established by a successful compilation or Robolectric run.
+For a weight that changes at runtime, select `.DynamicWeight` and pass `weight = currentWeight`.
+Fixed-weight entries package less data than dynamic-weight entries.
 
-System Draw fixtures execute original ARM64 functions at actual 13, 32, and
-160 point sizes. Production painter comparisons include density conversion,
-coordinate reflection, static sibling paths, compiled contour joining, and
-timed attachments. Original Animation::time and Keyframes.eval fixtures also
-cover motion and Variable Color dispatch. Legacy application fixtures remain
-isolated from the system production catalog. Exact coverage and remaining
-limits are recorded in [RENDERER_EVIDENCE.md](RENDERER_EVIDENCE.md); these checks
-do not establish every symbol's visual parity on physical hardware.
+### Size and layout
 
-Resources stay gzip-compressed under a `.json.sfgz` deployment suffix, avoiding
-Android's automatic expansion of `.gz` assets. Loading decodes only the selected
-symbol and retains a bounded instance cache. The importer preserves source
-hashes and the installer verifies every file before publishing the index.
+- `pointSize` controls the requested slot height. `scale` selects an optical design independently of that size.
+- `padding` insets the drawing area within the slot, without increasing its requested size.
+- `displayMode` defaults to `SquareOverflow`: a square slot that permits wide symbols to overflow.
+  Use `SquareFitWidth` to fit wide symbols inside the square, or `IntrinsicWidth` for the glyph's natural advance.
 
-The application does not require extracting an entire macOS restore image.
-Original Apple resources are supplied locally by the user; this project does
-not download an operating-system image.
+## Colors
+
+Pass a tint for a single icon, or provide `LocalSFSymbolColor` for a subtree.
+The default tint is black; it does not automatically follow Material content colors.
+
+```kotlin
+CompositionLocalProvider(
+    LocalSFSymbolColor provides MaterialTheme.colorScheme.onSurface,
+) {
+    SFSymbol(SFSymbols.Wifi, contentDescription = "Wi-Fi")
+}
+```
+
+Use Palette mode to assign colors to the symbol's source layers:
+
+```kotlin
+SFSymbol(
+    symbol = SFSymbols.Airtag.Radiowaves.Forward.Fill,
+    contentDescription = "AirTag",
+    mode = SymbolRenderingMode.Palette,
+    palette = listOf(Color.Blue, Color.Red),
+    gradients = true,
+)
+```
+
+`Monochrome` uses one tint, `Hierarchical` applies hierarchy opacity, and `Multicolor` uses the symbol's source colors.
+Palette colors follow source palette levels rather than individual paths.
+
+## Animation
+
+Use the `.Animated` entry with `AnimatedSFSymbol` and choose an effect:
+
+```kotlin
+AnimatedSFSymbol(
+    symbol = SFSymbols.Wifi.Animated,
+    contentDescription = "Wi-Fi",
+    animation = SymbolAnimation(effect = SymbolEffect.Bounce),
+)
+```
+
+For stroke drawing, use `SymbolAnimation(drawEffect = SymbolDrawEffect.On)` or `Off` on a symbol with Draw data.
+The default empty `SymbolAnimation()` stays stationary.
+
+To play on a tap, keep an animation state and turn off initial autoplay:
+
+```kotlin
+val animationState = rememberSymbolAnimationState()
+
+AnimatedSFSymbol(
+    symbol = SFSymbols.Wifi.Animated,
+    contentDescription = "Wi-Fi",
+    modifier = Modifier.clickable { animationState.replay() },
+    state = animationState,
+    autoPlay = false,
+    animation = SymbolAnimation(effect = SymbolEffect.Bounce),
+)
+```
+
+Call `replay()` or change `replayKey` to restart playback. Hoist the state above a lazy item to pause
+when the icon leaves composition and resume on reentry. Use a separate state for each icon.
+
+`startDelayMillis` delays playback while holding its time-zero frame. To keep the full resting symbol visible
+until a trigger, use `autoPlay = false` instead. For repeatable motion, set `playback = SymbolEffectPlayback.Continuous`;
+`repeatCount` can limit its cycles. Draw On/Off is not repeated by that setting.
+
+## Replacing symbols
+
+Pass the icon for the current UI state. The first icon appears after loading; subsequent changes animate automatically:
+
+```kotlin
+var selected by remember { mutableStateOf(false) }
+
+SFSymbolReplace(
+    symbol = if (selected) SFSymbols.Person.Fill.Animated else SFSymbols.Person.Animated,
+    contentDescription = "Person",
+    modifier = Modifier.clickable { selected = !selected },
+)
+```
+
+Both entries must use `.Animated`. Changes during playback can reverse or interrupt the active replacement.
+Use `direction`, `preferMagic` and `layered` to customize the transition.
+
+## More documentation
+
+- [API guide and advanced loading](sfcompose/README.md)
+- [Optional private-symbol catalog](sfcompose-catalog-private/README.md)
+- [Building and publishing](PUBLISHING.md)
+- [Renderer evidence and verification](RENDERER_EVIDENCE.md)
+
+## License
+
+Original SFCompose code is licensed under [Apache-2.0](LICENSE).
+Imported Apple symbol resources are excluded from that license; see [third-party notices](THIRD_PARTY_NOTICES.md).

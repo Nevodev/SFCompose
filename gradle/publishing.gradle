@@ -1,0 +1,76 @@
+import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
+
+apply plugin: 'com.vanniktech.maven.publish.base'
+
+group = 'io.github.nevodev'
+version = libs.versions.sfcompose.get()
+
+def repositoryUrl = 'https://github.com/Nevodev/SFCompose'
+def projectDirectory = buildscript.sourceFile.parentFile.parentFile
+def signingEnabled = providers.gradleProperty('sfcomposeSigning').map { it.toBoolean() }.getOrElse(false)
+def descriptions = [
+    'sfcompose': 'Android Compose renderer for SF symbol vector data and animations',
+    'sfcompose-catalog': 'Generated SFCompose public symbol entries and build-time symbol data',
+    'sfcompose-catalog-private': 'Optional SFCompose private symbol entries and build-time symbol data',
+    'sfcompose-gradle-plugin': 'Build-time selection and packaging of SFCompose symbol assets',
+]
+
+mavenPublishing {
+    if (providers.gradleProperty('sfcomposeCentral').map { it.toBoolean() }.getOrElse(false)) {
+        publishToMavenCentral(false)
+    }
+    if (signingEnabled) signAllPublications()
+}
+
+def documentationJar = tasks.register('centralDocumentationJar', Jar) {
+    archiveClassifier = 'javadoc'
+    from(new File(projectDirectory, 'sfcompose/README.md')) { rename { 'README.md' } }
+    from(new File(projectDirectory, 'LICENSE'), new File(projectDirectory, 'NOTICE'),
+        new File(projectDirectory, 'THIRD_PARTY_NOTICES.md'))
+}
+
+publishing.publications.withType(MavenPublication).configureEach {
+    if (!name.endsWith('PluginMarkerMaven')) artifact(documentationJar)
+    pom {
+        name = "SFCompose ${project.name}"
+        description = descriptions[project.name]
+        url = repositoryUrl
+        licenses {
+            license {
+                name = 'The Apache License, Version 2.0'
+                url = 'https://www.apache.org/licenses/LICENSE-2.0.txt'
+                distribution = 'repo'
+            }
+            if (project.name.startsWith('sfcompose-catalog')) {
+                license {
+                    name = 'Apple-origin symbol resources: see third-party notices'
+                    url = "$repositoryUrl/blob/HEAD/THIRD_PARTY_NOTICES.md"
+                }
+            }
+        }
+        developers {
+            developer {
+                id = 'nevodev'
+                name = 'Bill Heitbrink'
+                email = 'nevdevr@gmail.com'
+                url = 'https://github.com/Nevodev'
+            }
+        }
+        scm {
+            url = repositoryUrl
+            connection = "scm:git:${repositoryUrl}.git"
+            developerConnection = 'scm:git:ssh://git@github.com/Nevodev/SFCompose.git'
+        }
+    }
+}
+
+tasks.withType(PublishToMavenRepository).configureEach {
+    if (name.endsWith('ToMavenCentralRepository')) {
+        doFirst {
+            if (!signingEnabled) {
+                throw new GradleException('Maven Central requires signatures. Use tools/publish_central.py or -PsfcomposeSigning=true with a signing key.')
+            }
+        }
+    }
+}

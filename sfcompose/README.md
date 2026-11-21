@@ -1,19 +1,19 @@
 # SFCompose for Android
 
 With the artifact repository configured, depend on
-`com.nevoit.sfcompose:sfcompose-catalog` at the desired release version.
+`io.github.nevodev:sfcompose-catalog` at the desired release version.
 It brings in the runtime automatically. In this repository, use
 `implementation(project(":sfcompose-catalog"))`. Import `SFSymbol`, `SFSymbols`,
 `SymbolScale`, and `SymbolWeight` from `com.nevoit.sfcompose.symbols`.
 
-Apply the `com.nevoit.sfcompose` Gradle plugin to the consuming Android app.
+Apply the `io.github.nevodev.sfcompose` Gradle plugin to the consuming Android app.
 It adds the matching catalog dependency, resolves the full catalog as a build-only
 ZIP, and generates assets after Kotlin/Java compilation for both debug and release.
 The full ZIP is not a runtime dependency and never enters the APK.
 
 ```kotlin
 plugins {
-    id("com.nevoit.sfcompose") // Version comes from the consumer's plugin catalog.
+    id("io.github.nevodev.sfcompose") // Version comes from the consumer's plugin catalog.
 }
 ```
 

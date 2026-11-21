@@ -7,5 +7,5 @@ plugins {
 sfcompose { automaticDependency.set(false) }
 
 dependencies {
-    implementation("com.nevoit.sfcompose:sfcompose-catalog:${libs.versions.sfcompose.get()}")
+    implementation("io.github.nevodev:sfcompose-catalog:${libs.versions.sfcompose.get()}")
 }

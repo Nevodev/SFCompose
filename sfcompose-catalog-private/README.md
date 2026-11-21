@@ -4,14 +4,14 @@ The separate catalog uses the vector renditions in the system
 `CoreGlyphsPrivate.bundle`. It exposes the same statically referenced entries
 as the public catalog under `PrivateSFSymbols`. It also uses the same runtime.
 
-Apply `com.nevoit.sfcompose` to the consuming Android application and add the
+Apply `io.github.nevodev.sfcompose` to the consuming Android application and add the
 private Maven coordinate to `sfcompose.additionalCatalogs`. The plugin adds the
 lightweight AAR dependency and resolves its `build-data` ZIP separately for build
 tasks. The full ZIP never enters the runtime classpath or APK.
 
 ```kotlin
 sfcompose {
-    additionalCatalogs.add("com.nevoit.sfcompose:sfcompose-catalog-private:${libs.versions.sfcompose.get()}")
+    additionalCatalogs.add("io.github.nevodev:sfcompose-catalog-private:${libs.versions.sfcompose.get()}")
 }
 ```
 
