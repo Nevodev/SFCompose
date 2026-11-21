@@ -15,6 +15,35 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 
+/**
+ * Draws a replacement between loaded instances at a caller-supplied animation time.
+ *
+ * Load animation-capable instances with [rememberSFSymbol] using `.Animated` entries. This overload
+ * neither loads resources nor advances time. For automatic playback use the catalog-entry overload;
+ * for target changes during playback use [SymbolReplaceController].
+ *
+ * @param first Outgoing loaded symbol.
+ * @param second Incoming loaded symbol, shown alone once the replacement finishes.
+ * @param modifier Layout, interaction and semantics modifiers for the icon.
+ * @param direction Replacement recipe controlling outgoing and incoming scale or Draw behavior.
+ * @param preferMagic Attempts source semantic matches, falling back to the standard recipe.
+ * @param layered Enables staggered timing for source motion groups where supported.
+ * @param mode Layer coloring policy; defaults to Monochrome.
+ * @param tint Primary color, defaulting to [LocalSFSymbolColor].
+ * @param secondary Second Palette color when [palette] is absent; defaults to [tint].
+ * @param tertiary Third Palette color when [palette] is absent; defaults to [secondary].
+ * @param palette Layer colors in Palette mode; a nonempty list overrides the three colors.
+ * @param gradients Enables source gradient styling where supported.
+ * @param rightToLeft Enables source-declared mirroring and logical effect direction; resource variants
+ *   must already be selected when loading the instances.
+ * @param appearance Semantic color appearance; light/dark colors follow the current system theme.
+ * @param contentDescription Accessibility label, or `null` for a decorative icon.
+ * @param displayMode Slot sizing policy shared by the pair; defaults to SquareOverflow without clipping.
+ * @param pointSize Requested slot height in dp, before internal [padding]; defaults to 32 dp.
+ * @param padding Insets the drawing area on all sides within the requested slot size.
+ * @param elapsedSeconds Seconds since this replacement began, read during drawing. Restart at zero
+ *   to replay, or hold the value to pause. This is relative time, unlike the controller overload.
+ */
 @Composable
 fun SFSymbolReplace(
     first: SymbolInstance,
@@ -80,11 +109,48 @@ fun SFSymbolReplace(
     }
 }
 
+/**
+ * Remembers an interruptible replacement controller initialized with [initialSymbol].
+ *
+ * The initial instance is used only when the controller is created. Later parameter changes do
+ * not retarget it: call [SymbolReplaceController.replaceWith] to animate or
+ * [SymbolReplaceController.reset] to switch immediately.
+ */
 @Composable
 fun rememberSymbolReplaceController(initialSymbol: SymbolInstance): SymbolReplaceController =
     remember { SymbolReplaceController(initialSymbol) }
 
-/** Draws a controller on the same absolute clock passed to replaceWith. */
+/**
+ * Draws interruptible replacements using the controller's absolute clock in seconds.
+ *
+ * Use the same monotonic clock for [SymbolReplaceController.replaceWith] and [elapsedSeconds].
+ * Unlike the pair overload, do not reset that clock to zero on each target change. The caller owns
+ * frame updates; no clock is started here. Read snapshot state inside [elapsedSeconds] to update
+ * drawing without recomposition.
+ *
+ * ```kotlin
+ * val controller = rememberSymbolReplaceController(initialSymbol)
+ * // In a target-change handler: controller.replaceWith(nextSymbol, clockSeconds)
+ * SFSymbolReplace(controller = controller, elapsedSeconds = { clockSeconds })
+ * ```
+ *
+ * @param controller Replacement state updated by `replaceWith` or `reset`.
+ * @param modifier Layout, interaction and semantics modifiers for the icon.
+ * @param mode Layer coloring policy; defaults to Monochrome.
+ * @param tint Primary color, defaulting to [LocalSFSymbolColor].
+ * @param secondary Second Palette color when [palette] is absent; defaults to [tint].
+ * @param tertiary Third Palette color when [palette] is absent; defaults to [secondary].
+ * @param palette Layer colors in Palette mode; a nonempty list overrides the three colors.
+ * @param gradients Enables source gradient styling where supported.
+ * @param rightToLeft Enables source-declared mirroring and logical effect direction; resource variants
+ *   must already be selected when loading the instances.
+ * @param appearance Semantic color appearance; light/dark colors follow the current system theme.
+ * @param contentDescription Accessibility label, or `null` for a decorative icon.
+ * @param displayMode Slot sizing policy for the retained extents; defaults to SquareOverflow.
+ * @param pointSize Requested slot height in dp, before internal [padding]; defaults to 32 dp.
+ * @param padding Insets the drawing area on all sides within the requested slot size.
+ * @param elapsedSeconds Current finite absolute clock value in seconds, shared with target changes.
+ */
 @Composable
 fun SFSymbolReplace(
     controller: SymbolReplaceController,

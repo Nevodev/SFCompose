@@ -1,5 +1,14 @@
 package com.nevoit.sfcompose.symbols
 
+/**
+ * Motion and opacity effects for [SymbolAnimation] or caller-controlled [SFSymbol] rendering.
+ *
+ * Bounce, Pulse, Breathe, Rotate and Wiggle support continuous playback. Appear, Disappear and
+ * Scale use their discrete timing even when Continuous is requested. Forward/Backward Wiggle
+ * follows layout direction, while Left/Right is literal. Source annotations determine layer motion.
+ * Draw On/Off and Variable Color are configured separately with [SymbolAnimation.drawEffect]
+ * and [SymbolAnimation.variableColor]. None leaves this motion/opacity channel unchanged.
+ */
 enum class SymbolEffect {
     None,
     Pulse,
@@ -26,8 +35,11 @@ enum class SymbolEffect {
     ScaleDown,
 }
 
+/** Timing policy; lower-level renderers still require a caller-owned clock. */
 enum class SymbolEffectPlayback {
+    /** Plays one effect timeline, then keeps its final frame. */
     Discrete,
+    /** Uses continuous timing for supported effects, with optional finite cycles and intro/outro. */
     Continuous,
 }
 

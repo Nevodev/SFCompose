@@ -63,7 +63,11 @@ artifacts.add(buildData.name, generated.map { it.file("build-data.zip") }) { bui
 
 android {
     namespace = "com.nevoit.sfcompose.catalog"
-    compileSdk { version = release(libs.versions.androidCompileSdk.get().toInt()) }
+    compileSdk {
+        version = release(libs.versions.androidCompileSdk.get().toInt()) {
+            minorApiLevel = libs.versions.androidCompileSdkMinor.get().toInt()
+        }
+    }
     defaultConfig { minSdk = libs.versions.androidMinSdk.get().toInt() }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11

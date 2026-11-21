@@ -1,9 +1,11 @@
 [versions]
 sfcompose = "0.1.0"
+mavenPublish = "0.37.0"
 catalogMetadata = "2.3.20"
 catalogAsm = "9.11.1"
 selectionAsm = "9.11.1"
 androidCompileSdk = "37"
+androidCompileSdkMinor = "1"
 androidMinSdk = "28"
 androidTargetSdk = "37"
 agp = "9.5.2"
@@ -45,7 +47,8 @@ androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchm
 androidx-test-uiautomator = { group = "androidx.test.uiautomator", name = "uiautomator", version.ref = "uiautomator" }
 
 [plugins]
-sfcompose = { id = "com.nevoit.sfcompose", version.ref = "sfcompose" }
+sfcompose = { id = "io.github.nevodev.sfcompose", version.ref = "sfcompose" }
+maven-publish-base = { id = "com.vanniktech.maven.publish.base", version.ref = "mavenPublish" }
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

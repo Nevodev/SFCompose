@@ -7,7 +7,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-/** Controls layout independently of the symbol's rendering and animation modes. */
+/**
+ * Controls the layout slot and horizontal fitting independently of color and animation settings.
+ *
+ * Components default to [SquareOverflow]. `pointSize` requests the slot height; `padding` insets
+ * the drawing area within it. For example, 32 dp with 4 dp padding leaves a 24 dp drawing height.
+ * Parent constraints still apply. None of these modes adds clipping; an ancestor may clip overflow.
+ * Replacements use shared extents so both symbols keep the same scale during their transition.
+ */
 enum class SymbolDisplayMode {
     /** A square slot; keeps the nominal line height and allows drawing outside the slot. */
     SquareOverflow,

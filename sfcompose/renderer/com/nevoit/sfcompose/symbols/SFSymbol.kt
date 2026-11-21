@@ -28,9 +28,30 @@ import androidx.compose.ui.unit.dp
 import org.json.JSONObject
 import java.util.IdentityHashMap
 
+/**
+ * Selects a whole-symbol or source-layer animation recipe.
+ *
+ * WholeSymbol applies motion to the entire glyph; ByLayer uses source motion groups and their
+ * anchors. Individually selects the effect's individual-layer recipe. Source annotations and the
+ * selected effect determine which layers move; layers are not inferred from visible contours.
+ */
 enum class SymbolEffectLayerMode { WholeSymbol, ByLayer, Individually }
+
+/** Timed drawing direction: On reveals source strokes; Off removes them. Requires source Draw data. */
 enum class SymbolDrawEffect { On, Off }
 
+/**
+ * Configures animated Variable Color for symbols with source variable-layer thresholds.
+ *
+ * Use [SymbolAnimation.variableColor] for managed playback, or pass this to [SFSymbol] together
+ * with a caller-controlled clock. For a static signal-strength value, use `variableValue` instead.
+ *
+ * @property iterative Highlights successive variable layers rather than accumulating active layers.
+ * @property bounces Adds the source bounce timing when activating variable layers.
+ * @property hideInactive Hides inactive variable layers instead of drawing their inactive appearance.
+ * @property willLoop Selects the source's looping Variable Color recipe. The playback mode and
+ *   repeat count also participate in determining whether playback is finite.
+ */
 data class SymbolVariableAnimation(
     val iterative: Boolean = false,
     val bounces: Boolean = false,
@@ -38,7 +59,49 @@ data class SymbolVariableAnimation(
     val willLoop: Boolean = false,
 )
 
-/** [pointSize] is the requested em height. [symbol] already carries its optical scale. */
+/**
+ * Draws an already loaded [SymbolInstance] with optional caller-controlled effects.
+ *
+ * Prefer the catalog-entry overloads for automatic loading and [AnimatedSFSymbol] for a managed
+ * clock. Obtain [symbol] with [rememberSFSymbol] or [SymbolAssetStore.load]; load an `.Animated`
+ * entry when animation data is needed. This overload neither loads resources nor starts a clock.
+ * Values supplied by lambdas are read during drawing, so snapshot state can update frames without
+ * recomposing this component. A constant [elapsedSeconds] displays a single frame.
+ *
+ * @param symbol Loaded glyph with its weight, optical scale and resource variant already selected.
+ * @param contentDescription Accessibility label, or `null` for a decorative icon.
+ * @param modifier Layout, interaction and semantics modifiers for the icon.
+ * @param mode Layer coloring policy; defaults to Monochrome.
+ * @param tint Primary color, defaulting to [LocalSFSymbolColor].
+ * @param secondary Second Palette color when [palette] is absent; defaults to [tint].
+ * @param tertiary Third Palette color when [palette] is absent; defaults to [secondary].
+ * @param rightToLeft Enables source-declared RTL mirroring and logical effect direction. Resource
+ *   selection must be done when loading; an instance already selected for RTL retains that mirroring.
+ * @param darkTheme Selects light/dark semantic fill colors; defaults to the current system theme.
+ * @param drawProgress Optional raw Draw geometry progress in `0f..1f`. Timed [drawEffect] progress
+ *   takes priority where available; `null` leaves geometry unchanged when no Draw effect is active.
+ * @param drawOn Whether raw [drawProgress] reveals (`true`) or removes (`false`) strokes.
+ * @param drawEffect Optional timed Draw On/Off driven by [elapsedSeconds]; requires source Draw data.
+ * @param gradients Enables source gradient styling where supported.
+ * @param variableValue Optional Variable Color value in `0f..1f`, such as signal strength.
+ * @param palette Layer colors in Palette mode; a nonempty list overrides the three colors.
+ * @param effect Motion or opacity effect; defaults to None.
+ * @param playback Discrete or continuous timing for supported effects; does not create a clock.
+ * @param effectLayerMode Whole-symbol or source-layer animation recipe; defaults to ByLayer.
+ * @param appearance Semantic color appearance, independent of resource-variant selection.
+ * @param variableAnimation Optional animated Variable Color recipe driven by [elapsedSeconds].
+ * @param elapsedSeconds Animation time in seconds from the caller's clock, read during drawing.
+ * @param variableDrawValue Optional Variable Draw value in `0f..1f`, requiring source support. Used
+ *   only when no raw or timed Draw progress has supplied geometry for the layer.
+ * @param drawReversed Selects the source's reverse Draw geometry and ordering.
+ * @param drawReversesMotionGroups Reverses timed Draw group choreography independently of geometry.
+ * @param effectRepeatCount Positive continuous cycle count; `null` allows unbounded repetition.
+ * @param displayMode Slot sizing and overflow policy; defaults to SquareOverflow without clipping.
+ * @param pointSize Requested em/slot height in dp, before internal [padding]; defaults to 32 dp.
+ *   Parent constraints and [displayMode] can change the actual rendered size.
+ * @param padding Insets the drawing area on all sides without increasing the requested slot size.
+ * @throws IllegalArgumentException If [effectRepeatCount] is nonpositive.
+ */
 @Composable
 fun SFSymbol(
     symbol: SymbolInstance,

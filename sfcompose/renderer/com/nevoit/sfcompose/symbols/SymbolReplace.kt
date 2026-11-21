@@ -6,6 +6,14 @@ import android.graphics.RectF
 import org.json.JSONObject
 import java.util.IdentityHashMap
 
+/**
+ * Scale/visibility recipe for [SFSymbolReplace], rather than a spatial translation direction.
+ *
+ * DownUp shrinks the outgoing symbol before growing the incoming one. UpUp grows the outgoing
+ * symbol away before the incoming symbol grows in. OffUp removes the outgoing symbol while the
+ * incoming one grows in. Semantic Magic Replace recipes can use source Draw or layer-specific
+ * behavior instead of the standard scale recipe.
+ */
 enum class SymbolReplaceDirection { DownUp, UpUp, OffUp }
 
 internal enum class SymbolReplaceKind {

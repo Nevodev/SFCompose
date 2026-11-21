@@ -16,12 +16,44 @@ import org.json.JSONObject
 import java.io.InputStream
 import java.util.zip.GZIPInputStream
 
+/**
+ * Named source weights, from lightest to heaviest. Generated fixed entries default to Regular.
+ *
+ * Use `.DynamicWeight` entries to select among these at runtime. For continuous interpolation,
+ * read [SymbolCatalog.weightPositions]; enum ordinals are not source-axis coordinates.
+ */
 enum class SymbolWeight { Ultralight, Thin, Light, Regular, Medium, Semibold, Bold, Heavy, Black }
 
+/**
+ * Optical design variants of a glyph, independent of the component's dp size. Defaults to Medium.
+ *
+ * Changing the scale selects different source outlines and metrics rather than changing layout size.
+ * @property assetName Scale key used in imported symbol documents.
+ */
 enum class SymbolScale(val assetName: String) { Small("small"), Medium("medium"), Large("large") }
 
+/**
+ * Layer coloring policy. Symbols fall back to an available source mode when necessary.
+ *
+ * Monochrome uses the primary tint. Hierarchical uses that tint with source hierarchy opacity.
+ * Palette assigns caller colors to source palette levels, rather than individual paths. Multicolor
+ * uses semantic source colors with tint for foreground layers. Gradient styling is enabled separately.
+ */
 enum class SymbolRenderingMode { Monochrome, Hierarchical, Palette, Multicolor }
 
+/**
+ * A retained resource variant returned by [SymbolAssetStore.variants].
+ *
+ * Pass [id] as `variantId` to [SymbolAssetStore.load] for explicit selection, bypassing automatic
+ * locale/theme/direction matching and mirroring. Prefer configuration-based selection in normal UI.
+ *
+ * @property id Opaque resource key to pass unchanged to the loader.
+ * @property appearance Source appearance identifier; see [appearanceName] for its decoded name.
+ * @property localization Source localization identifier; see [localeTag] for its decoded tag.
+ * @property direction Source direction identifier, not an Android layout-direction constant.
+ * @property localeTag Source locale tag, or `null` for a neutral or unmapped identifier.
+ * @property appearanceName Source appearance name, or `null` for a neutral or unmapped identifier.
+ */
 class SymbolResourceVariant internal constructor(
     val id: String,
     val appearance: Int,
@@ -34,6 +66,17 @@ class SymbolResourceVariant internal constructor(
 
 internal class SymbolFillImage(val light: Bitmap, val dark: Bitmap)
 
+/**
+ * Names and source-axis metadata available through one [SymbolAssetStore].
+ *
+ * A store opened from a generated entry sees that entry's retained resources, not the full catalog.
+ * Axis metadata describes the source weights; a fixed-weight entry still permits loading only its
+ * retained weight.
+ *
+ * @property names Canonical symbol names known to this store, such as `wifi` or `person.fill`.
+ * @property localizations Source locale tags mapped to localization identifiers.
+ * @property appearances Source appearance names mapped to appearance identifiers.
+ */
 class SymbolCatalog internal constructor(
     val names: List<String>,
     internal val weights: Map<SymbolWeight, Float>,
@@ -43,11 +86,28 @@ class SymbolCatalog internal constructor(
     internal val packedWeight: SymbolWeight? = null,
 ) {
     internal val nameSet = names.toHashSet()
+    /** Source coordinates for named weights; use these instead of enum ordinals when interpolating. */
     val weightPositions: Map<SymbolWeight, Float> get() = weights
+    /** Inclusive source-axis bounds accepted by continuous-weight loading, subject to retained data. */
     val weightRange: ClosedFloatingPointRange<Float>
         get() = weights.values.min()..weights.values.max()
 }
 
+/**
+ * Loaded glyph data reusable by [SFSymbol] and [SFSymbolReplace].
+ *
+ * Obtain instances from [rememberSFSymbol] or [SymbolAssetStore.load]. Weight, optical scale and
+ * resource selection are resolved during loading; changing the draw-time size does not reload them.
+ *
+ * @property name Requested canonical symbol name.
+ * @property weight Named weight, or the nearest named weight for a continuous-axis position.
+ * @property scale Resolved optical design variant.
+ * @property weightPosition Actual source-axis coordinate used to construct the glyph.
+ * @property advance Horizontal glyph advance in source font units, not dp or outline width.
+ * @property variantId Selected resource key, or `null` for the base resource.
+ * @property resourceName Resolved resource name, which can differ after RTL counterpart selection.
+ * @property mirroredForRightToLeft Whether automatic selection requested source-permitted mirroring.
+ */
 class SymbolInstance internal constructor(
     val name: String,
     val weight: SymbolWeight,
@@ -76,6 +136,7 @@ class SymbolInstance internal constructor(
 ) {
     internal val draw by lazy { SymbolDraw(this) }
     internal val prepared by lazy { PreparedSymbol(this) }
+    /** Diagnostics for unsupported Draw geometry; an empty list is not a visual-parity guarantee. */
     val drawUnsupportedReasons: List<String> by lazy {
         buildList {
             fun visit(nodes: List<SymbolNode>) {
@@ -87,6 +148,7 @@ class SymbolInstance internal constructor(
             visit(nodes)
         }.distinct()
     }
+    /** Source Draw cases requiring the Android renderer's compatibility fallback. */
     val nativeDrawFallbackReasons: List<String> by lazy {
         buildList {
             fun visit(nodes: List<SymbolNode>) {
@@ -116,11 +178,30 @@ internal sealed interface SymbolNode {
     ) : SymbolNode
 }
 
-/** Loads one symbol at a time; font decoding and extraction happen in the offline importer. */
+/**
+ * Loads packaged symbol data on demand with bounded caches for decoded documents and glyph instances.
+ *
+ * Generated-entry components use entry-specific stores automatically; prefer [rememberSFSymbol]
+ * for normal Compose loading. The [AssetManager] constructor expects the imported `symbols/`
+ * asset layout, as used by the catalog browser. It does not open the build plugin's per-entry
+ * manifests; those use [fromPackagedEntry]. No network access or font extraction happens here.
+ * Loading is suspendable and decoding runs on the store's IO dispatcher.
+ *
+ * ```kotlin
+ * val store = remember(context.assets) { SymbolAssetStore(context.assets) }
+ * val configuration = rememberSymbolResourceConfiguration()
+ * var symbol by remember { mutableStateOf<SymbolInstance?>(null) }
+ * LaunchedEffect(store, configuration) {
+ *     symbol = store.load("wifi", configuration = configuration)
+ * }
+ * symbol?.let { SFSymbol(it, contentDescription = "Wi-Fi") }
+ * ```
+ */
 class SymbolAssetStore private constructor(
     private val openAsset: (String) -> InputStream,
     private val listAssets: (String) -> Array<String>?,
 ) {
+    /** Opens an imported `symbols/index.json` catalog in [assets]; use [shared] for process reuse. */
     constructor(assets: AssetManager) : this({ assets.open(it) }, { assets.list(it) })
 
     internal constructor(openAsset: (String) -> InputStream) : this(openAsset, { null })
@@ -128,12 +209,22 @@ class SymbolAssetStore private constructor(
     companion object {
         private var applicationStore: SymbolAssetStore? = null
 
-        /** Shares decoded and prepared symbols across screens in the application process. */
+        /**
+         * Returns the process-wide store for the application's imported `symbols/` assets.
+         *
+         * Retains only the application asset manager, allowing decoded/prepared symbols to be reused
+         * across screens. Generated-entry components manage their own per-entry stores instead.
+         */
         @Synchronized
         fun shared(context: Context): SymbolAssetStore = applicationStore
             ?: SymbolAssetStore(context.applicationContext.assets).also { applicationStore = it }
 
-        /** Opens only the raw resources referenced by a generated static symbol entry. */
+        /**
+         * Opens a generated raw-resource closure, rather than the entire imported asset catalog.
+         *
+         * @param resources Android resources owning the closure.
+         * @param arrayId Typed-array resource with an index followed by its referenced payload resources.
+         */
         fun fromResourceClosure(resources: Resources, arrayId: Int): SymbolAssetStore {
             val array = resources.obtainTypedArray(arrayId)
             val ids = try {
@@ -154,8 +245,16 @@ class SymbolAssetStore private constructor(
             }
         }
 
+        /** Opens a generated or custom data source that supplies the imported catalog's logical paths. */
         fun fromDataSource(source: SymbolDataSource): SymbolAssetStore = SymbolAssetStore(source::open)
 
+        /**
+         * Opens one entry manifest produced by the SFCompose build plugin.
+         *
+         * @param assets Asset manager containing the manifest and its `sfcompose/data/` payloads.
+         * @param manifest Asset-relative manifest path, such as
+         *   `sfcompose/entries/wifi/Regular/animated.json`.
+         */
         fun fromPackagedEntry(assets: AssetManager, manifest: String): SymbolAssetStore {
             val files by lazy { assets.open(manifest).use(::readSymbolJson).getJSONObject("files") }
             return SymbolAssetStore { path ->
@@ -188,13 +287,32 @@ class SymbolAssetStore private constructor(
             value.light.allocationByteCount + value.dark.allocationByteCount
     })
 
+    /** Loads and caches the names and source-axis metadata visible through this store. */
     suspend fun catalog(): SymbolCatalog = catalogs.get(Unit) { readCatalog() }
 
+    /**
+     * Lists retained appearance, localization and direction variants for [name].
+     *
+     * @throws IllegalArgumentException If [name] is not in this store's catalog.
+     */
     suspend fun variants(name: String): List<SymbolResourceVariant> {
         require(name in catalog().nameSet) { "No imported SF Symbol named $name" }
         return readSymbolVariants(readJson("symbols/$name.json"))
     }
 
+    /**
+     * Loads a named-weight glyph, reusing a cached instance for the same resolved request.
+     *
+     * @param name Canonical name present in [catalog], such as `wifi`.
+     * @param weight Named weight; a fixed-weight entry store permits only its retained weight.
+     * @param scale Optical design variant, independent of the eventual drawing size.
+     * @param variantId Explicit key from [variants], or `null` for automatic/default selection.
+     *   A supplied key bypasses configuration matching and automatic RTL mirroring.
+     * @param configuration Locale/theme/direction preferences, or `null` to load the base resource.
+     * @return Loaded instance. This function suspends until loading completes rather than returning null.
+     * @throws IllegalArgumentException If the name is unknown or the weight is not retained.
+     * @throws IllegalStateException If an explicit variant key is unknown.
+     */
     suspend fun load(
         name: String,
         weight: SymbolWeight = SymbolWeight.Regular,
@@ -203,7 +321,24 @@ class SymbolAssetStore private constructor(
         configuration: SymbolResourceConfiguration? = null,
     ): SymbolInstance = loadResolved(name, weight, null, scale, variantId, configuration)
 
-    /** The continuous source axis uses [SymbolCatalog.weightPositions] and [SymbolCatalog.weightRange]. */
+    /**
+     * Loads a glyph at a continuous source-weight coordinate, interpolating outlines and animation data.
+     *
+     * Obtain reference positions from [SymbolCatalog.weightPositions] and bounds from
+     * [SymbolCatalog.weightRange]. Coordinates are not enum ordinals or normalized `0f..1f` values.
+     * Exact named coordinates share the named-weight instance cache. The underlying store must retain
+     * the requested weights; a fixed-weight entry cannot load intermediate positions.
+     *
+     * @param name Canonical name present in [catalog].
+     * @param weightPosition Finite coordinate within the catalog's inclusive source-axis range.
+     * @param scale Optical design variant, independent of drawing size.
+     * @param variantId Explicit key from [variants], bypassing configuration matching and mirroring.
+     * @param configuration Locale/theme/direction preferences, or `null` to load the base resource.
+     * @return Loaded or cached instance at the requested coordinate.
+     * @throws IllegalArgumentException If the coordinate is nonfinite, outside the source range or
+     *   not permitted by retained data, or if the name is unknown.
+     * @throws IllegalStateException If an explicit variant key is unknown.
+     */
     suspend fun load(
         name: String,
         weightPosition: Float,

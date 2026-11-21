@@ -9,8 +9,21 @@ import androidx.compose.runtime.setValue
 import org.json.JSONObject
 import java.util.IdentityHashMap
 
-/** Uses one monotonic clock in seconds for target changes and drawing. */
+/**
+ * Manages replacements that can be interrupted by another target change.
+ *
+ * Use [rememberSymbolReplaceController] in Compose. Call [replaceWith] from a target-change handler
+ * and draw with [SFSymbolReplace], sharing one monotonic clock in seconds for both operations.
+ * The controller does not run a clock or coroutine itself.
+ *
+ * Returning to the active pair's source reverses its timeline. A third target captures the current
+ * vector presentation and starts a new replacement; it does not capture a bitmap. [reset] discards
+ * the active transition and shows a symbol immediately.
+ *
+ * @param initialSymbol Loaded symbol displayed before the first replacement.
+ */
 class SymbolReplaceController(initialSymbol: SymbolInstance) {
+    /** Most recently requested symbol; the current frame may still contain outgoing symbols. */
     var target by mutableStateOf(initialSymbol)
         private set
     internal var revision by mutableIntStateOf(0)
@@ -24,11 +37,19 @@ class SymbolReplaceController(initialSymbol: SymbolInstance) {
     internal var layoutInkRatio = initialSymbol.horizontalInkRatio()
         private set
 
+    /** Current transition duration in seconds; zero when no transition is retained. */
     val durationSeconds: Float get() = state.finish - state.start
+    /** Current transition's finish time on the caller's absolute clock; zero when still. */
     val endTimeSeconds: Float get() = state.finish
 
+    /** Returns whether a retained transition has not finished at the supplied absolute time. */
     fun isRunning(atSeconds: Float): Boolean = state !is Still && atSeconds < state.finish
 
+    /**
+     * Immediately displays [symbol], discarding the transition and resetting reserved layout extents.
+     *
+     * Defaults to the current [target]. Also resets target-change time validation for a new timeline.
+     */
     fun reset(symbol: SymbolInstance = target) {
         target = symbol
         state = Still(symbol)
@@ -39,6 +60,21 @@ class SymbolReplaceController(initialSymbol: SymbolInstance) {
         revision++
     }
 
+    /**
+     * Starts or interrupts a replacement at the current absolute clock value.
+     *
+     * Requesting the same target instance is a no-op. Instances are compared by identity; keep
+     * loaded instances rather than constructing a new one for each target change.
+     *
+     * @param symbol Incoming loaded instance with animation data for the desired replacement.
+     * @param atSeconds Finite clock time, no earlier than the previous target change. Use the same
+     *   clock for drawing; do not restart it for each replacement.
+     * @param direction Outgoing/incoming scale or Draw recipe.
+     * @param preferMagic Attempts semantic matching, falling back to the standard recipe. Entry
+     *   after an interrupted third-target change uses the standard recipe.
+     * @param layered Enables staggered motion-group timing where supported.
+     * @throws IllegalArgumentException If [atSeconds] is nonfinite or precedes the last target change.
+     */
     fun replaceWith(
         symbol: SymbolInstance,
         atSeconds: Float,
@@ -67,7 +103,13 @@ class SymbolReplaceController(initialSymbol: SymbolInstance) {
         revision++
     }
 
-    /** Compacts completed transitions even when no renderer is drawing frames. */
+    /**
+     * Releases completed transition state at [atSeconds], even if no renderer is drawing.
+     *
+     * @param atSeconds Finite absolute time on the shared clock.
+     * @return Whether a transition is still running; useful as a caller-owned frame-loop condition.
+     * @throws IllegalArgumentException If [atSeconds] is not finite.
+     */
     fun advanceTo(atSeconds: Float): Boolean {
         require(atSeconds.isFinite()) { "Replacement time must be finite" }
         if (state !is Still && atSeconds >= state.finish) {

@@ -11,7 +11,11 @@ subprojects {
     pluginManager.withPlugin("com.android.application") {
         extensions.configure<ApplicationExtension> {
             namespace = "com.nevoit.sfcompose.example"
-            compileSdk { version = release(libs.versions.androidCompileSdk.get().toInt()) }
+            compileSdk {
+                version = release(libs.versions.androidCompileSdk.get().toInt()) {
+                    minorApiLevel = libs.versions.androidCompileSdkMinor.get().toInt()
+                }
+            }
             defaultConfig {
                 applicationId = "com.nevoit.sfcompose.example"
                 minSdk = libs.versions.androidMinSdk.get().toInt()

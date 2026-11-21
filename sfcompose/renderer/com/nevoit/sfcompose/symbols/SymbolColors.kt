@@ -3,6 +3,13 @@ package com.nevoit.sfcompose.symbols
 import android.graphics.ColorSpace
 import kotlin.math.roundToInt
 
+/**
+ * Source semantic-color palette used by Multicolor rendering.
+ *
+ * Selects standard, vibrant, increased-contrast or combined source color variants. This does not
+ * enable an Android blur/vibrancy effect or change resource selection; light/dark colors are
+ * selected separately by the renderer's theme setting.
+ */
 enum class SymbolAppearance {
     Standard,
     Vibrant,

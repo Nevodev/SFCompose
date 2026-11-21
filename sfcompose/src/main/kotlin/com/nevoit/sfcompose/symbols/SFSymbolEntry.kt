@@ -24,6 +24,13 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 
+/**
+ * A generated catalog entry with a fixed weight, such as `SFSymbols.Wifi.Bold`.
+ *
+ * A bare entry such as `SFSymbols.Wifi` selects [SymbolWeight.Regular]. Pass the entry to
+ * [SFSymbol] or [rememberSFSymbol]; its referenced data is selected by the SFCompose Gradle plugin.
+ * Use `.Animated` for effects or replacements, or `.DynamicWeight` for runtime weight selection.
+ */
 abstract class StaticSymbol protected constructor(
     internal val name: String,
     internal val weight: SymbolWeight,
@@ -37,7 +44,12 @@ abstract class StaticSymbol protected constructor(
     internal open val sourceKey: Any get() = encodedSource ?: closure
 }
 
-/** Opt-in entry whose resource closure retains all named weights for this symbol. */
+/**
+ * A generated `.DynamicWeight` entry for selecting a [SymbolWeight] at runtime.
+ *
+ * Retains all nine named weights instead of only one. All three optical scales are available.
+ * Prefer a [StaticSymbol] when the weight is known at the call site to package less data.
+ */
 abstract class DynamicSymbol protected constructor(internal val name: String, internal val closure: Int) {
     internal var encodedSource: SymbolDataSource? = null
         private set
@@ -45,6 +57,13 @@ abstract class DynamicSymbol protected constructor(internal val name: String, in
     internal open val sourceKey: Any get() = encodedSource ?: closure
 }
 
+/**
+ * A generated fixed-weight `.Animated` entry for [AnimatedSFSymbol] and [SFSymbolReplace].
+ *
+ * Includes animation data where the source symbol provides it. For example,
+ * `SFSymbols.Wifi.Bold.Animated` retains Bold with animation data and all three optical scales.
+ * Selecting this entry alone does not start playback; configure [SymbolAnimation] on the component.
+ */
 abstract class AnimatedStaticSymbol protected constructor(
     internal val name: String,
     internal val weight: SymbolWeight,
@@ -58,7 +77,12 @@ abstract class AnimatedStaticSymbol protected constructor(
     internal open val sourceKey: Any get() = encodedSource ?: closure
 }
 
-/** Opt-in animation entry retaining all named weights for this symbol. */
+/**
+ * A generated `.DynamicWeight.Animated` entry with animation data and all nine named weights.
+ *
+ * Pass it to [AnimatedSFSymbol] with an explicit [SymbolWeight], or to [rememberSFSymbol]
+ * for a caller-controlled clock. This retains more data than a fixed-weight `.Animated` entry.
+ */
 abstract class AnimatedDynamicSymbol protected constructor(internal val name: String, internal val closure: Int) {
     internal var encodedSource: SymbolDataSource? = null
         private set
@@ -66,6 +90,36 @@ abstract class AnimatedDynamicSymbol protected constructor(internal val name: St
     internal open val sourceKey: Any get() = encodedSource ?: closure
 }
 
+/**
+ * Loads and displays a fixed-weight catalog symbol without starting an animation clock.
+ *
+ * Apply the SFCompose Gradle plugin in the consuming app so the referenced assets are packaged.
+ * Loading follows the current locale, night mode and Compose layout direction. While loading,
+ * the component reserves an empty square of [pointSize], subject to [modifier] constraints.
+ *
+ * ```kotlin
+ * SFSymbol(
+ *     SFSymbols.Wifi.Bold,
+ *     contentDescription = "Wi-Fi",
+ *     pointSize = 24.dp,
+ * )
+ * ```
+ *
+ * @param symbol Generated entry; a bare name selects Regular, and `.Bold` selects Bold.
+ * @param contentDescription Accessibility label, or `null` for a decorative icon.
+ * @param modifier Layout, interaction and semantics modifiers for the icon.
+ * @param pointSize Requested slot height in dp, before internal [padding]; defaults to 32 dp.
+ * @param scale Optical design variant, independent of layout size; defaults to Medium.
+ * @param tint Primary color, defaulting to [LocalSFSymbolColor].
+ * @param mode Layer coloring policy; defaults to Monochrome.
+ * @param displayMode Slot sizing and overflow policy; defaults to SquareOverflow without clipping.
+ * @param padding Insets all four sides of the drawing area without increasing the requested slot size.
+ * @param secondary Second Palette color when [palette] is absent; defaults to [tint].
+ * @param tertiary Third Palette color when [palette] is absent; defaults to [secondary].
+ * @param palette Layer colors in Palette mode; a nonempty list takes priority over the three colors.
+ * @param gradients Enables source gradient styling where supported.
+ * @see AnimatedSFSymbol
+ */
 @Composable
 fun SFSymbol(
     symbol: StaticSymbol,
@@ -86,6 +140,31 @@ fun SFSymbol(
         displayMode, padding, secondary, tertiary, palette, gradients)
 }
 
+/**
+ * Displays a `.DynamicWeight` catalog entry with a weight selected at runtime.
+ *
+ * ```kotlin
+ * SFSymbol(SFSymbols.Wifi.DynamicWeight, weight = currentWeight, contentDescription = "Wi-Fi")
+ * ```
+ *
+ * Retains all nine named weights. Loading, resource selection and colors follow the fixed-weight
+ * [SFSymbol] overload; no animation clock is started. An empty square is reserved while loading.
+ *
+ * @param symbol Generated `.DynamicWeight` entry.
+ * @param weight Named weight to display; changing it loads the requested weight.
+ * @param contentDescription Accessibility label, or `null` for a decorative icon.
+ * @param modifier Layout, interaction and semantics modifiers for the icon.
+ * @param pointSize Requested slot height in dp, before internal [padding]; defaults to 32 dp.
+ * @param scale Optical design variant, independent of [pointSize]; defaults to Medium.
+ * @param tint Primary color, defaulting to [LocalSFSymbolColor].
+ * @param mode Layer coloring policy; defaults to Monochrome.
+ * @param displayMode Slot sizing and overflow policy; defaults to SquareOverflow without clipping.
+ * @param padding Insets the drawing area on all sides within the requested slot size.
+ * @param secondary Second Palette color when [palette] is absent; defaults to [tint].
+ * @param tertiary Third Palette color when [palette] is absent; defaults to [secondary].
+ * @param palette Layer colors in Palette mode; a nonempty list overrides the three colors.
+ * @param gradients Enables source gradient styling where supported.
+ */
 @Composable
 fun SFSymbol(
     symbol: DynamicSymbol,
@@ -107,6 +186,51 @@ fun SFSymbol(
         displayMode, padding, secondary, tertiary, palette, gradients)
 }
 
+/**
+ * Loads a fixed-weight `.Animated` entry and manages its animation clock.
+ *
+ * The default empty [SymbolAnimation] is stationary. Configure an effect to play after loading,
+ * then change [replayKey] or call [SymbolAnimationState.replay] to restart it. Resource selection
+ * follows the current locale, night mode and Compose layout direction.
+ *
+ * ```kotlin
+ * val playback = rememberSymbolAnimationState()
+ * AnimatedSFSymbol(
+ *     SFSymbols.Wifi.Animated,
+ *     contentDescription = "Wi-Fi",
+ *     animation = SymbolAnimation(effect = SymbolEffect.Bounce),
+ *     state = playback,
+ *     autoPlay = false,
+ *     modifier = Modifier.clickable { playback.replay() },
+ * )
+ * ```
+ *
+ * Hoist [state] above a lazy item to pause on leaving composition and resume on reentry.
+ * One state may be attached to only one icon at a time. Once playback has been triggered, changes
+ * to the resource request, [animation], [mode], effective point size or [replayKey] restart it.
+ *
+ * @param symbol Generated `.Animated` entry with a fixed weight.
+ * @param contentDescription Accessibility label, or `null` for a decorative icon.
+ * @param modifier Layout, interaction and semantics modifiers for the icon.
+ * @param pointSize Requested slot height in dp, before internal [padding]; defaults to 32 dp.
+ * @param scale Optical design variant, independent of [pointSize]; defaults to Medium.
+ * @param tint Primary color, defaulting to [LocalSFSymbolColor].
+ * @param mode Layer coloring policy; defaults to Monochrome.
+ * @param animation Effects, repeat policy and initial delay. Draw effects require source Draw data.
+ * @param replayKey Equality-based trigger; changing it restarts playback, including the start delay.
+ * @param variableValue Optional Variable Color value in `0f..1f`, read during drawing.
+ * @param variableDrawValue Optional Variable Draw value in `0f..1f`, read during drawing. Requires
+ *   source support and is used when timed Draw has not supplied geometry for the layer.
+ * @param displayMode Slot sizing and overflow policy; defaults to SquareOverflow without clipping.
+ * @param padding Insets the drawing area on all sides within the requested slot size.
+ * @param secondary Second Palette color when [palette] is absent; defaults to [tint].
+ * @param tertiary Third Palette color when [palette] is absent; defaults to [secondary].
+ * @param palette Layer colors in Palette mode; a nonempty list overrides the three colors.
+ * @param gradients Enables source gradient styling where supported.
+ * @param state Playback owner; by default it is local and playback restarts after reentry.
+ * @param autoPlay Whether to trigger initial playback. With `false`, the resting symbol stays visible
+ *   until an explicit trigger. Setting it to `false` does not stop playback already triggered.
+ */
 @Composable
 fun AnimatedSFSymbol(
     symbol: AnimatedStaticSymbol,
@@ -133,6 +257,45 @@ fun AnimatedSFSymbol(
         animation, replayKey, variableValue, variableDrawValue, displayMode, padding, secondary, tertiary, palette, gradients, state, autoPlay)
 }
 
+/**
+ * Animates a `.DynamicWeight.Animated` entry with a weight selected at runtime.
+ *
+ * ```kotlin
+ * AnimatedSFSymbol(
+ *     SFSymbols.Wifi.DynamicWeight.Animated,
+ *     weight = currentWeight,
+ *     contentDescription = "Wi-Fi",
+ *     animation = SymbolAnimation(effect = SymbolEffect.Bounce),
+ * )
+ * ```
+ *
+ * Retains all nine named weights and animation data. Playback and resource selection follow the
+ * fixed-weight [AnimatedSFSymbol] overload. After playback is triggered, changing [weight] restarts
+ * it after the requested instance loads. An empty square is reserved while loading.
+ *
+ * @param symbol Generated `.DynamicWeight.Animated` entry.
+ * @param weight Named weight to load and animate.
+ * @param contentDescription Accessibility label, or `null` for a decorative icon.
+ * @param modifier Layout, interaction and semantics modifiers for the icon.
+ * @param pointSize Requested slot height in dp, before internal [padding]; defaults to 32 dp.
+ * @param scale Optical design variant, independent of [pointSize]; defaults to Medium.
+ * @param tint Primary color, defaulting to [LocalSFSymbolColor].
+ * @param mode Layer coloring policy; defaults to Monochrome.
+ * @param animation Effects, repeat policy and initial delay; empty settings remain stationary.
+ * @param replayKey Equality-based trigger that restarts playback, including the start delay.
+ * @param variableValue Optional Variable Color value in `0f..1f`, read during drawing.
+ * @param variableDrawValue Optional Variable Draw value in `0f..1f`, read during drawing. Requires
+ *   source support and is used when timed Draw has not supplied geometry for the layer.
+ * @param displayMode Slot sizing and overflow policy; defaults to SquareOverflow without clipping.
+ * @param padding Insets the drawing area on all sides within the requested slot size.
+ * @param secondary Second Palette color when [palette] is absent; defaults to [tint].
+ * @param tertiary Third Palette color when [palette] is absent; defaults to [secondary].
+ * @param palette Layer colors in Palette mode; a nonempty list overrides the three colors.
+ * @param gradients Enables source gradient styling where supported.
+ * @param state Playback owner. Hoist above a lazy item to resume on reentry; do not share between icons.
+ * @param autoPlay Whether to trigger initial playback. With `false`, explicit replay starts playback
+ *   from the resting symbol; this flag does not stop playback already triggered.
+ */
 @Composable
 fun AnimatedSFSymbol(
     symbol: AnimatedDynamicSymbol,
@@ -160,20 +323,55 @@ fun AnimatedSFSymbol(
         animation, replayKey, variableValue, variableDrawValue, displayMode, padding, secondary, tertiary, palette, gradients, state, autoPlay)
 }
 
-/** Loads a generated symbol for the lower-level renderer. */
+/**
+ * Loads a static catalog entry for the lower-level [SFSymbol] renderer without starting a clock.
+ *
+ * @param symbol Generated fixed-weight entry; use its `.Animated` entry if animation data is needed.
+ * @param scale Optical design variant; defaults to Medium.
+ * @return Loaded instance, or `null` while the current resource request is loading. Changes to the
+ *   symbol, scale, locale, night mode or Compose layout direction issue a new request.
+ */
 @Composable
 fun rememberSFSymbol(symbol: StaticSymbol, scale: SymbolScale = SymbolScale.Medium): SymbolInstance? =
     rememberPackedSymbol(symbol.name, symbol.sourceKey, symbol.weight, scale, rememberSymbolResourceConfiguration())
 
+/**
+ * Loads a `.DynamicWeight` entry for static rendering with a runtime-selected named weight.
+ *
+ * @param symbol Generated `.DynamicWeight` entry retaining all nine named weights.
+ * @param weight Named weight to load.
+ * @param scale Optical design variant; defaults to Medium.
+ * @return Loaded instance, or `null` while loading. Resource selection observes the current locale,
+ *   night mode and Compose layout direction, as in the fixed-weight [rememberSFSymbol] overload.
+ */
 @Composable
 fun rememberSFSymbol(symbol: DynamicSymbol, weight: SymbolWeight, scale: SymbolScale = SymbolScale.Medium): SymbolInstance? =
     rememberPackedSymbol(symbol.name, symbol.sourceKey, weight, scale, rememberSymbolResourceConfiguration())
 
-/** Loads the animation data for caller-controlled clocks and replacements. */
+/**
+ * Loads a fixed-weight `.Animated` entry for caller-controlled effects or replacements.
+ *
+ * Pass the result to [SFSymbol] with your own `elapsedSeconds`, or to [SFSymbolReplace].
+ * This function loads data only; it does not start a clock.
+ *
+ * @param symbol Generated fixed-weight `.Animated` entry.
+ * @param scale Optical design variant; defaults to Medium.
+ * @return Loaded instance, or `null` while the current symbol, scale or configuration is loading.
+ *   Locale, night mode and Compose layout direction are observed automatically.
+ */
 @Composable
 fun rememberSFSymbol(symbol: AnimatedStaticSymbol, scale: SymbolScale = SymbolScale.Medium): SymbolInstance? =
     rememberPackedSymbol(symbol.name, symbol.sourceKey, symbol.weight, scale, rememberSymbolResourceConfiguration())
 
+/**
+ * Loads a `.DynamicWeight.Animated` entry for caller-controlled animation at a named weight.
+ *
+ * @param symbol Generated entry retaining all nine named weights and animation data.
+ * @param weight Named weight to load.
+ * @param scale Optical design variant; defaults to Medium.
+ * @return Loaded instance, or `null` while loading. Locale, night mode and Compose layout direction
+ *   are observed automatically. No clock is started.
+ */
 @Composable
 fun rememberSFSymbol(symbol: AnimatedDynamicSymbol, weight: SymbolWeight, scale: SymbolScale = SymbolScale.Medium): SymbolInstance? =
     rememberPackedSymbol(symbol.name, symbol.sourceKey, weight, scale, rememberSymbolResourceConfiguration())
@@ -255,7 +453,40 @@ private fun PackedAnimatedSFSymbol(
     }
 }
 
-/** Shows the first loaded [symbol] and animates subsequent changes to it. */
+/**
+ * Displays the current target and animates changes to a different fixed-weight `.Animated` entry.
+ *
+ * The first symbol appears immediately after loading. While a later target loads, the previous
+ * symbol remains visible. Switching back during a replacement reverses the active pair; switching
+ * to a third target preserves the current vector presentation before starting the new replacement.
+ * Locale, night mode and Compose layout direction select resources automatically.
+ *
+ * ```kotlin
+ * SFSymbolReplace(
+ *     symbol = if (selected) SFSymbols.Person.Fill.Animated else SFSymbols.Person.Animated,
+ *     contentDescription = "Person",
+ *     modifier = Modifier.clickable { selected = !selected },
+ * )
+ * ```
+ *
+ * @param symbol Current target. Change this entry to trigger a replacement in either direction.
+ * @param contentDescription Accessibility label, or `null` for a decorative icon.
+ * @param modifier Layout, interaction and semantics modifiers for the icon.
+ * @param pointSize Requested slot height in dp, before internal [padding]; defaults to 32 dp.
+ * @param scale Optical design variant; defaults to Medium.
+ * @param direction Replacement recipe controlling outgoing and incoming scale or Draw behavior.
+ * @param mode Layer coloring policy; defaults to Monochrome.
+ * @param tint Primary color, defaulting to [LocalSFSymbolColor].
+ * @param preferMagic Uses semantic matches such as enclosures, badges and slashes when supported;
+ *   otherwise uses the standard replacement. Set to `false` to always use the standard recipe.
+ * @param layered Enables staggered timing for source motion groups where the recipe supports it.
+ * @param displayMode Slot sizing and overflow policy; defaults to SquareOverflow without clipping.
+ * @param padding Insets the drawing area on all sides within the requested slot size.
+ * @param secondary Second Palette color when [palette] is absent; defaults to [tint].
+ * @param tertiary Third Palette color when [palette] is absent; defaults to [secondary].
+ * @param palette Layer colors in Palette mode; a nonempty list overrides the three colors.
+ * @param gradients Enables source gradient styling where supported.
+ */
 @Composable
 fun SFSymbolReplace(
     symbol: AnimatedStaticSymbol,
@@ -303,7 +534,42 @@ fun SFSymbolReplace(
         elapsedSeconds = { elapsed.floatValue })
 }
 
-/** Plays the replacement when both entries are loaded or the replay key changes. */
+/**
+ * Automatically plays a replacement from [first] to [second] after both entries load.
+ *
+ * Change [replayKey] to replay the same pair. Changing either entry, [direction], [preferMagic],
+ * [layered], [mode] or effective point size also restarts playback. The component reserves an empty
+ * square while either entry loads.
+ * Use the single-target [SFSymbolReplace] overload for interruptible state changes.
+ *
+ * ```kotlin
+ * SFSymbolReplace(
+ *     first = SFSymbols.Person.Animated,
+ *     second = SFSymbols.Person.Fill.Animated,
+ *     contentDescription = "Person",
+ *     replayKey = tapCount,
+ * )
+ * ```
+ *
+ * @param first Outgoing fixed-weight `.Animated` entry.
+ * @param second Incoming fixed-weight `.Animated` entry.
+ * @param modifier Layout, interaction and semantics modifiers for the icon.
+ * @param contentDescription Accessibility label, or `null` for a decorative icon.
+ * @param pointSize Requested slot height in dp, before internal [padding]; defaults to 32 dp.
+ * @param scale Optical design variant for both symbols; defaults to Medium.
+ * @param direction Replacement recipe controlling outgoing and incoming scale or Draw behavior.
+ * @param mode Layer coloring policy; defaults to Monochrome.
+ * @param tint Primary color, defaulting to [LocalSFSymbolColor].
+ * @param preferMagic Attempts a semantic replacement, falling back to the standard recipe.
+ * @param layered Enables staggered motion-group timing where supported.
+ * @param replayKey Equality-based trigger that restarts playback when changed.
+ * @param displayMode Slot sizing policy shared by both symbols; defaults to SquareOverflow.
+ * @param padding Insets the drawing area on all sides within the requested slot size.
+ * @param secondary Second Palette color when [palette] is absent; defaults to [tint].
+ * @param tertiary Third Palette color when [palette] is absent; defaults to [secondary].
+ * @param palette Layer colors in Palette mode; a nonempty list overrides the three colors.
+ * @param gradients Enables source gradient styling where supported.
+ */
 @Composable
 fun SFSymbolReplace(
     first: AnimatedStaticSymbol,

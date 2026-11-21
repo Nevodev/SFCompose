@@ -13,7 +13,33 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.delay
 
-/** Describes what plays when the symbol loads or the [AnimatedSFSymbol] replay key changes. */
+/**
+ * Effects played by [AnimatedSFSymbol] after loading or an explicit replay trigger.
+ *
+ * The default configuration is stationary. Motion, Draw and Variable Color may be combined;
+ * playback lasts until the longest configured effect finishes. For example:
+ *
+ * ```kotlin
+ * SymbolAnimation(effect = SymbolEffect.Bounce)
+ * SymbolAnimation(drawEffect = SymbolDrawEffect.On, startDelayMillis = 500)
+ * SymbolAnimation(effect = SymbolEffect.Pulse, playback = SymbolEffectPlayback.Continuous)
+ * ```
+ *
+ * @property effect Motion or opacity effect; None disables this channel.
+ * @property drawEffect Timed Draw On/Off, or `null` to disable. Requires source Draw data.
+ * @property variableColor Variable Color animation options, or `null` to disable this channel.
+ * @property playback Discrete plays once; Continuous uses repeatable timing for supported effects.
+ * @property layerMode How motion and Draw are applied to the symbol's source layers.
+ * @property repeatCount Positive continuous cycle count, or `null` for unbounded continuous playback.
+ *   Finite continuous motion includes its intro and outro. This applies to continuous motion and
+ *   Variable Color; it does not repeat discrete motion or timed Draw On/Off.
+ * @property drawReversed Selects the source's reverse Draw geometry and ordering.
+ * @property drawReversesMotionGroups Reverses Draw motion-group choreography independently of geometry.
+ * @property startDelayMillis Nonnegative delay after loading or replay. Holds the time-zero animation
+ *   frame, which may be invisible for Draw On. Repeated cycles do not repeat this delay. Use
+ *   `autoPlay = false` on [AnimatedSFSymbol] to show the resting symbol until explicitly triggered.
+ * @throws IllegalArgumentException If [repeatCount] is nonpositive or [startDelayMillis] is negative.
+ */
 data class SymbolAnimation(
     val effect: SymbolEffect = SymbolEffect.None,
     val drawEffect: SymbolDrawEffect? = null,
@@ -60,7 +86,16 @@ internal fun SymbolAnimation.duration(symbol: SymbolInstance, mode: SymbolRender
 
 internal val StationarySymbolClock: () -> Float = { 0f }
 
-/** Retains one icon's playback while its composable is absent. Hoist outside a lazy item to resume it. */
+/**
+ * Playback state for one [AnimatedSFSymbol], including its clock, start delay and last loaded symbol.
+ *
+ * Create with [rememberSymbolAnimationState] and hoist above a lazy item to pause while the icon
+ * is absent and resume on reentry. Completed playback keeps its final frame. [replay] starts again,
+ * including when requested while the icon is absent. One state may be attached to only one icon
+ * at a time; use a separate state for each icon.
+ *
+ * State lasts for its owner's composition lifetime and is not restored after process death.
+ */
 @Stable
 class SymbolAnimationState {
     private var time by mutableFloatStateOf(0f)
@@ -76,9 +111,15 @@ class SymbolAnimationState {
     internal var initialReplayKey: Any? = null
     internal var replayKeyInitialized = false
 
+    /** Animation time in seconds, excluding the start delay; pauses while the icon is absent. */
     val elapsedSeconds: Float get() = time
 
-    /** Restarts this state's animation, including its start delay, on the next composition. */
+    /**
+     * Requests playback from time zero, including the configured start delay, on the next composition.
+     *
+     * Also triggers an icon with `autoPlay = false`. If the icon is absent, the request is retained
+     * until it reenters composition. Calling this does not synchronously reset [elapsedSeconds].
+     */
     fun replay() { replayGeneration++ }
 
     internal suspend fun play(key: List<Any?>, duration: Float, startDelayMillis: Long) {
@@ -111,6 +152,12 @@ class SymbolAnimationState {
     }
 }
 
+/**
+ * Remembers playback state for one [AnimatedSFSymbol] for the lifetime of this composition.
+ *
+ * Call above a lazy list item to retain playback when that item leaves composition. Pass the result
+ * as the icon's `state` and call [SymbolAnimationState.replay] from a click handler to replay it.
+ */
 @Composable
 fun rememberSymbolAnimationState(): SymbolAnimationState = remember { SymbolAnimationState() }
 

@@ -35,7 +35,9 @@ val generateWeightPacks = tasks.register<GenerateWeightPacks>("generateWeightPac
 android {
     namespace = "com.nevoit.shrinkprototype.catalog"
     compileSdk {
-        version = release(libs.versions.androidCompileSdk.get().toInt())
+        version = release(libs.versions.androidCompileSdk.get().toInt()) {
+            minorApiLevel = libs.versions.androidCompileSdkMinor.get().toInt()
+        }
     }
     defaultConfig {
         minSdk = libs.versions.androidMinSdk.get().toInt()

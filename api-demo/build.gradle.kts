@@ -8,7 +8,11 @@ sfcompose { catalog.set(":sfcompose-catalog") }
 
 android {
     namespace = "com.nevoit.sfcompose.apidemo"
-    compileSdk { version = release(libs.versions.androidCompileSdk.get().toInt()) }
+    compileSdk {
+        version = release(libs.versions.androidCompileSdk.get().toInt()) {
+            minorApiLevel = libs.versions.androidCompileSdkMinor.get().toInt()
+        }
+    }
     defaultConfig {
         applicationId = "com.nevoit.sfcompose.apidemo"
         minSdk = libs.versions.androidMinSdk.get().toInt()

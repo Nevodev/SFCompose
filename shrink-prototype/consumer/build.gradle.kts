@@ -29,7 +29,9 @@ sfcompose {
 android {
     namespace = "com.nevoit.shrinkprototype"
     compileSdk {
-        version = release(libs.versions.androidCompileSdk.get().toInt())
+        version = release(libs.versions.androidCompileSdk.get().toInt()) {
+            minorApiLevel = libs.versions.androidCompileSdkMinor.get().toInt()
+        }
     }
     defaultConfig {
         applicationId = "com.nevoit.sfcompose.shrinkprototype"

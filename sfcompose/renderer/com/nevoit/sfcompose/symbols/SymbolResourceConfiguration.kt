@@ -10,12 +10,31 @@ import androidx.compose.ui.unit.LayoutDirection
 import java.util.Locale
 import org.json.JSONObject
 
+/**
+ * Resource-selection preferences for [SymbolAssetStore.load].
+ *
+ * Generated-entry components observe these preferences automatically. For direct store loading,
+ * use [rememberSymbolResourceConfiguration] in Compose or [SymbolResourceConfiguration.from]
+ * with an Android configuration.
+ * An explicit `variantId` on a load request overrides these preferences, including automatic mirroring.
+ *
+ * @property localeTags Preferred BCP 47 language tags in priority order; empty selects neutral resources.
+ * @property rightToLeft Requests source RTL variants or source-permitted mirroring, rather than
+ *   unconditionally mirroring every symbol. Literal directions can remain unchanged.
+ * @property darkTheme Requests a matching dark resource variant where available.
+ */
 data class SymbolResourceConfiguration(
     val localeTags: List<String> = emptyList(),
     val rightToLeft: Boolean = false,
     val darkTheme: Boolean = false,
 ) {
     companion object {
+        /**
+         * Reads locale order, layout direction and night mode from an Android [Configuration].
+         *
+         * In Compose, prefer [rememberSymbolResourceConfiguration] so a locally overridden layout
+         * direction is also observed.
+         */
         fun from(configuration: Configuration): SymbolResourceConfiguration = SymbolResourceConfiguration(
             localeTags = List(configuration.locales.size()) { configuration.locales[it].toLanguageTag() },
             rightToLeft = configuration.layoutDirection == View.LAYOUT_DIRECTION_RTL,
@@ -42,6 +61,12 @@ internal fun readSymbolResourceSelection(data: JSONObject, expectedSourceSha256:
     )
 }
 
+/**
+ * Observes Android locales and night mode together with the current Compose layout direction.
+ *
+ * Pass the result as `configuration` to [SymbolAssetStore.load] in a loading effect keyed by this
+ * value. Resource selection happens during loading; changing draw-time colors does not reload it.
+ */
 @Composable
 fun rememberSymbolResourceConfiguration(): SymbolResourceConfiguration {
     val configuration = LocalConfiguration.current
