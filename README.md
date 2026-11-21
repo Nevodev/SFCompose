@@ -56,8 +56,37 @@ Consumers of the published artifacts need neither Python nor the original system
 The project's Android SDK and dependency versions are listed in the [version catalog](gradle/libs.versions.toml).
 For an existing explicit catalog dependency, set `sfcompose { automaticDependency.set(false) }` to avoid adding it again.
 
-Private symbol entries are available through the optional `sfcompose-catalog-private` add-on.
-See its [setup and `PrivateSFSymbols` examples](sfcompose-catalog-private/README.md) to enable it.
+### Private symbols (optional)
+
+To use private symbols alongside the public catalog, add this to your app's `build.gradle.kts`
+after applying the SFCompose plugin:
+
+```kotlin
+sfcompose {
+    additionalCatalogs.add("io.github.nevodev:sfcompose-catalog-private:${libs.versions.sfcompose.get()}")
+}
+```
+
+The plugin adds the private dependency and packages the referenced symbols automatically;
+no separate `implementation` declaration is needed. Use `PrivateSFSymbols` for these entries:
+
+```kotlin
+import com.nevoit.sfcompose.symbols.PrivateSFSymbols
+import com.nevoit.sfcompose.symbols.SFSymbol
+
+// Inside a @Composable function:
+SFSymbol(PrivateSFSymbols.Apps.Ipad.Badge.Icloud.Bold, contentDescription = "iPad apps in iCloud")
+```
+
+If your app only needs the private catalog, use `catalog.set(...)` instead of `additionalCatalogs.add(...)`:
+
+```kotlin
+sfcompose {
+    catalog.set("io.github.nevodev:sfcompose-catalog-private:${libs.versions.sfcompose.get()}")
+}
+```
+
+See the [private catalog guide](sfcompose-catalog-private/README.md) for more details.
 
 ## Static symbols
 
