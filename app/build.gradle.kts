@@ -1,6 +1,35 @@
+import javax.inject.Inject
+import org.gradle.api.file.FileSystemOperations
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+}
+
+abstract class PreparePrivateSymbolAssets @Inject constructor(private val files: FileSystemOperations) : DefaultTask() {
+    @get:InputFiles abstract val sourceAssets: ConfigurableFileCollection
+    @get:OutputDirectory abstract val output: DirectoryProperty
+
+    @TaskAction
+    fun prepare() {
+        files.sync {
+            from(sourceAssets) { into("private") }
+            into(output)
+        }
+    }
+}
+
+// The browser compiles the renderer directly; adding a catalog AAR would duplicate those classes.
+val privateSymbolAssets = configurations.create("privateSymbolAssets") {
+    isCanBeConsumed = false
+    isCanBeResolved = true
+}
+dependencies {
+    add(privateSymbolAssets.name, project(mapOf("path" to ":sfcompose-catalog-private", "configuration" to "sfcomposeBrowserAssets")))
+}
+val preparePrivateSymbolAssets = tasks.register<PreparePrivateSymbolAssets>("preparePrivateSymbolAssets") {
+    sourceAssets.from(privateSymbolAssets)
+    output.set(layout.buildDirectory.dir("generated/privateSymbolAssets"))
 }
 
 android {
@@ -54,6 +83,7 @@ android {
 
 androidComponents.onVariants { variant ->
     variant.sources.kotlin?.addStaticSourceDirectory(rootProject.file("sfcompose/renderer").absolutePath)
+    variant.sources.assets?.addGeneratedSourceDirectory(preparePrivateSymbolAssets, PreparePrivateSymbolAssets::output)
 }
 
 dependencies {

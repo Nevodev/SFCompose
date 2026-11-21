@@ -23,14 +23,19 @@ abstract class GeneratePrivateBuildCatalog @Inject constructor(private val exec:
 }
 
 val generated = layout.buildDirectory.dir("generated/buildCatalog")
+val privateAssets = providers.gradleProperty("sfcomposePrivateAssets")
+    .orElse(rootProject.layout.buildDirectory.dir("private-assets").map { it.asFile.absolutePath })
+    .map { rootProject.layout.projectDirectory.dir(it) }
+val browserAssets = configurations.create("sfcomposeBrowserAssets") {
+    isCanBeConsumed = true
+    isCanBeResolved = false
+}
+artifacts.add(browserAssets.name, privateAssets) { type = "directory" }
 val generateBuildCatalog = tasks.register<GeneratePrivateBuildCatalog>("generateBuildCatalog") {
     scripts.from(rootProject.file("sfcompose-catalog/generate_build_catalog.py"),
         rootProject.file("sfcompose-catalog/generate_symbols.py"),
         rootProject.file("shrink-prototype/generate_weight_packs.py"))
-    val assetPath = providers.gradleProperty("sfcomposePrivateAssets")
-        .orElse(rootProject.layout.buildDirectory.dir("private-assets").map { it.asFile.absolutePath })
-    val rootDirectory = rootProject.layout.projectDirectory
-    assets.set(assetPath.map { rootDirectory.dir(it) })
+    assets.set(privateAssets)
     python.set(providers.gradleProperty("sfcomposePython").orElse("python"))
     names.set(providers.gradleProperty("sfcomposePrivateCatalog").orElse(""))
     output.set(generated)

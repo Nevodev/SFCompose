@@ -49,11 +49,19 @@ internal class SymbolBrowserCatalog(val categories: List<BrowserCategory>, val s
     }
 
     companion object {
-        suspend fun load(assets: AssetManager): SymbolBrowserCatalog = withContext(Dispatchers.IO) {
+        suspend fun load(assets: AssetManager, privateNames: List<String> = emptyList()): SymbolBrowserCatalog = withContext(Dispatchers.IO) {
             val text = assets.open("symbols/browser-catalog.json.sfgz").use { stream ->
                 GZIPInputStream(stream).bufferedReader(Charsets.UTF_8).use { it.readText() }
             }
-            parse(JSONObject(text))
+            val catalog = parse(JSONObject(text))
+            if (privateNames.isEmpty()) catalog else {
+                val publicNames = catalog.symbols.mapTo(HashSet()) { it.name }
+                require(privateNames.none(publicNames::contains)) { "Catalog names overlap" }
+                SymbolBrowserCatalog(
+                    catalog.categories + BrowserCategory("private", "lock", mapOf("en" to "Private", "zh-Hans" to "私有符号")),
+                    catalog.symbols + privateNames.map { BrowserSymbol(it, setOf("private"), emptyList(), listOf("private", "私有")) },
+                )
+            }
         }
 
         internal fun parse(data: JSONObject): SymbolBrowserCatalog {

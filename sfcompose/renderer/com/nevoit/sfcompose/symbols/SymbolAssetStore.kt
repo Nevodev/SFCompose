@@ -209,6 +209,9 @@ class SymbolAssetStore private constructor(
     companion object {
         private var applicationStore: SymbolAssetStore? = null
 
+        internal fun fromAssetDirectory(assets: AssetManager, directory: String): SymbolAssetStore =
+            SymbolAssetStore({ assets.open("$directory/$it") }, { assets.list("$directory/$it") })
+
         /**
          * Returns the process-wide store for the application's imported `symbols/` assets.
          *

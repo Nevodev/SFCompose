@@ -7,7 +7,7 @@ import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
-import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -33,7 +33,6 @@ import com.nevoit.sfcompose.symbols.SymbolVariableAnimation
 import kotlinx.coroutines.runBlocking
 import org.robolectric.RuntimeEnvironment
 import org.junit.Assert.assertArrayEquals
-import org.junit.Before
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34])
@@ -42,9 +41,12 @@ class SymbolBrowserVariableDrawTest {
     @get:Rule
     val compose = createAndroidComposeRule<MainActivity>()
 
-    @Before
-    fun openAnimationInspector() {
-        compose.onNodeWithText("动画预览").performClick()
+    private fun openInspector(name: String) {
+        compose.onNodeWithTag("catalog-search").performTextReplacement(name)
+        compose.waitUntil(15_000) {
+            compose.onAllNodesWithTag("glyph-$name", useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty()
+        }
+        compose.onNodeWithTag("symbol-$name").performClick()
     }
 
     @Test
@@ -69,15 +71,13 @@ class SymbolBrowserVariableDrawTest {
 
     @Test
     fun shareplayKeepsItsHierarchyBeforeAndAfterManualDraw() {
-        compose.onAllNodesWithText("Symbol name")[0].performTextReplacement("shareplay")
-        compose.onNodeWithText("显示").performClick()
+        openInspector("shareplay")
         compose.waitUntil(10_000) {
             compose.onAllNodesWithContentDescription("shareplay").fetchSemanticsNodes().size == 4
         }
         fun capture(label: String): Bitmap {
-            compose.onNodeWithTag("symbol-browser").performSemanticsAction(SemanticsActions.ScrollBy) { it(0f, -10_000f) }
             val bitmap = compose.onAllNodesWithContentDescription("shareplay")[SymbolRenderingMode.Hierarchical.ordinal]
-                .performScrollTo().captureToImage().asAndroidBitmap()
+                .captureToImage().asAndroidBitmap()
             val output = File("build/reports/symbols/browser-variable/shareplay-$label.png")
             output.parentFile!!.mkdirs()
             output.outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
@@ -88,18 +88,21 @@ class SymbolBrowserVariableDrawTest {
         }
         val initial = capture("initial")
         val symbol = runBlocking { SymbolAssetStore(RuntimeEnvironment.getApplication().assets).load("shareplay") }
-        val expected = Bitmap.createBitmap(initial.width, initial.height, Bitmap.Config.ARGB_8888)
-        expected.eraseColor(initial.getPixel(0, 0))
-        AndroidSymbolPainter(symbol).draw(Canvas(expected), initial.width.toFloat(), initial.height.toFloat(),
-            SymbolRenderingMode.Hierarchical, 0xff6254e8.toInt(), 0xfffa9d31.toInt(), 0xff33b899.toInt(),
-            false, SymbolEffect.None, 0f)
-        assertArrayEquals("Default preview must preserve the source secondary layers", pixels(expected), pixels(initial))
+        val expected = reference(initial) { canvas, width, height ->
+            AndroidSymbolPainter(symbol).draw(canvas, width, height,
+                SymbolRenderingMode.Hierarchical, 0xff6254e8.toInt(), 0xfffa9d31.toInt(), 0xff33b899.toInt(),
+                false, SymbolEffect.None, 0f)
+        }
+        assertMatchesPainter("Default preview must preserve the source secondary layers", expected, initial)
+        selectTab(3)
         compose.onNodeWithText("Draw 进度").performScrollTo().performClick()
         compose.onNodeWithTag("variable-value").performScrollTo()
             .performSemanticsAction(SemanticsActions.SetProgress) { it(1f) }
         assertArrayEquals("Completed Draw must retain static hierarchy", pixels(initial), pixels(capture("draw-full")))
+        selectTab(2)
         compose.onNodeWithText("静态").performScrollTo().performClick()
         assertArrayEquals("Returning to static must retain hierarchy", pixels(initial), pixels(capture("static-again")))
+        selectTab(3)
         compose.onNodeWithTag("variable-color").performScrollTo().performClick()
         assertTrue("Explicit variable color must still activate the secondary layers",
             !pixels(initial).contentEquals(pixels(capture("variable-color"))))
@@ -111,8 +114,7 @@ class SymbolBrowserVariableDrawTest {
     fun continuousWeightSliderRendersPositionsBetweenNamedWeights() {
         val store = SymbolAssetStore(RuntimeEnvironment.getApplication().assets)
         val catalog = runBlocking { store.catalog() }
-        compose.onAllNodesWithText("Symbol name")[0].performTextReplacement("person.fill")
-        compose.onNodeWithText("显示").performClick()
+        openInspector("person.fill")
         compose.waitUntil(10_000) {
             compose.onAllNodesWithContentDescription("person.fill").fetchSemanticsNodes().size == 4
         }
@@ -124,7 +126,6 @@ class SymbolBrowserVariableDrawTest {
             val symbol = runBlocking { store.load("person.fill", weightPosition = position) }
             compose.onNodeWithTag("weight-position").performScrollTo()
                 .performSemanticsAction(SemanticsActions.SetProgress) { it(position) }
-            compose.onNodeWithTag("symbol-browser").performSemanticsAction(SemanticsActions.ScrollBy) { it(0f, -10_000f) }
             var rendered = IntArray(0)
             var maxChannelDifference = 0
             try {
@@ -171,78 +172,73 @@ class SymbolBrowserVariableDrawTest {
 
     @Test
     fun choosingDrawStartsAtZeroWithoutReusingThePreviousClock() {
-        compose.onAllNodesWithText("Symbol name")[0].performTextReplacement("cellularbars")
-        compose.onNodeWithText("显示").performClick()
+        openInspector("cellularbars")
         compose.waitUntil(10_000) {
             compose.onAllNodesWithContentDescription("cellularbars").fetchSemanticsNodes().size == 4
         }
+        selectTab(2)
         for (effect in listOf("Draw On", "Draw Off", "Draw On")) {
-            compose.onNodeWithTag("animation-time").performScrollTo()
+            compose.onNodeWithTag("animation-time")
                 .performSemanticsAction(SemanticsActions.SetProgress) { it(5f) }
             compose.onNodeWithText(effect).performScrollTo().performClick()
-            compose.onNodeWithTag("symbol-browser").performSemanticsAction(SemanticsActions.ScrollBy) { it(0f, -10_000f) }
             val actual = compose.onAllNodesWithContentDescription("cellularbars")[0].captureToImage().asAndroidBitmap()
             val symbol = runBlocking { SymbolAssetStore(RuntimeEnvironment.getApplication().assets).load("cellularbars") }
-            val expected = Bitmap.createBitmap(actual.width, actual.height, Bitmap.Config.ARGB_8888)
-            expected.eraseColor(actual.getPixel(0, 0))
-            AndroidSymbolPainter(symbol).draw(Canvas(expected), actual.width.toFloat(), actual.height.toFloat(),
-                SymbolRenderingMode.Monochrome, 0xff6254e8.toInt(), 0xfffa9d31.toInt(), 0xff33b899.toInt(), false,
-                SymbolEffect.None, 0f, variableValue = 1f,
-                drawEffect = if (effect == "Draw On") com.nevoit.sfcompose.symbols.SymbolDrawEffect.On
-                    else com.nevoit.sfcompose.symbols.SymbolDrawEffect.Off)
-            val first = IntArray(actual.width * actual.height)
-            val second = IntArray(first.size)
-            actual.getPixels(first, 0, actual.width, 0, 0, actual.width, actual.height)
-            expected.getPixels(second, 0, expected.width, 0, 0, expected.width, expected.height)
-            assertArrayEquals("$effect kept a previous elapsed time", second, first)
+            val expected = reference(actual) { canvas, width, height ->
+                AndroidSymbolPainter(symbol).draw(canvas, width, height,
+                    SymbolRenderingMode.Monochrome, 0xff6254e8.toInt(), 0xfffa9d31.toInt(), 0xff33b899.toInt(), false,
+                    SymbolEffect.None, 0f, variableValue = 1f,
+                    drawEffect = if (effect == "Draw On") com.nevoit.sfcompose.symbols.SymbolDrawEffect.On
+                        else com.nevoit.sfcompose.symbols.SymbolDrawEffect.Off)
+            }
+            assertMatchesPainter("$effect kept a previous elapsed time", expected, actual)
         }
     }
 
     @Test
     fun bouncingContinuousPreviewDoesNotWrapBackToTheFirstGroupAtTheTurn() {
-        compose.onAllNodesWithText("Symbol name")[0].performTextReplacement("cellularbars")
-        compose.onNodeWithText("显示").performClick()
+        openInspector("cellularbars")
         compose.waitUntil(10_000) {
             compose.onAllNodesWithContentDescription("cellularbars").fetchSemanticsNodes().size == 4
         }
-        compose.onNodeWithText("暂停").performScrollTo().performClick()
-        for (label in listOf("变量动画", "依次", "往返", "循环")) {
+        compose.onNodeWithText("暂停").performClick()
+        selectTab(3)
+        for (label in listOf("变量动画", "依次", "往返")) {
             compose.onNodeWithText(label).performScrollTo().performClick()
         }
+        selectTab(2)
+        compose.onNodeWithText("循环").performScrollTo().performClick()
         val symbol = runBlocking { SymbolAssetStore(RuntimeEnvironment.getApplication().assets).load("cellularbars") }
         for (time in listOf(1.5833334f, 2.4166667f, 4.0833335f)) {
-            compose.onNodeWithTag("animation-time").performScrollTo()
+            compose.onNodeWithTag("animation-time")
                 .performSemanticsAction(SemanticsActions.SetProgress) { it(time) }
-            compose.onNodeWithTag("symbol-browser").performSemanticsAction(SemanticsActions.ScrollBy) { it(0f, -10_000f) }
             val actual = compose.onAllNodesWithContentDescription("cellularbars")[0].captureToImage().asAndroidBitmap()
-            val expected = Bitmap.createBitmap(actual.width, actual.height, Bitmap.Config.ARGB_8888)
-            expected.eraseColor(actual.getPixel(0, 0))
-            AndroidSymbolPainter(symbol).draw(Canvas(expected), actual.width.toFloat(), actual.height.toFloat(),
-                SymbolRenderingMode.Monochrome, 0xff6254e8.toInt(), 0xfffa9d31.toInt(), 0xff33b899.toInt(),
-                false, SymbolEffect.None, time, variableValue = 1f, playback = SymbolEffectPlayback.Continuous,
-                variableAnimation = SymbolVariableAnimation(iterative = true, bounces = true, willLoop = false))
-            fun pixels(bitmap: Bitmap) = IntArray(bitmap.width * bitmap.height).also {
-                bitmap.getPixels(it, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
+            val expected = reference(actual) { canvas, width, height ->
+                AndroidSymbolPainter(symbol).draw(canvas, width, height,
+                    SymbolRenderingMode.Monochrome, 0xff6254e8.toInt(), 0xfffa9d31.toInt(), 0xff33b899.toInt(),
+                    false, SymbolEffect.None, time, variableValue = 1f, playback = SymbolEffectPlayback.Continuous,
+                    variableAnimation = SymbolVariableAnimation(iterative = true, bounces = true, willLoop = false))
             }
-            assertArrayEquals("Looping bounce inserts a virtual first layer at $time", pixels(expected), pixels(actual))
+            assertMatchesPainter("Looping bounce inserts a virtual first layer at $time", expected, actual)
         }
     }
 
     private fun assertSliderChangesPixels(name: String, control: String, automaticDraw: Boolean = false) {
-        compose.onAllNodesWithText("Symbol name")[0].performTextReplacement(name)
-        compose.onNodeWithText("显示").performClick()
+        openInspector(name)
         compose.waitUntil(10_000) {
             compose.onAllNodesWithContentDescription(name).fetchSemanticsNodes().size == 4
         }
-        if (automaticDraw) compose.onNodeWithText("Draw Off").performScrollTo().performClick()
+        if (automaticDraw) {
+            selectTab(2)
+            compose.onNodeWithText("Draw Off").performScrollTo().performClick()
+        }
+        selectTab(3)
         compose.onNodeWithText(control).performScrollTo().performClick()
         if (control == "Draw 进度") {
             compose.onNodeWithText("该符号无原生 Variable Draw 范围；滑块控制 Draw On 进度。").assertExists()
         }
         fun pixels(value: Float): IntArray {
             compose.onNodeWithTag("variable-value").performScrollTo().performSemanticsAction(SemanticsActions.SetProgress) { it(value) }
-            compose.onNodeWithTag("symbol-browser").performSemanticsAction(SemanticsActions.ScrollBy) { it(0f, -10_000f) }
-            val preview = compose.onAllNodesWithContentDescription(name)[0].performScrollTo()
+            val preview = compose.onAllNodesWithContentDescription(name)[0]
             compose.waitForIdle()
             val capture = preview.captureToImage()
             val output = File("build/reports/symbols/browser-variable/$name-$automaticDraw-$value.png")
@@ -258,4 +254,37 @@ class SymbolBrowserVariableDrawTest {
         assertFalse("The actual browser ignores intermediate progress", middle.contentEquals(full))
         assertFalse("The actual browser never advances", zero.contentEquals(middle))
     }
+
+    private fun selectTab(index: Int) {
+        compose.onNodeWithTag("inspector-controls-tab-$index").performClick()
+    }
+
+    private fun reference(actual: Bitmap, draw: (Canvas, Float, Float) -> Unit): Bitmap {
+        return Bitmap.createBitmap(actual.width, actual.height, Bitmap.Config.ARGB_8888).apply {
+            eraseColor(actual.getPixel(0, 0))
+            draw(Canvas(this), width.toFloat(), height.toFloat())
+        }
+    }
+
+    private fun assertMatchesPainter(message: String, expected: Bitmap, actual: Bitmap) {
+        // RenderNode replay and direct bitmap drawing round compositing and contour coverage
+        // differently. Allow one channel level in flat interiors and at most one pixel at edges.
+        fun matches(reference: Bitmap, rendered: Bitmap): Boolean {
+            for (y in 0 until reference.height) for (x in 0 until reference.width) {
+                val pixel = rendered.getPixel(x, y)
+                if (pixel == reference.getPixel(x, y)) continue
+                for (shift in 0..24 step 8) {
+                    val values = (maxOf(0, y - 1)..minOf(reference.height - 1, y + 1)).flatMap { row ->
+                        (maxOf(0, x - 1)..minOf(reference.width - 1, x + 1)).map { column ->
+                            reference.getPixel(column, row) ushr shift and 255
+                        }
+                    }
+                    if ((pixel ushr shift and 255) !in (values.min() - 1)..(values.max() + 1)) return false
+                }
+            }
+            return true
+        }
+        assertTrue(message, matches(expected, actual) && matches(actual, expected))
+    }
+
 }

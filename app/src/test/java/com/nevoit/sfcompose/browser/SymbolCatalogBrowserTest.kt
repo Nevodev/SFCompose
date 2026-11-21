@@ -56,7 +56,7 @@ class SymbolCatalogBrowserTest {
         screenshot("search-heart")
         compose.onNodeWithTag("symbol-heart").performClick()
         compose.waitUntil(15_000) { compose.onAllNodesWithContentDescription("heart").fetchSemanticsNodes().size == 4 }
-        compose.onNodeWithText("返回符号库").performScrollTo().performClick()
+        compose.onNodeWithText("返回符号库").performClick()
         compose.onNodeWithTag("catalog-search").assertTextContains("heart")
         compose.onNodeWithTag("category-picker").performClick()
         compose.onNodeWithTag("category-weather").performScrollTo().performClick()
@@ -78,13 +78,13 @@ class SymbolCatalogBrowserTest {
         compose.onNodeWithTag("preview-source").assertTextEquals("A  heart")
         compose.onNodeWithTag("preview-target").assertTextEquals("B  star")
         compose.waitUntil(15_000) { compose.onAllNodesWithContentDescription("heart → star").fetchSemanticsNodes().isNotEmpty() }
-        compose.onNodeWithTag("replace-time").performScrollTo()
+        compose.onNodeWithTag("replace-time")
             .performSemanticsAction(SemanticsActions.SetProgress) { it(.15f) }
         screenshot("replace-heart-star")
         compose.onNodeWithText("交换 A / B").performScrollTo().performClick()
         compose.onNodeWithTag("preview-source").assertTextEquals("A  star")
         compose.onNodeWithTag("preview-target").assertTextEquals("B  heart")
-        compose.onNodeWithText("返回符号库").performScrollTo().performClick()
+        compose.onNodeWithText("返回符号库").performClick()
         compose.onNodeWithTag("replace-source").assertTextEquals("A  star")
         compose.onNodeWithTag("replace-target").assertTextEquals("B  heart")
         compose.onNodeWithText("清空").performClick()
@@ -100,7 +100,7 @@ class SymbolCatalogBrowserTest {
         compose.onNodeWithTag("symbol-star").performClick()
         compose.onNodeWithTag("open-replace").performClick()
         compose.waitUntil(15_000) { compose.onAllNodesWithContentDescription("heart → star").fetchSemanticsNodes().isNotEmpty() }
-        compose.onNodeWithTag("replace-time").performScrollTo()
+        compose.onNodeWithTag("replace-time")
             .performSemanticsAction(SemanticsActions.SetProgress) { it(.12f) }
         compose.onNodeWithTag("replace-interactive").performScrollTo()
         compose.mainClock.autoAdvance = false
@@ -110,7 +110,7 @@ class SymbolCatalogBrowserTest {
         compose.mainClock.autoAdvance = true
         fun pixels(): IntArray {
             val image = compose.onAllNodesWithContentDescription("heart → star")[0]
-                .performScrollTo().captureToImage().asAndroidBitmap()
+                .captureToImage().asAndroidBitmap()
             return IntArray(image.width * image.height).also {
                 image.getPixels(it, 0, image.width, 0, 0, image.width, image.height)
             }
@@ -118,7 +118,6 @@ class SymbolCatalogBrowserTest {
         val before = pixels()
         compose.onNodeWithTag("replace-retarget").performScrollTo().performClick()
         assertArrayEquals("Switching target while paused must preserve the presented image", before, pixels())
-        compose.onNodeWithText("播放").performScrollTo()
         compose.mainClock.autoAdvance = false
         compose.onNodeWithText("播放").performClick()
         compose.mainClock.advanceTimeBy(80)
@@ -136,7 +135,7 @@ class SymbolCatalogBrowserTest {
         compose.onNodeWithTag("symbol-grid").performScrollToIndex(12)
         compose.onNodeWithTag("symbol-$entry").performClick()
         compose.waitUntil(15_000) { compose.onAllNodesWithContentDescription(entry).fetchSemanticsNodes().size == 4 }
-        compose.onNodeWithText("返回符号库").performScrollTo().performClick()
+        compose.onNodeWithText("返回符号库").performClick()
         compose.waitUntil(15_000) { compose.onAllNodesWithTag("symbol-$entry").fetchSemanticsNodes().isNotEmpty() }
     }
 }
