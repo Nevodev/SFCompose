@@ -38,10 +38,15 @@ Run the helper with Python, replacing the paths with your local private files:
 python tools/publish_central.py --settings <settings.xml> --signing-key <private-key.asc> --signing-password-file <passphrase.txt> --local
 ```
 
-This publishes the runtime and Gradle plugin, including its marker, only to
-`build/sfcompose-repository`. Add `--catalog` to also generate and validate the
-full public catalog. It can take longer than runtime compilation. The optional
-private catalog is not included by this helper.
+This publishes the runtime, Gradle plugin and its marker, public catalog, and
+private catalog only to `build/sfcompose-repository`. Catalog generation can take
+longer than runtime compilation and requires the imported source data. Private
+source data defaults to `build/private-assets`; an alternate source can be selected
+with the existing `sfcomposePrivateAssets` Gradle property.
+
+Use `--modules sfcompose sfcompose-gradle-plugin` for a quick runtime/plugin build,
+or `--modules sfcompose-catalog-private` to publish only the private add-on. Without
+`--modules`, all four modules are included.
 
 Publications include source archives, a documentation archive, POM metadata and
 PGP signatures. The documentation archive contains the usage guide and notices;
@@ -51,9 +56,10 @@ The catalog also publishes its separate `build-data` ZIP classifier.
 ## Upload and release
 
 After local validation and public-key distribution, omit `--local` to upload a
-deployment to Central Portal. Add `--catalog` only when that catalog is intended
-for distribution and its original resource terms have been reviewed. The selected
-modules must be published at the same version.
+deployment to Central Portal. Review the original resource terms before including
+either catalog in a distribution. All selected modules use the same version.
+Use `--modules` when adding a missing module so already validated deployments are
+not uploaded again.
 
 The upload uses manual release. Inspect the deployment validation results at
 <https://central.sonatype.com/publishing/deployments> and click **Publish** when

@@ -9,6 +9,7 @@ import xml.etree.ElementTree as ET
 
 
 REPOSITORY = Path(__file__).resolve().parents[1]
+MODULES = ('sfcompose', 'sfcompose-gradle-plugin', 'sfcompose-catalog', 'sfcompose-catalog-private')
 
 
 def read_credentials(path, server_id=None):
@@ -36,7 +37,8 @@ def main():
     parser.add_argument('--signing-key', type=Path, required=True, help='ASCII-armored private signing key outside the repository')
     parser.add_argument('--signing-password-file', type=Path, help='UTF-8 key passphrase file outside the repository')
     parser.add_argument('--local', action='store_true', help='Publish only to build/sfcompose-repository; no upload')
-    parser.add_argument('--catalog', action='store_true', help='Include the public catalog and its build-data ZIP')
+    parser.add_argument('--modules', nargs='+', choices=MODULES, default=MODULES,
+                        help='Modules to publish; defaults to the runtime, plugin and both catalogs')
     args = parser.parse_args()
 
     username, password = read_credentials(args.settings, args.server_id)
@@ -50,9 +52,7 @@ def main():
     if args.signing_password_file:
         environment['ORG_GRADLE_PROJECT_signingInMemoryKeyPassword'] = args.signing_password_file.read_text(encoding='utf-8').rstrip('\r\n')
 
-    projects = [':sfcompose', ':sfcompose-gradle-plugin']
-    if args.catalog:
-        projects.append(':sfcompose-catalog')
+    projects = [':' + module for module in args.modules]
     task = 'publishAllPublicationsToSfcomposeLocalRepository' if args.local else 'publishToMavenCentral'
     wrapper = REPOSITORY / ('gradlew.bat' if os.name == 'nt' else 'gradlew')
     command = [str(wrapper), *(project + ':' + task for project in projects),

@@ -1,11 +1,16 @@
 # SFCompose
 
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.nevodev/sfcompose-catalog?label=Maven%20Central)](https://central.sonatype.com/artifact/io.github.nevodev/sfcompose-catalog)
+[![Private catalog](https://img.shields.io/maven-central/v/io.github.nevodev/sfcompose-catalog-private?label=Private%20catalog)](https://central.sonatype.com/artifact/io.github.nevodev/sfcompose-catalog-private)
+[![Code license: Apache-2.0](https://img.shields.io/badge/Code%20license-Apache--2.0-blue.svg)](LICENSE)
+
 SFCompose brings SF Symbols to Android Jetpack Compose.
 Display static and animated symbols with configurable weights, optical scales, colors and replacement transitions.
 
 ## Installation
 
-> The first Maven Central release is being prepared. Use the following setup after that release is available.
+SFCompose is available on [Maven Central](https://central.sonatype.com/artifact/io.github.nevodev/sfcompose-catalog).
+Use the version shown in the Maven Central badge above; no repository credentials are required.
 
 Add Maven Central to both plugin and dependency repositories in `settings.gradle.kts`:
 
@@ -26,7 +31,7 @@ dependencyResolutionManagement {
 }
 ```
 
-Add SFCompose to your version catalog, replacing `<release-version>` with the version you want to use:
+Add SFCompose to your version catalog, replacing `<release-version>` with the published version you want to use:
 
 ```toml
 [versions]
@@ -50,6 +55,9 @@ Consumers of the published artifacts need neither Python nor the original system
 
 The project's Android SDK and dependency versions are listed in the [version catalog](gradle/libs.versions.toml).
 For an existing explicit catalog dependency, set `sfcompose { automaticDependency.set(false) }` to avoid adding it again.
+
+Private symbol entries are available through the optional `sfcompose-catalog-private` add-on.
+See its [setup and `PrivateSFSymbols` examples](sfcompose-catalog-private/README.md) to enable it.
 
 ## Static symbols
 

@@ -47,7 +47,8 @@ class PublishingCredentialsTest(unittest.TestCase):
         password = self.directory / 'password.txt'
         password.write_text('key-secret\n', encoding='utf-8')
         arguments = ['publish_central.py', '--local', '--settings', str(self.settings),
-                     '--signing-key', str(key), '--signing-password-file', str(password)]
+                     '--signing-key', str(key), '--signing-password-file', str(password),
+                     '--modules', 'sfcompose', 'sfcompose-gradle-plugin']
         with patch('sys.argv', arguments), patch('publish_central.subprocess.run') as execute:
             publish_central.main()
         command = execute.call_args.args[0]
@@ -61,6 +62,31 @@ class PublishingCredentialsTest(unittest.TestCase):
         self.assertEqual('key-secret', environment['ORG_GRADLE_PROJECT_signingInMemoryKeyPassword'])
         for secret in ['token-user', 'token-secret', 'key-secret', 'PRIVATE KEY']:
             self.assertFalse(any(secret in argument for argument in command))
+
+    def test_default_publication_includes_private_catalog(self):
+        key = self.directory / 'key.asc'
+        key.write_text('-----BEGIN PGP PRIVATE KEY BLOCK-----\nfixture\n', encoding='utf-8')
+        arguments = ['publish_central.py', '--local', '--settings', str(self.settings), '--signing-key', str(key)]
+        with patch('sys.argv', arguments), patch('publish_central.read_credentials', return_value=('user', 'secret')), \
+                patch('publish_central.subprocess.run') as execute:
+            publish_central.main()
+        command = execute.call_args.args[0]
+        for module in ['sfcompose-catalog', 'sfcompose-catalog-private']:
+            self.assertIn(':' + module + ':publishAllPublicationsToSfcomposeLocalRepository', command)
+
+    def test_private_catalog_can_be_uploaded_without_reuploading_other_modules(self):
+        key = self.directory / 'key.asc'
+        key.write_text('-----BEGIN PGP PRIVATE KEY BLOCK-----\nfixture\n', encoding='utf-8')
+        arguments = ['publish_central.py', '--settings', str(self.settings), '--signing-key', str(key),
+                     '--modules', 'sfcompose-catalog-private']
+        with patch('sys.argv', arguments), patch('publish_central.read_credentials', return_value=('user', 'secret')), \
+                patch('publish_central.subprocess.run') as execute:
+            publish_central.main()
+        command = execute.call_args.args[0]
+        self.assertEqual([':sfcompose-catalog-private:publishToMavenCentral'],
+                         [argument for argument in command if argument.startswith(':')])
+        self.assertIn('-PsfcomposeCentral=true', command)
+        self.assertNotIn('publishAndReleaseToMavenCentral', ' '.join(command))
 
 
 if __name__ == '__main__':

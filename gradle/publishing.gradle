@@ -1,5 +1,20 @@
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
+import org.gradle.plugins.signing.Sign
+import org.gradle.plugins.signing.type.pgp.ArmoredSignatureType
+
+class PublicationSignatureType extends ArmoredSignatureType {
+    private final File directory
+
+    PublicationSignatureType(File directory) {
+        this.directory = directory
+    }
+
+    @Override
+    File fileFor(File toSign) {
+        new File(directory, super.fileFor(toSign).name)
+    }
+}
 
 apply plugin: 'com.vanniktech.maven.publish.base'
 
@@ -21,6 +36,11 @@ mavenPublishing {
         publishToMavenCentral(false)
     }
     if (signingEnabled) signAllPublications()
+}
+
+// Sidecar signatures must not change a catalog generator's declared output directory.
+tasks.withType(Sign).configureEach {
+    signatureType = new PublicationSignatureType(project.layout.buildDirectory.dir("signatures/$name").get().asFile)
 }
 
 def documentationJar = tasks.register('centralDocumentationJar', Jar) {
