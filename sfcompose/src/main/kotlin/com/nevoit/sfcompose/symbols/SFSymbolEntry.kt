@@ -126,9 +126,11 @@ fun AnimatedSFSymbol(
     tertiary: Color = secondary,
     palette: List<Color>? = null,
     gradients: Boolean = false,
+    state: SymbolAnimationState = rememberSymbolAnimationState(),
+    autoPlay: Boolean = true,
 ) {
     PackedAnimatedSFSymbol(symbol.name, symbol.sourceKey, symbol.weight, contentDescription, modifier, pointSize, scale, tint, mode,
-        animation, replayKey, variableValue, variableDrawValue, displayMode, padding, secondary, tertiary, palette, gradients)
+        animation, replayKey, variableValue, variableDrawValue, displayMode, padding, secondary, tertiary, palette, gradients, state, autoPlay)
 }
 
 @Composable
@@ -151,9 +153,11 @@ fun AnimatedSFSymbol(
     tertiary: Color = secondary,
     palette: List<Color>? = null,
     gradients: Boolean = false,
+    state: SymbolAnimationState = rememberSymbolAnimationState(),
+    autoPlay: Boolean = true,
 ) {
     PackedAnimatedSFSymbol(symbol.name, symbol.sourceKey, weight, contentDescription, modifier, pointSize, scale, tint, mode,
-        animation, replayKey, variableValue, variableDrawValue, displayMode, padding, secondary, tertiary, palette, gradients)
+        animation, replayKey, variableValue, variableDrawValue, displayMode, padding, secondary, tertiary, palette, gradients, state, autoPlay)
 }
 
 /** Loads a generated symbol for the lower-level renderer. */
@@ -200,30 +204,50 @@ private fun PackedAnimatedSFSymbol(
     animation: SymbolAnimation, replayKey: Any?, variableValue: (() -> Float)?, variableDrawValue: (() -> Float)?,
     displayMode: SymbolDisplayMode, padding: Dp,
     secondary: Color, tertiary: Color, palette: List<Color>?, gradients: Boolean,
+    state: SymbolAnimationState,
+    autoPlay: Boolean,
 ) {
+    val playRequested = autoPlay || state.hasStarted || state.replayGeneration != 0 ||
+        (state.replayKeyInitialized && state.initialReplayKey != replayKey)
+    SideEffect {
+        if (!state.replayKeyInitialized) {
+            state.initialReplayKey = replayKey
+            state.replayKeyInitialized = true
+        }
+        if (playRequested) state.hasStarted = true
+    }
     val configuration = rememberSymbolResourceConfiguration()
-    val instance = rememberPackedSymbol(name, closure, weight, scale, configuration)
+    val loadKey = listOf(name, closure, weight, scale, configuration)
+    val instance = rememberPackedSymbol(name, closure, weight, scale, configuration,
+        initial = state.loadedSymbol.takeIf { state.loadedKey == loadKey })
+    if (instance != null) SideEffect {
+        state.loadedKey = loadKey
+        state.loadedSymbol = instance
+    }
     if (instance == null) {
         Box(modifier.size(pointSize))
     } else {
         val draw = animation.drawEffect
         var trackedModifier = modifier
         val effectivePointSize = if (draw == null) pointSize.value else {
-            var measuredSlot by remember { mutableStateOf<IntSize?>(null) }
-            trackedModifier = trackedModifier.onSizeChanged { measuredSlot = it }
+            var measuredSlot by remember(state) { mutableStateOf(state.measuredSlot) }
+            trackedModifier = trackedModifier.onSizeChanged { measuredSlot = it; state.measuredSlot = it }
             val inkRatio = remember(instance) { instance.horizontalInkRatio() }
             displayMode.renderPointSize(pointSize, padding, measuredSlot, instance.advance / instance.unitsPerEm, inkRatio)
         }
         val duration = remember(instance, animation, mode, effectivePointSize) {
             animation.duration(instance, mode, effectivePointSize.coerceAtLeast(1f))
         }
-        val clock = rememberSymbolAnimationTime(duration, instance, animation, mode, replayKey,
-            startDelayMillis = animation.startDelayMillis)
+        val clock = if (playRequested) {
+            rememberSymbolAnimationTime(duration, loadKey, animation, mode, effectivePointSize, replayKey,
+                startDelayMillis = animation.startDelayMillis, state = state)
+        } else StationarySymbolClock
         SFSymbol(instance, description, trackedModifier, mode = mode, tint = tint, pointSize = pointSize,
             rightToLeft = configuration.rightToLeft, darkTheme = configuration.darkTheme,
-            effect = animation.effect, drawEffect = draw,
+            effect = if (playRequested) animation.effect else SymbolEffect.None,
+            drawEffect = draw.takeIf { playRequested },
             playback = animation.playback, effectLayerMode = animation.layerMode,
-            effectRepeatCount = animation.repeatCount, variableAnimation = animation.variableColor,
+            effectRepeatCount = animation.repeatCount, variableAnimation = animation.variableColor.takeIf { playRequested },
             drawReversed = animation.drawReversed, drawReversesMotionGroups = animation.drawReversesMotionGroups,
             elapsedSeconds = clock, variableValue = variableValue, variableDrawValue = variableDrawValue,
             displayMode = displayMode, padding = padding,
@@ -337,11 +361,12 @@ private fun SymbolDisplayMode.renderPointSize(
 @Composable
 private fun rememberPackedSymbol(
     name: String, closure: Any, weight: SymbolWeight, scale: SymbolScale, configuration: SymbolResourceConfiguration,
+    initial: SymbolInstance? = null,
 ): SymbolInstance? {
     val resources = LocalResources.current
     val store = remember(resources, closure) { PackedStores.get(resources, closure) }
     return key(store, name, weight, scale, configuration) {
-        val instance by produceState<SymbolInstance?>(null) {
+        val instance by produceState<SymbolInstance?>(initial) {
             value = store.load(name, weight, scale, configuration = configuration)
         }
         instance

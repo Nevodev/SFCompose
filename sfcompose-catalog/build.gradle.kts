@@ -38,13 +38,21 @@ val generateBuildCatalog = tasks.register<GenerateBuildCatalog>("generateBuildCa
 val codegen = configurations.create("codegen") { isCanBeConsumed = false }
 dependencies { add("codegen", project(":sfcompose-codegen")) }
 val catalogJar = layout.buildDirectory.file("generated/thinCatalog/symbols.jar")
+val catalogSources = layout.buildDirectory.dir("generated/thinCatalog/sources")
 val generateCatalogJar = tasks.register<JavaExec>("generateCatalogJar") {
     dependsOn(generateBuildCatalog)
     classpath = codegen
     mainClass.set("com.nevoit.sfcompose.codegen.ThinCatalogGenerator")
     inputs.file(generated.map { it.file("namespaces.tsv") })
     outputs.file(catalogJar)
-    args(generated.get().file("namespaces.tsv").asFile.absolutePath, catalogJar.get().asFile.absolutePath)
+    outputs.dir(catalogSources)
+    args(generated.get().file("namespaces.tsv").asFile.absolutePath, catalogJar.get().asFile.absolutePath,
+        catalogSources.get().asFile.absolutePath)
+}
+val catalogSourcesJar = tasks.register<Jar>("catalogSourcesJar") {
+    dependsOn(generateCatalogJar)
+    archiveClassifier.set("sources")
+    from(catalogSources)
 }
 
 val buildData = configurations.create("sfcomposeBuildData") {
@@ -67,6 +75,7 @@ android {
 afterEvaluate {
     publishing.publications.register<MavenPublication>("release") {
         from(components["release"])
+        artifact(catalogSourcesJar)
         artifact(generated.map { it.file("build-data.zip") }) {
             classifier = "build-data"
             extension = "zip"

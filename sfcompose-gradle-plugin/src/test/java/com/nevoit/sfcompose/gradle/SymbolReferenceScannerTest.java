@@ -32,6 +32,13 @@ public class SymbolReferenceScannerTest {
     private static final String SINK = API + "SFSymbolEntryKt";
     private static final String SYMBOL = "heart.fill";
     private static final String HELPER = "com/nevoit/sfcompose/fixtures/ReferenceHelper";
+    private static final String ROOT = API + "SFSymbols";
+    private static final String HEART = ROOT + "$Heart";
+    private static final String HEART_FILL = HEART + "$Fill";
+    private static final String PERSON = ROOT + "$Person";
+    private static final String PERSON_FILL = PERSON + "$Fill";
+    private static final String SHAPES = ROOT + "$Shapes";
+    private static final String CIRCLE = SHAPES + "$Circle";
 
     @Rule
     public final TemporaryFolder temporary = new TemporaryFolder();
@@ -195,7 +202,46 @@ public class SymbolReferenceScannerTest {
         assertEquals(Set.of(SYMBOL + ":Bold:Animated"), used);
     }
 
+    @Test
+    public void selectsBoldThroughTopLevelObjectChainWithoutParentRegular() throws Exception {
+        Set<String> used = scan(Map.of(HEART_FILL, "heart.fill", PERSON_FILL, "person.fill"),
+                consumer("com/nevoit/sfcompose/fixtures/ObjectChain", method -> {
+                    root(method, "getHeart", HEART);
+                    child(method, HEART, HEART_FILL);
+                    bold(method, HEART_FILL);
+                    sinkRegular(method);
+
+                    root(method, "getPerson", PERSON);
+                    child(method, PERSON, PERSON_FILL);
+                    bold(method, PERSON_FILL);
+                    sinkRegular(method);
+                }));
+
+        assertEquals(Set.of("heart.fill:Bold", "person.fill:Bold"), used);
+    }
+
+    @Test
+    public void followsGroupingObjectAndPlainLeafEntry() throws Exception {
+        Set<String> used = scan(Map.of(HEART_FILL, "heart.fill", CIRCLE, "shape.circle"),
+                consumer("com/nevoit/sfcompose/fixtures/GroupingAndPlain", method -> {
+                    root(method, "getShapes", SHAPES);
+                    method.visitMethodInsn(INVOKEVIRTUAL, SHAPES, "getCircle", "()L" + CIRCLE + ";", false);
+                    bold(method, CIRCLE);
+                    sinkRegular(method);
+
+                    method.visitFieldInsn(GETSTATIC, HEART_FILL, "INSTANCE", "L" + HEART_FILL + ";");
+                    bold(method, HEART_FILL);
+                    sinkRegular(method);
+                }));
+
+        assertEquals(Set.of("shape.circle:Bold", "heart.fill:Bold"), used);
+    }
+
     private Set<String> scan(byte[]... classes) throws Exception {
+        return scan(Map.of(SYMBOL_CLASS, SYMBOL), classes);
+    }
+
+    private Set<String> scan(Map<String, String> namespaces, byte[]... classes) throws Exception {
         File directory = temporary.newFolder();
         for (byte[] bytes : classes) {
             String name = new ClassReader(bytes).getClassName();
@@ -203,7 +249,7 @@ public class SymbolReferenceScannerTest {
             Files.createDirectories(file.getParent());
             Files.write(file, bytes);
         }
-        return new SymbolReferenceScanner(Map.of(SYMBOL_CLASS, SYMBOL)).scan(List.of(), List.of(directory));
+        return new SymbolReferenceScanner(namespaces).scan(List.of(), List.of(directory));
     }
 
     private static byte[] consumer(String name, Consumer<MethodVisitor> body) {
@@ -246,6 +292,19 @@ public class SymbolReferenceScannerTest {
 
     private static void companion(MethodVisitor method) {
         method.visitFieldInsn(GETSTATIC, SYMBOL_CLASS, "Companion", "L" + COMPANION + ";");
+    }
+
+    private static void root(MethodVisitor method, String getter, String namespace) {
+        method.visitFieldInsn(GETSTATIC, ROOT, "INSTANCE", "L" + ROOT + ";");
+        method.visitMethodInsn(INVOKEVIRTUAL, ROOT, getter, "()L" + namespace + ";", false);
+    }
+
+    private static void child(MethodVisitor method, String owner, String child) {
+        method.visitMethodInsn(INVOKEVIRTUAL, owner, "getFill", "()L" + child + ";", false);
+    }
+
+    private static void bold(MethodVisitor method, String owner) {
+        method.visitMethodInsn(INVOKEVIRTUAL, owner, "getBold", "()L" + PACKAGED + ";", false);
     }
 
     private static void weight(MethodVisitor method, String name) {

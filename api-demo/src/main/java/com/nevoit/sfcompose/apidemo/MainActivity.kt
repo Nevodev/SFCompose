@@ -53,6 +53,7 @@ import com.nevoit.sfcompose.symbols.SymbolEffect
 import com.nevoit.sfcompose.symbols.SymbolRenderingMode
 import com.nevoit.sfcompose.symbols.SymbolReplaceDirection
 import com.nevoit.sfcompose.symbols.SymbolScale
+import com.nevoit.sfcompose.symbols.rememberSymbolAnimationState
 import kotlin.math.roundToInt
 
 class MainActivity : ComponentActivity() {
@@ -108,7 +109,7 @@ private fun DemoScreen() {
     var padding by rememberSaveable { mutableIntStateOf(0) }
     var animation by rememberSaveable { mutableStateOf(DemoAnimation.DrawOn) }
     var cellular by rememberSaveable { mutableStateOf(false) }
-    var replay by rememberSaveable { mutableIntStateOf(0) }
+    val animationState = rememberSymbolAnimationState()
     var filled by rememberSaveable { mutableStateOf(false) }
     var direction by rememberSaveable { mutableStateOf(SymbolReplaceDirection.DownUp) }
     var colors by rememberSaveable { mutableStateOf(DemoColors.Monochrome) }
@@ -171,7 +172,7 @@ private fun DemoScreen() {
                                 guide,
                                 pointSize = pointSize.dp, scale = scale, tint = ink,
                                 displayMode = displayMode, padding = padding.dp,
-                                animation = animation.effect, replayKey = replay,
+                                animation = animation.effect, state = animationState,
                                 mode = colors.mode, palette = palette, gradients = colors.gradients,
                             )
                             DemoPage.Replace -> SFSymbolReplace(
@@ -190,7 +191,7 @@ private fun DemoScreen() {
                     DemoPage.Animated -> {
                         Choices(cellular, listOf(false to "AirPlay", true to "蜂窝信号")) { cellular = it }
                         Choices(animation, animations) { animation = it }
-                        FilledTonalButton(onClick = { replay++ }) { Text("重播") }
+                        FilledTonalButton(onClick = { animationState.replay() }) { Text("重播") }
                     }
                     DemoPage.Replace -> {
                         Choices(direction, replaceDirections) { direction = it }

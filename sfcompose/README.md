@@ -63,6 +63,12 @@ deduplicated representation of all weights/scales and compiled Draw data; the
 plugin slices it at build time, without reconstructing Draw at runtime or encoding
 payloads as JVM/Base64 strings. Consumers of the published catalog require no Python.
 
+Namespaces are independent Kotlin objects exposed through properties, so
+`SFSymbols.Heart.Fill.Bold` keeps the same value syntax without making IDE
+completion or navigation expand the whole catalog. Runtime, public catalog and
+private catalog publications include source JARs. Updating from the previous
+nested-class catalog requires recompiling consumers; its JVM entry layout has changed.
+
 The plugin scans app and dependency bytecode before asset merging. It follows
 generated references through locals, fields, helper methods, interfaces, branches
 and common containers. This is conservative: both branches and references in
@@ -102,6 +108,58 @@ time-zero frame for this delay, then plays normally. Changing `replayKey` repeat
 the delay; loop iterations do not. Waiting suspends the animation coroutine
 without running a frame clock. Animation time is read during drawing, so the
 delay and subsequent frame updates do not themselves trigger recomposition.
+
+Set `autoPlay = false` to show the resting symbol initially and play only on an
+explicit trigger. Unlike a delayed Draw On, this keeps the full resting symbol
+visible until triggered, with no playback clock running:
+
+```kotlin
+val animationState = rememberSymbolAnimationState()
+AnimatedSFSymbol(
+    SFSymbols.Shareplay.Medium.Animated,
+    contentDescription = null,
+    state = animationState,
+    autoPlay = false,
+    animation = SymbolAnimation(effect = SymbolEffect.Bounce),
+    modifier = Modifier.clickable { animationState.replay() },
+)
+```
+
+`state.replay()` or changing `replayKey` starts playback, including any configured
+start delay. The flag defaults to `true` and controls the initial trigger only:
+setting it to `false` does not stop a previously triggered animation. Setting it
+to `true` enables playback if it has not started. Without an effect configured,
+the default empty `SymbolAnimation()` remains stationary either way.
+
+To preserve playback when a lazy item leaves composition, create its state in
+the screen above the list and pass it into the icon:
+
+```kotlin
+val headerAnimation = rememberSymbolAnimationState() // Outside LazyColumn/item.
+LazyColumn {
+    item(key = "header") {
+        AnimatedSFSymbol(
+            SFSymbols.Shareplay.Medium.Animated,
+            contentDescription = null,
+            state = headerAnimation,
+            animation = SymbolAnimation(effect = SymbolEffect.Bounce),
+        )
+    }
+}
+```
+
+Leaving composition pauses playback and the start delay; reentry resumes at the
+retained position. Completed playback stays at its final frame. The state also
+retains the last loaded symbol for the same resource request, so reentry can draw
+immediately without an empty loading frame. `headerAnimation.replay()` explicitly
+restarts playback, including the delay; it also works while the icon is absent.
+After playback is triggered, changing the symbol, weight, scale, locale/direction, animation settings, rendering
+mode, effective point size or `replayKey` starts a new playback.
+
+One state belongs to one icon at a time. Without an explicit state, the icon
+creates a local one and keeps the previous replay-on-reentry behavior. The
+remembered state lasts while its owner remains in composition; it does not restore
+playback after process death. Frame updates are still observed only by drawing.
 
 Pass the icon for the current state to `SFSymbolReplace`. The first icon appears
 immediately after loading. Changes to the target animate in either direction.

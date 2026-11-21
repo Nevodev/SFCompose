@@ -33,12 +33,14 @@ import com.nevoit.sfcompose.symbols.SFSymbol
 import com.nevoit.sfcompose.symbols.SFSymbolReplace
 import com.nevoit.sfcompose.symbols.SFSymbols
 import com.nevoit.sfcompose.symbols.SymbolAnimation
+import com.nevoit.sfcompose.symbols.SymbolAnimationState
 import com.nevoit.sfcompose.symbols.SymbolDisplayMode
 import com.nevoit.sfcompose.symbols.SymbolDrawEffect
 import com.nevoit.sfcompose.symbols.SymbolRenderingMode
 import com.nevoit.sfcompose.symbols.SymbolScale
 import com.nevoit.sfcompose.symbols.SymbolWeight
 import com.nevoit.sfcompose.symbols.rememberSFSymbol
+import com.nevoit.sfcompose.symbols.rememberSymbolAnimationState
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -361,5 +363,252 @@ class SymbolEntryComposeTest {
             assertTrue("Replay must have started from an incomplete drawing", !first.sameAs(complete))
             assertEquals("Frame updates must not recompose the caller", baseline, compositions.get())
         }
+    }
+
+    @Test
+    fun completedDrawStaysCompleteAcrossRemovalAndReplaysWhileMounted() {
+        val shown = mutableStateOf(true)
+        val state = AtomicReference<SymbolAnimationState>()
+        val compositions = AtomicInteger()
+        compose.setContent {
+            val animationState = rememberSymbolAnimationState()
+            state.set(animationState)
+            SideEffect { compositions.incrementAndGet() }
+            Column {
+                BasicText("toggle", Modifier.testTag("state-toggle").clickable { shown.value = !shown.value })
+                BasicText("replay", Modifier.testTag("state-replay").clickable { animationState.replay() })
+                if (shown.value) {
+                    // The slot is larger than pointSize so the retained measured slot is part of the playback key.
+                    AnimatedSFSymbol(SFSymbols.Airplay.Audio.Animated, contentDescription = "State AirPlay",
+                        modifier = Modifier.requiredSize(160.dp).background(Color.White).testTag("state-icon"),
+                        pointSize = 80.dp, padding = 8.dp,
+                        animation = SymbolAnimation(drawEffect = SymbolDrawEffect.On), state = animationState)
+                }
+            }
+        }
+        compose.waitUntil(10_000) {
+            compose.onAllNodesWithContentDescription("State AirPlay").fetchSemanticsNodes().isNotEmpty()
+        }
+        compose.mainClock.autoAdvance = false
+        compose.mainClock.advanceTimeBy(4_000)
+        fun image() = compose.onNodeWithTag("state-icon").captureToImage().asAndroidBitmap()
+        val complete = image()
+        val completeTime = state.get().elapsedSeconds
+        assertTrue("The draw should have progressed ($completeTime)", completeTime > 0f)
+
+        compose.onNodeWithTag("state-toggle").performClick()
+        compose.mainClock.advanceTimeBy(48)
+        assertTrue(compose.onAllNodesWithContentDescription("State AirPlay").fetchSemanticsNodes().isEmpty())
+        compose.mainClock.advanceTimeBy(1_000)
+        assertEquals("Hiding must not advance the retained clock", completeTime, state.get().elapsedSeconds, .001f)
+
+        compose.onNodeWithTag("state-toggle").performClick()
+        compose.mainClock.advanceTimeBy(48)
+        assertTrue(compose.onAllNodesWithContentDescription("State AirPlay").fetchSemanticsNodes().isNotEmpty())
+        assertEquals("A finished draw must not restart", completeTime, state.get().elapsedSeconds, .001f)
+        assertTrue("A finished draw must keep its last frame", complete.sameAs(image()))
+
+        compose.onNodeWithTag("state-replay").performClick()
+        compose.mainClock.advanceTimeBy(48)
+        val restarted = state.get().elapsedSeconds
+        assertTrue("Replay must restart the retained state ($restarted/$completeTime)", restarted < completeTime)
+        assertTrue("Replay must begin from an incomplete drawing", !complete.sameAs(image()))
+        val beforeFrames = compositions.get()
+        compose.mainClock.advanceTimeBy(600)
+        assertEquals("Playback frames must not recompose the caller", beforeFrames, compositions.get())
+        compose.mainClock.advanceTimeBy(4_000)
+        assertTrue("Replay must finish on the same pixels", complete.sameAs(image()))
+        assertEquals(completeTime, state.get().elapsedSeconds, .001f)
+    }
+
+    @Test
+    fun hiddenDrawPausesResumesAndReplaysFromZeroWhenAbsent() {
+        val shown = mutableStateOf(true)
+        val state = AtomicReference<SymbolAnimationState>()
+        compose.setContent {
+            val animationState = rememberSymbolAnimationState()
+            state.set(animationState)
+            Column {
+                BasicText("toggle", Modifier.testTag("hidden-toggle").clickable { shown.value = !shown.value })
+                BasicText("replay", Modifier.testTag("hidden-replay").clickable { animationState.replay() })
+                if (shown.value) {
+                    AnimatedSFSymbol(SFSymbols.Airplay.Audio.Animated, contentDescription = "Hidden AirPlay",
+                        modifier = Modifier.requiredSize(160.dp).background(Color.White).testTag("hidden-icon"),
+                        pointSize = 80.dp, padding = 8.dp,
+                        animation = SymbolAnimation(drawEffect = SymbolDrawEffect.On), state = animationState)
+                }
+            }
+        }
+        compose.waitUntil(10_000) {
+            compose.onAllNodesWithContentDescription("Hidden AirPlay").fetchSemanticsNodes().isNotEmpty()
+        }
+        compose.mainClock.autoAdvance = false
+        fun image() = compose.onNodeWithTag("hidden-icon").captureToImage().asAndroidBitmap()
+
+        // Measure this draw's full span, then restart and pause at a fraction of it.
+        compose.mainClock.advanceTimeBy(4_000)
+        val complete = image()
+        val completeTime = state.get().elapsedSeconds
+        assertTrue("The draw should have progressed ($completeTime)", completeTime > 0f)
+        compose.onNodeWithTag("hidden-replay").performClick()
+        compose.mainClock.advanceTimeBy(48)
+        compose.mainClock.advanceTimeBy((completeTime * 250f).toLong())
+
+        compose.onNodeWithTag("hidden-toggle").performClick()
+        compose.mainClock.advanceTimeBy(48)
+        assertTrue(compose.onAllNodesWithContentDescription("Hidden AirPlay").fetchSemanticsNodes().isEmpty())
+        val paused = state.get().elapsedSeconds
+        assertTrue("The draw should be mid-flight ($paused/$completeTime)", paused > 0f && paused < completeTime)
+        compose.mainClock.advanceTimeBy(2_000)
+        assertEquals("Hidden playback must freeze", paused, state.get().elapsedSeconds, .001f)
+
+        compose.onNodeWithTag("hidden-toggle").performClick()
+        compose.mainClock.advanceTimeBy(48)
+        assertTrue(compose.onAllNodesWithContentDescription("Hidden AirPlay").fetchSemanticsNodes().isNotEmpty())
+        compose.mainClock.advanceTimeBy(200)
+        val resumed = state.get().elapsedSeconds
+        assertTrue("Re-entry must continue from the retained time ($resumed/$paused)", resumed > paused)
+
+        compose.mainClock.advanceTimeBy(4_000)
+        assertEquals("The resumed draw should complete", completeTime, state.get().elapsedSeconds, .001f)
+        assertTrue("The resumed draw must settle on its final pixels", complete.sameAs(image()))
+
+        compose.onNodeWithTag("hidden-toggle").performClick()
+        compose.mainClock.advanceTimeBy(48)
+        assertTrue(compose.onAllNodesWithContentDescription("Hidden AirPlay").fetchSemanticsNodes().isEmpty())
+        compose.onNodeWithTag("hidden-replay").performClick()
+        compose.mainClock.advanceTimeBy(48)
+
+        compose.onNodeWithTag("hidden-toggle").performClick()
+        compose.mainClock.advanceTimeBy(48)
+        val restarted = state.get().elapsedSeconds
+        assertTrue("Replay while absent must restart on re-entry ($restarted/$completeTime)", restarted < completeTime)
+        assertTrue("Re-entry after replay must not show the completed frame", !complete.sameAs(image()))
+        compose.mainClock.advanceTimeBy(4_000)
+        assertTrue("The replayed draw must complete again", complete.sameAs(image()))
+    }
+
+    @Test
+    fun autoPlayFalseRestsOnStaticPixelsUntilStateReplay() {
+        val state = AtomicReference<SymbolAnimationState>()
+        val compositions = AtomicInteger()
+        compose.setContent {
+            val animationState = rememberSymbolAnimationState()
+            state.set(animationState)
+            SideEffect { compositions.incrementAndGet() }
+            Column {
+                BasicText("replay", Modifier.testTag("autoplay-replay").clickable { animationState.replay() })
+                val slot = Modifier.requiredSize(96.dp).background(Color.White)
+                SFSymbol(SFSymbols.Airplay.Audio, "AutoPlay static reference",
+                    slot.testTag("autoplay-static"), pointSize = 96.dp)
+                AnimatedSFSymbol(SFSymbols.Airplay.Audio.Animated, contentDescription = "AutoPlay AirPlay",
+                    modifier = slot.testTag("autoplay-icon"), pointSize = 96.dp,
+                    animation = SymbolAnimation(drawEffect = SymbolDrawEffect.Off),
+                    state = animationState, autoPlay = false)
+            }
+        }
+        for (description in listOf("AutoPlay static reference", "AutoPlay AirPlay")) {
+            compose.waitUntil(10_000) { compose.onAllNodesWithContentDescription(description).fetchSemanticsNodes().isNotEmpty() }
+        }
+        compose.mainClock.autoAdvance = false
+        fun image(tag: String) = compose.onNodeWithTag(tag).captureToImage().asAndroidBitmap()
+        fun ink(bitmap: android.graphics.Bitmap): Int = (0 until bitmap.height).sumOf { y ->
+            (0 until bitmap.width).count { x -> bitmap.getPixel(x, y) and 0xff < 128 }
+        }
+
+        compose.mainClock.advanceTimeBy(2_000)
+        val reference = image("autoplay-static")
+        assertTrue("autoPlay=false must rest on the same pixels as the static entry",
+            reference.sameAs(image("autoplay-icon")))
+        assertEquals("A resting symbol must not run a clock", 0f, state.get().elapsedSeconds, .001f)
+        val idleCompositions = compositions.get()
+        compose.mainClock.advanceTimeBy(2_000)
+        assertTrue("Advancing an idle clock must not change the resting pixels",
+            reference.sameAs(image("autoplay-icon")))
+        assertEquals("An idle symbol must not recompose its caller", idleCompositions, compositions.get())
+
+        compose.onNodeWithTag("autoplay-replay").performClick()
+        compose.mainClock.advanceTimeBy(48)
+        compose.mainClock.advanceTimeBy(4_000)
+        val finishedTime = state.get().elapsedSeconds
+        assertTrue("state.replay() must run the clock to completion ($finishedTime)", finishedTime > 0f)
+        val finished = image("autoplay-icon")
+        assertTrue("A triggered draw must leave the resting frame", !reference.sameAs(finished))
+        assertTrue("The Off draw must remove most of the resting ink (${ink(finished)}/${ink(reference)})",
+            ink(finished) < ink(reference) / 2)
+        compose.mainClock.advanceTimeBy(1_000)
+        assertEquals("A completed draw must stop its clock", finishedTime, state.get().elapsedSeconds, .001f)
+    }
+
+    @Test
+    fun replayKeyChangePlaysWhileAutoPlayFalseAndIdleRemovalDoesNotTrigger() {
+        val replay = mutableStateOf(0)
+        val shown = mutableStateOf(true)
+        val state = AtomicReference<SymbolAnimationState>()
+        compose.setContent {
+            val animationState = rememberSymbolAnimationState()
+            state.set(animationState)
+            Column {
+                BasicText(replay.value.toString(), Modifier.testTag("idle-key").clickable { replay.value++ })
+                BasicText("toggle", Modifier.testTag("idle-toggle").clickable { shown.value = !shown.value })
+                val slot = Modifier.requiredSize(96.dp).background(Color.White)
+                SFSymbol(SFSymbols.Airplay.Audio, "Idle static reference",
+                    slot.testTag("idle-static"), pointSize = 96.dp)
+                if (shown.value) {
+                    AnimatedSFSymbol(SFSymbols.Airplay.Audio.Animated, contentDescription = "Idle AirPlay",
+                        modifier = slot.testTag("idle-icon"), pointSize = 96.dp,
+                        animation = SymbolAnimation(drawEffect = SymbolDrawEffect.On, startDelayMillis = 500),
+                        replayKey = replay.value, state = animationState, autoPlay = false)
+                }
+            }
+        }
+        for (description in listOf("Idle static reference", "Idle AirPlay")) {
+            compose.waitUntil(10_000) { compose.onAllNodesWithContentDescription(description).fetchSemanticsNodes().isNotEmpty() }
+        }
+        compose.mainClock.autoAdvance = false
+        fun image(tag: String) = compose.onNodeWithTag(tag).captureToImage().asAndroidBitmap()
+        fun ink(bitmap: android.graphics.Bitmap): Int = (0 until bitmap.height).sumOf { y ->
+            (0 until bitmap.width).count { x -> bitmap.getPixel(x, y) and 0xff < 128 }
+        }
+
+        compose.mainClock.advanceTimeBy(2_000)
+        val reference = image("idle-static")
+        assertTrue("autoPlay=false must still rest on the static pixels", reference.sameAs(image("idle-icon")))
+        assertEquals("An untriggered symbol must not run a clock", 0f, state.get().elapsedSeconds, .001f)
+
+        compose.onNodeWithTag("idle-toggle").performClick()
+        compose.mainClock.advanceTimeBy(48)
+        assertTrue(compose.onAllNodesWithContentDescription("Idle AirPlay").fetchSemanticsNodes().isEmpty())
+        compose.mainClock.advanceTimeBy(1_000)
+        compose.onNodeWithTag("idle-toggle").performClick()
+        compose.mainClock.advanceTimeBy(48)
+        assertTrue(compose.onAllNodesWithContentDescription("Idle AirPlay").fetchSemanticsNodes().isNotEmpty())
+        assertTrue("Reinserting an idle symbol must keep the resting pixels", reference.sameAs(image("idle-icon")))
+        assertEquals("Removal must not trigger the retained idle state", 0f, state.get().elapsedSeconds, .001f)
+
+        compose.onNodeWithTag("idle-key").performClick()
+        compose.mainClock.advanceTimeBy(48)
+        compose.onNodeWithTag("idle-key").assertTextEquals("1")
+        assertEquals("startDelayMillis must hold the trigger", 0f, state.get().elapsedSeconds, .001f)
+        val delayed = image("idle-icon")
+        assertTrue("The replay key must begin from an incomplete drawing", !reference.sameAs(delayed))
+        assertTrue("A held DrawOn frame must have fewer ink pixels than the resting symbol",
+            ink(delayed) < ink(reference))
+
+        compose.mainClock.advanceTimeBy(700)
+        val started = state.get().elapsedSeconds
+        assertTrue("The replay key must start playback ($started)", started > 0f)
+        val early = image("idle-icon")
+        assertTrue("The replay key must draw an incomplete frame", !reference.sameAs(early))
+        assertTrue("The first frames must draw fewer ink pixels than the resting symbol",
+            ink(early) < ink(reference))
+
+        compose.mainClock.advanceTimeBy(4_000)
+        val finishedTime = state.get().elapsedSeconds
+        assertTrue("The triggered draw should run to completion ($finishedTime)", finishedTime > 0f)
+        assertTrue("The finished drawing must cover the resting ink (${ink(image("idle-icon"))}/${ink(reference)})",
+            ink(image("idle-icon")) >= ink(reference) - ink(reference) / 20)
+        compose.mainClock.advanceTimeBy(1_000)
+        assertEquals("A completed draw must stop its clock", finishedTime, state.get().elapsedSeconds, .001f)
     }
 }

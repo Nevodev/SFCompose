@@ -2,9 +2,15 @@ package com.nevoit.sfcompose.symbols
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
+import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.delay
 
 /** Describes what plays when the symbol loads or the [AnimatedSFSymbol] replay key changes. */
@@ -54,20 +60,69 @@ internal fun SymbolAnimation.duration(symbol: SymbolInstance, mode: SymbolRender
 
 internal val StationarySymbolClock: () -> Float = { 0f }
 
+/** Retains one icon's playback while its composable is absent. Hoist outside a lazy item to resume it. */
+@Stable
+class SymbolAnimationState {
+    private var time by mutableFloatStateOf(0f)
+    internal var replayGeneration by mutableIntStateOf(0)
+        private set
+    private var playbackKey: List<Any?>? = null
+    private var remainingDelayNanos = 0L
+    private var attached = false
+    internal var loadedKey: Any? = null
+    internal var loadedSymbol: SymbolInstance? = null
+    internal var measuredSlot: IntSize? = null
+    internal var hasStarted by mutableStateOf(false)
+    internal var initialReplayKey: Any? = null
+    internal var replayKeyInitialized = false
+
+    val elapsedSeconds: Float get() = time
+
+    /** Restarts this state's animation, including its start delay, on the next composition. */
+    fun replay() { replayGeneration++ }
+
+    internal suspend fun play(key: List<Any?>, duration: Float, startDelayMillis: Long) {
+        check(!attached) { "A SymbolAnimationState can only be attached to one AnimatedSFSymbol at a time" }
+        attached = true
+        try {
+            if (playbackKey != key) {
+                playbackKey = key
+                time = 0f
+                remainingDelayNanos = startDelayMillis.coerceAtMost(Long.MAX_VALUE / 1_000_000) * 1_000_000
+            }
+            if (duration <= 0f || time >= duration) return
+            if (remainingDelayNanos > 0L) {
+                val start = System.nanoTime()
+                try {
+                    delay(remainingDelayNanos / 1_000_000 + if (remainingDelayNanos % 1_000_000 > 0) 1 else 0)
+                    remainingDelayNanos = 0L
+                } finally {
+                    remainingDelayNanos = (remainingDelayNanos - (System.nanoTime() - start)).coerceAtLeast(0L)
+                }
+            }
+            val offset = time
+            val start = withFrameNanos { it }
+            do {
+                time = withFrameNanos { (offset + (it - start) / 1_000_000_000f).coerceAtMost(duration) }
+            } while (time < duration)
+        } finally {
+            attached = false
+        }
+    }
+}
+
+@Composable
+fun rememberSymbolAnimationState(): SymbolAnimationState = remember { SymbolAnimationState() }
+
 @Composable
 internal fun rememberSymbolAnimationTime(
     duration: Float, vararg replayKeys: Any?, startDelayMillis: Long = 0,
+    state: SymbolAnimationState = rememberSymbolAnimationState(),
 ): () -> Float {
-    if (duration <= 0f) return StationarySymbolClock
-    val time = remember { mutableFloatStateOf(0f) }
-    LaunchedEffect(duration, startDelayMillis, *replayKeys) {
-        // Reset the state already observed by drawing before suspending for a delayed replay.
-        time.floatValue = 0f
-        delay(startDelayMillis)
-        val start = withFrameNanos { it }
-        do {
-            time.floatValue = withFrameNanos { ((it - start) / 1_000_000_000f).coerceAtMost(duration) }
-        } while (time.floatValue < duration)
+    val generation = state.replayGeneration
+    val key = listOf(duration, startDelayMillis, generation, *replayKeys)
+    LaunchedEffect(state, key) {
+        state.play(key, duration, startDelayMillis)
     }
-    return remember(time) { { time.floatValue } }
+    return remember(state) { { state.elapsedSeconds } }
 }

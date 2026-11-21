@@ -117,7 +117,7 @@ public final class SymbolReferenceScanner {
             Set<String> found = Set.of();
             if (instruction instanceof FieldInsnNode field && field.getOpcode() == Opcodes.GETSTATIC) {
                 String symbol = namespaces.get(field.owner);
-                found = symbol != null && field.name.equals("Companion") ? Set.of(symbol + ":Regular")
+                found = symbol != null && (field.name.equals("Companion") || field.name.equals("INSTANCE")) ? Set.of(symbol + ":Regular")
                         : fields.getOrDefault(field.owner + "#" + field.name, Set.of());
             }
             return tag(value, found);
@@ -158,6 +158,11 @@ public final class SymbolReferenceScanner {
             if (!(instruction instanceof MethodInsnNode call)) return tag(result, all);
             String owner = call.owner.endsWith("$Companion") ? call.owner.substring(0, call.owner.length() - 10) : call.owner;
             String symbol = namespaces.get(owner);
+            Type returned = Type.getReturnType(call.desc);
+            if (returned.getSort() == Type.OBJECT && namespaces.containsKey(returned.getInternalName())) {
+                String selected = namespaces.get(returned.getInternalName());
+                return tag(result, selected == null ? Set.of() : Set.of(selected + ":Regular"));
+            }
             if (symbol != null && call.name.startsWith("get") && WEIGHTS.contains(call.name.substring(3))) {
                 return tag(result, Set.of(symbol + ":" + call.name.substring(3)));
             }

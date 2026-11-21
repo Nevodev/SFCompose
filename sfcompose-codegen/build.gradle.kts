@@ -8,4 +8,5 @@ java {
 dependencies {
     implementation(libs.catalog.kotlin.metadata)
     implementation(libs.catalog.asm)
+    testImplementation(libs.junit)
 }
